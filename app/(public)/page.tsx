@@ -85,7 +85,7 @@ export default function HomePage() {
               </Link>
               <Link
                 href="/about"
-                className="btn-outline border-white text-white bg-white/10 shadow-white/10 hover:bg-white hover:text-black transition duration-200"
+                className="btn-outline border-white bg-white/10 !text-white shadow-white/10 hover:bg-white/20 !hover:text-white transition duration-200"
               >
                 Our Story
               </Link>
