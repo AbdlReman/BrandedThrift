@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "../globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "Shop the latest collection of premium branded shoes at Branded Thrift.",
 };
 
-export default function RootLayout({
+export default function PublicLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
