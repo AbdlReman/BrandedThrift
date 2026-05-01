@@ -83,7 +83,10 @@ export default function HomePage() {
               <Link href="/shop" className="btn-primary">
                 Shop Now
               </Link>
-              <Link href="/about" className="btn-outline border-white text-white hover:bg-white hover:text-black">
+              <Link
+                href="/about"
+                className="btn-outline border-white text-white bg-white/10 shadow-white/10 hover:bg-white hover:text-black transition duration-200"
+              >
                 Our Story
               </Link>
             </div>
