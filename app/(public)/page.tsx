@@ -54,28 +54,28 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative bg-black text-white overflow-hidden min-h-[90vh] flex items-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800" style={{backgroundImage: 'url(/images/hero.webp)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.7}} />
+      <section className="relative bg-black text-white overflow-hidden min-h-[60vh] flex items-center">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800" style={{backgroundImage: 'url(/images/hero.webp)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.75}} />
 
         {/* Decorative circle */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-gray-800 opacity-30" />
-        <div className="absolute right-20 top-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full border border-gray-700 opacity-20" />
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[420px] h-[420px] rounded-full border border-gray-800 opacity-30" />
+        <div className="absolute right-20 top-1/2 -translate-y-1/2 w-[320px] h-[320px] rounded-full border border-gray-700 opacity-20" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 w-full">
           <div className="max-w-3xl">
             <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-6">
               New Collection — Spring 2025
             </p>
-            <h1 className="hero-text text-white mb-6 animate-fade-in-up">
+            <h1 className="text-white mb-6 animate-fade-in-up text-3xl md:text-4xl font-black leading-snug max-w-xl">
               Move
-              <br />
-              <span className="text-gray-400">Fast.</span>
-              <br />
+        
+              <span className="text-gray-400"> Fast.</span>
+                <br />
               Look
-              <br />
+            
               Good.
             </h1>
-            <p className="text-gray-400 text-lg max-w-md mb-10 leading-relaxed">
+            <p className="text-gray-300 text-sm max-w-md mb-10 leading-relaxed">
               Authentic branded footwear curated from the world&apos;s best labels —
               at prices that make sense.
             </p>
