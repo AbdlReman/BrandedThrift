@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const featuredProducts = [
   {
@@ -9,6 +10,7 @@ const featuredProducts = [
     brand: "PUMA",
     color: "Black / White",
     bg: "bg-gray-100",
+    image: "/images/1.webp",
   },
   {
     id: 2,
@@ -18,6 +20,7 @@ const featuredProducts = [
     brand: "NIKE",
     color: "Red / Black",
     bg: "bg-red-50",
+    image: "/images/2.webp",
   },
   {
     id: 3,
@@ -27,6 +30,7 @@ const featuredProducts = [
     brand: "ADIDAS",
     color: "White / Navy",
     bg: "bg-blue-50",
+    image: "/images/3.webp",
   },
   {
     id: 4,
@@ -36,6 +40,7 @@ const featuredProducts = [
     brand: "NEW BALANCE",
     color: "Grey / Orange",
     bg: "bg-orange-50",
+    image: "/images/01.webp",
   },
 ];
 
@@ -50,7 +55,7 @@ export default function HomePage() {
     <div>
       {/* Hero Section */}
       <section className="relative bg-black text-white overflow-hidden min-h-[90vh] flex items-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800" />
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800" style={{backgroundImage: 'url(/images/hero.webp)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.7}} />
 
         {/* Decorative circle */}
         <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-gray-800 opacity-30" />
@@ -95,17 +100,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Shoe silhouette placeholder */}
-        <div className="hidden lg:flex absolute right-16 top-1/2 -translate-y-1/2 items-center justify-center w-[480px] h-[480px]">
-          <div className="relative w-full h-full flex items-center justify-center">
-            <div className="w-72 h-48 bg-gradient-to-br from-gray-700 to-gray-900 rounded-[60%_40%_60%_40%/50%_60%_40%_50%] shadow-2xl flex items-center justify-center">
-              <span className="text-6xl">👟</span>
-            </div>
-            <div className="absolute bottom-16 left-16 text-xs text-gray-600 uppercase tracking-widest">
-              Branded Thrift
-            </div>
-          </div>
-        </div>
+ 
       </section>
 
       {/* Category Strip */}
@@ -149,7 +144,7 @@ export default function HomePage() {
             <Link key={product.id} href="/shop" className="product-card group cursor-pointer">
               {/* Image placeholder */}
               <div className={`${product.bg} h-64 flex items-center justify-center overflow-hidden mb-4 relative`}>
-                <span className="text-7xl product-img inline-block">👟</span>
+                <Image src={product.image} alt={product.name} fill className="object-cover product-img" />
                 <span className="absolute top-3 left-3 bg-black text-white text-xs font-bold px-2 py-1 uppercase tracking-widest">
                   {product.brand}
                 </span>
@@ -174,7 +169,7 @@ export default function HomePage() {
       </section>
 
       {/* Full-width Banner */}
-      <section className="bg-black text-white py-24 text-center">
+      <section className="bg-black text-white py-24 text-center" style={{backgroundImage: 'url(/images/bg.webp)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
         <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Limited Time</p>
         <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tight mb-6">
           Up to 50% Off
