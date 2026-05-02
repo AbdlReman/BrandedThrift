@@ -11,6 +11,8 @@ export interface IProduct {
   images: string[];
   inStock: boolean;
   slug: string;
+  metaTitle?: string;
+  metaDescription?: string;
   createdAt: string;
   updatedAt: string;
 }

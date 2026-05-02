@@ -25,6 +25,8 @@ const EMPTY = {
   longDescription: "",
   images: [] as string[],
   inStock: true,
+  metaTitle: "",
+  metaDescription: "",
 };
 
 export default function ProductForm({ initialData, mode }: ProductFormProps) {
@@ -42,6 +44,8 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
           longDescription: initialData.longDescription,
           images: initialData.images,
           inStock: initialData.inStock,
+          metaTitle: initialData.metaTitle || "",
+          metaDescription: initialData.metaDescription || "",
         }
       : EMPTY
   );
@@ -221,6 +225,40 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
               value={form.longDescription}
               onChange={(content) => set("longDescription", content)}
             />
+          </div>
+        </div>
+      </div>
+
+      {/* SEO Metadata */}
+      <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
+        <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-5">
+          SEO Metadata
+        </h2>
+        <div className="space-y-5">
+          <div>
+            <label className={labelClass}>Meta Title (optional, max 60 chars)</label>
+            <input
+              type="text"
+              maxLength={60}
+              value={form.metaTitle}
+              onChange={(e) => set("metaTitle", e.target.value)}
+              placeholder="e.g. PUMA Velocity Runner Pro - Best Running Shoes"
+              className={inputClass}
+            />
+            <p className="text-slate-500 text-xs mt-1">{form.metaTitle.length}/60</p>
+          </div>
+
+          <div>
+            <label className={labelClass}>Meta Description (optional, max 160 chars)</label>
+            <textarea
+              rows={3}
+              maxLength={160}
+              value={form.metaDescription}
+              onChange={(e) => set("metaDescription", e.target.value)}
+              placeholder="e.g. Experience ultimate comfort and performance with the PUMA Velocity Runner Pro. Perfect for serious runners."
+              className={`${inputClass} resize-none`}
+            />
+            <p className="text-slate-500 text-xs mt-1">{form.metaDescription.length}/160</p>
           </div>
         </div>
       </div>
