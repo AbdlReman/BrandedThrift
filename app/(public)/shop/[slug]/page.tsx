@@ -34,7 +34,9 @@ export default async function ProductDetailPage({
   for (const color of colors) {
     const key = String(color || "").trim();
     if (!key || variantMap.has(key)) continue;
-    variantMap.set(key, images);
+    const idx = colors.findIndex((c) => String(c).trim() === key);
+    const matchedImage = idx >= 0 ? images[idx] : undefined;
+    variantMap.set(key, matchedImage ? [matchedImage] : images);
   }
 
   if (variantMap.size === 0) {

@@ -26,25 +26,34 @@ function addToCart(product: IProduct, selectedColor: string, selectedImage: stri
 }
 
 export default function ProductDetailClient({ product }: { product: IProduct }) {
-  const [selectedColor, setSelectedColor] = useState(
-    product.colorVariants[0]?.color || product.colors[0] || ""
-  );
+  const variants = useMemo(() => {
+    if (product.colorVariants.length > 0) return product.colorVariants;
+    if (product.colors.length > 0) {
+      return product.colors.map((color) => ({ color, images: product.images }));
+    }
+    return [{ color: "Default", images: product.images }];
+  }, [product.colorVariants, product.colors, product.images]);
+
+  const [selectedColor, setSelectedColor] = useState(variants[0]?.color || "Default");
+  const allImages = useMemo(() => {
+    const fromVariants = variants.flatMap((variant) => variant.images || []);
+    const merged = [...fromVariants, ...product.images].filter(Boolean);
+    return Array.from(new Set(merged));
+  }, [variants, product.images]);
+
   const activeVariant = useMemo(
-    () =>
-      product.colorVariants.find((variant) => variant.color === selectedColor) ||
-      product.colorVariants[0],
-    [product.colorVariants, selectedColor]
+    () => variants.find((variant) => variant.color === selectedColor) || variants[0],
+    [variants, selectedColor]
   );
-  const images = activeVariant?.images?.length ? activeVariant.images : product.images;
-  const [selectedImage, setSelectedImage] = useState(images[0] || "");
-  const mainImage = selectedImage || images[0] || "";
+  const colorImages = activeVariant?.images?.length ? activeVariant.images : product.images;
+  const [selectedImage, setSelectedImage] = useState(colorImages[0] || allImages[0] || "");
+  const mainImage = selectedImage || colorImages[0] || allImages[0] || "";
 
   const handleColorChange = (color: string) => {
     setSelectedColor(color);
-    const nextVariant =
-      product.colorVariants.find((variant) => variant.color === color) || product.colorVariants[0];
+    const nextVariant = variants.find((variant) => variant.color === color) || variants[0];
     const nextImages = nextVariant?.images?.length ? nextVariant.images : product.images;
-    setSelectedImage(nextImages[0] || "");
+    setSelectedImage(nextImages[0] || allImages[0] || "");
   };
 
   return (
@@ -56,7 +65,7 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
             <img src={mainImage} alt={product.name} className="h-full w-full object-cover" />
           </div>
           <div className="grid grid-cols-4 gap-3 mt-3">
-            {images.map((image, idx) => (
+            {allImages.map((image, idx) => (
               <button
                 key={`${image}-${idx}`}
                 type="button"
@@ -83,9 +92,10 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
           <div className="mt-6">
             <p className="text-xs font-bold uppercase tracking-widest mb-3">Colors</p>
             <div className="flex flex-wrap gap-2">
-              {product.colorVariants.map((variant) => (
+              {variants.map((variant) => (
                 <button
                   key={`${product._id}-${variant.color}`}
+                  type="button"
                   onClick={() => handleColorChange(variant.color)}
                   className={`text-xs px-3 py-2 border font-semibold ${
                     selectedColor === variant.color
