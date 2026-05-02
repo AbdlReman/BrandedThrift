@@ -5,32 +5,37 @@ import { useRouter } from "next/navigation";
 import ImageUploader from "./ImageUploader";
 import type { IProduct } from "@/types/product";
 
-const BRANDS = ["PUMA", "NIKE", "ADIDAS", "NEW BALANCE", "REEBOK"];
-const CATEGORIES = ["Running", "Lifestyle", "Training", "Casual", "Sports"];
-
 interface ProductFormProps {
   initialData?: IProduct;
   mode: "create" | "edit";
+  brandOptions: string[];
+  categoryOptions: string[];
 }
 
-const EMPTY = {
-  name: "",
-  brand: "PUMA",
-  category: "Running",
-  price: "" as unknown as number,
-  description: "",
-  sizesInput: "",
-  colorsInput: "",
-  stockQuantity: 0,
-  images: [] as string[],
-  discount: 0,
-  metaTitle: "",
-  metaDescription: "",
-  isActive: true,
-};
-
-export default function ProductForm({ initialData, mode }: ProductFormProps) {
+export default function ProductForm({
+  initialData,
+  mode,
+  brandOptions,
+  categoryOptions,
+}: ProductFormProps) {
   const router = useRouter();
+  const fallbackBrand = brandOptions[0] || "PUMA";
+  const fallbackCategory = categoryOptions[0] || "Running";
+  const emptyForm = {
+    name: "",
+    brand: fallbackBrand,
+    category: fallbackCategory,
+    price: "" as unknown as number,
+    description: "",
+    sizesInput: "",
+    colorsInput: "",
+    stockQuantity: 0,
+    images: [] as string[],
+    discount: 0,
+    metaTitle: "",
+    metaDescription: "",
+    isActive: true,
+  };
   const [form, setForm] = useState(
     initialData
       ? {
@@ -48,7 +53,7 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
           metaDescription: initialData.metaDescription,
           isActive: initialData.isActive,
         }
-      : EMPTY
+      : emptyForm
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -125,7 +130,7 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
               className={inputClass}
               required
             >
-              {BRANDS.map((b) => <option key={b}>{b}</option>)}
+              {brandOptions.map((b) => <option key={b}>{b}</option>)}
             </select>
           </div>
 
@@ -137,7 +142,7 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
               className={inputClass}
               required
             >
-              {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+              {categoryOptions.map((c) => <option key={c}>{c}</option>)}
             </select>
           </div>
 

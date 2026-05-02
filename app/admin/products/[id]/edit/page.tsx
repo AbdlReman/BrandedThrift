@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
+import Brand from "@/models/Brand";
+import Category from "@/models/Category";
 import ProductForm from "../../../_components/ProductForm";
 import type { IProduct } from "@/types/product";
 
@@ -16,8 +18,30 @@ export default async function EditProductPage({
   const { id } = await params;
 
   await connectDB();
-  const raw = await Product.findById(id).lean();
+  const [raw, brandsRaw, categoriesRaw] = await Promise.all([
+    Product.findById(id).lean(),
+    Brand.find({ isActive: true }).sort({ name: 1 }).lean(),
+    Category.find({ isActive: true }).sort({ name: 1 }).lean(),
+  ]);
   if (!raw) notFound();
+  const brandOptions = Array.from(
+    new Set(
+      (brandsRaw as Record<string, unknown>[])
+        .map((b) => String(b.name || ""))
+        .filter(Boolean)
+        .concat(String((raw as Record<string, unknown>).brand || ""))
+    )
+  );
+  const categoryOptions = Array.from(
+    new Set(
+      (categoriesRaw as Record<string, unknown>[])
+        .map((c) => String(c.name || ""))
+        .filter(Boolean)
+        .concat(String((raw as Record<string, unknown>).category || ""))
+    )
+  );
+  const finalBrandOptions = brandOptions.length > 0 ? brandOptions : ["PUMA"];
+  const finalCategoryOptions = categoryOptions.length > 0 ? categoryOptions : ["Running"];
 
   const p = raw as Record<string, unknown>;
   const product: IProduct = {
@@ -59,7 +83,12 @@ export default async function EditProductPage({
         <p className="text-slate-400 text-sm mt-1 truncate">{product.name}</p>
       </div>
 
-      <ProductForm mode="edit" initialData={product} />
+      <ProductForm
+        mode="edit"
+        initialData={product}
+        brandOptions={finalBrandOptions}
+        categoryOptions={finalCategoryOptions}
+      />
     </div>
   );
 }
