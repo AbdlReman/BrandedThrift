@@ -36,7 +36,16 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
     [product.colorVariants, selectedColor]
   );
   const images = activeVariant?.images?.length ? activeVariant.images : product.images;
-  const mainImage = images[0] || "";
+  const [selectedImage, setSelectedImage] = useState(images[0] || "");
+  const mainImage = selectedImage || images[0] || "";
+
+  const handleColorChange = (color: string) => {
+    setSelectedColor(color);
+    const nextVariant =
+      product.colorVariants.find((variant) => variant.color === color) || product.colorVariants[0];
+    const nextImages = nextVariant?.images?.length ? nextVariant.images : product.images;
+    setSelectedImage(nextImages[0] || "");
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -48,10 +57,17 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
           </div>
           <div className="grid grid-cols-4 gap-3 mt-3">
             {images.map((image, idx) => (
-              <div key={`${image}-${idx}`} className="border border-gray-200 bg-gray-100 h-24">
+              <button
+                key={`${image}-${idx}`}
+                type="button"
+                onClick={() => setSelectedImage(image)}
+                className={`border bg-gray-100 h-24 ${
+                  mainImage === image ? "border-black" : "border-gray-200"
+                }`}
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={image} alt={`${product.name}-${idx}`} className="h-full w-full object-cover" />
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -60,7 +76,9 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
           <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">{product.brand}</p>
           <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight">{product.name}</h1>
           <p className="text-2xl font-black mt-4">${product.price.toFixed(2)}</p>
-          <p className="text-gray-600 mt-4 leading-relaxed">{product.description}</p>
+          <p className="text-gray-600 mt-4 leading-relaxed">
+            {product.description || "Premium product with authentic quality and comfort."}
+          </p>
 
           <div className="mt-6">
             <p className="text-xs font-bold uppercase tracking-widest mb-3">Colors</p>
@@ -68,7 +86,7 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
               {product.colorVariants.map((variant) => (
                 <button
                   key={`${product._id}-${variant.color}`}
-                  onClick={() => setSelectedColor(variant.color)}
+                  onClick={() => handleColorChange(variant.color)}
                   className={`text-xs px-3 py-2 border font-semibold ${
                     selectedColor === variant.color
                       ? "bg-black text-white border-black"
@@ -82,7 +100,7 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
           </div>
 
           <button
-            onClick={() => addToCart(product, selectedColor, mainImage)}
+            onClick={() => addToCart(product, selectedColor || "Default", mainImage)}
             className="mt-8 w-full md:w-auto bg-black text-white px-8 py-3 text-sm font-bold uppercase tracking-widest"
           >
             Add to Cart

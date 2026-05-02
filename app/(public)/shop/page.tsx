@@ -11,13 +11,26 @@ export default async function ShopPage() {
   const products: IProduct[] = (raw as Record<string, unknown>[]).map((p) => {
     const images = Array.isArray(p.images) ? (p.images as string[]) : [];
     const colors = Array.isArray(p.colors) ? (p.colors as string[]) : [];
-    const colorVariants = Array.isArray(p.colorVariants)
+    const rawVariants = Array.isArray(p.colorVariants)
       ? (p.colorVariants as { color: string; images: string[] }[])
       : [];
-    const normalizedVariants =
-      colorVariants.length > 0
-        ? colorVariants
-        : [{ color: colors[0] || "Default", images }];
+    const variantMap = new Map<string, string[]>();
+    for (const variant of rawVariants) {
+      const key = String(variant.color || "").trim();
+      if (!key) continue;
+      const variantImages = Array.isArray(variant.images) && variant.images.length > 0 ? variant.images : images;
+      variantMap.set(key, variantImages);
+    }
+    for (const color of colors) {
+      const key = String(color || "").trim();
+      if (!key || variantMap.has(key)) continue;
+      variantMap.set(key, images);
+    }
+    if (variantMap.size === 0) variantMap.set("Default", images);
+    const normalizedVariants = Array.from(variantMap.entries()).map(([color, variantImages]) => ({
+      color,
+      images: variantImages,
+    }));
 
     return {
       _id: String(p._id),
@@ -25,7 +38,7 @@ export default async function ShopPage() {
       brand: String(p.brand || ""),
       category: String(p.category || ""),
       price: Number(p.price || 0),
-      description: String(p.description || ""),
+      description: String(p.description || p.longDescription || p.shortDescription || ""),
       sizes: Array.isArray(p.sizes) ? (p.sizes as string[]) : [],
       colors: normalizedVariants.map((variant) => variant.color),
       colorVariants: normalizedVariants,
