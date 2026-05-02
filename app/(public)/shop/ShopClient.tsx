@@ -34,7 +34,7 @@ function addToCart(product: IProduct, selectedColor?: string, selectedImage?: st
 }
 
 function ProductCard({ product }: { product: IProduct }) {
-  const [selectedColor, setSelectedColor] = useState(product.colorVariants[0]?.color || product.colors[0] || "");
+  const [selectedColor] = useState(product.colorVariants[0]?.color || product.colors[0] || "");
   const activeVariant = product.colorVariants.find((variant) => variant.color === selectedColor) || product.colorVariants[0];
   const mainImage = activeVariant?.images?.[0] || product.images[0] || "";
 
@@ -46,34 +46,12 @@ function ProductCard({ product }: { product: IProduct }) {
           <img src={mainImage} alt={product.name} className="h-full w-full object-cover" />
         </div>
       </Link>
-      <p className="text-xs text-gray-500 uppercase">{product.category}</p>
       <Link href={`/shop/${product.slug}`} className="inline-block">
         <h3 className="font-bold text-sm uppercase tracking-wide hover:opacity-70">{product.name}</h3>
       </Link>
-      <p className="text-xs text-gray-400">{product.brand}</p>
-
-      {product.colorVariants.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-3">
-          {product.colorVariants.map((variant) => (
-            <button
-              key={`${product._id}-${variant.color}`}
-              type="button"
-              onClick={() => setSelectedColor(variant.color)}
-              className={`text-[11px] px-2 py-1 border ${
-                selectedColor === variant.color ? "border-black bg-black text-white" : "border-gray-300"
-              }`}
-            >
-              {variant.color}
-            </button>
-          ))}
-        </div>
-      )}
 
       <div className="flex items-center justify-between mt-3">
         <span className="font-black text-lg">${product.price.toFixed(2)}</span>
-        {product.discount > 0 && (
-          <span className="text-xs bg-red-600 text-white px-2 py-1">-{product.discount}%</span>
-        )}
       </div>
       <button
         onClick={() => addToCart(product, selectedColor, mainImage)}
