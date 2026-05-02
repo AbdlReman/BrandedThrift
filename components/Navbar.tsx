@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const links = [
   { href: "/", label: "Home" },
@@ -13,7 +13,22 @@ const links = [
 export default function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [cartCount] = useState(0);
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const sync = () => {
+      const items = JSON.parse(localStorage.getItem("cart_items") || "[]");
+      const count = items.reduce((sum: number, i: { quantity: number }) => sum + Number(i.quantity || 0), 0);
+      setCartCount(count);
+    };
+    sync();
+    window.addEventListener("cart_updated", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("cart_updated", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
@@ -60,7 +75,7 @@ export default function Navbar() {
             </button>
 
             {/* Cart */}
-            <Link href="/shop" aria-label="Cart" className="relative hover:opacity-60 transition-opacity">
+            <Link href="/cart" aria-label="Cart" className="relative hover:opacity-60 transition-opacity">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
                 <line x1="3" y1="6" x2="21" y2="6" />

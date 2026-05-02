@@ -15,21 +15,27 @@ export default async function ProductsPage() {
   const products: IProduct[] = (raw as Record<string, unknown>[]).map((p) => ({
     _id: String(p._id),
     name: String(p.name),
-    brand: p.brand as IProduct["brand"],
-    category: p.category as IProduct["category"],
+    brand: String(p.brand || ""),
+    category: String(p.category || ""),
     price: Number(p.price),
-    originalPrice: Number(p.originalPrice),
-    color: String(p.color),
-    shortDescription: String(p.shortDescription),
-    longDescription: String(p.longDescription),
+    description: String(p.description || ""),
+    sizes: Array.isArray(p.sizes) ? (p.sizes as string[]) : [],
+    colors: Array.isArray(p.colors) ? (p.colors as string[]) : [],
+    stockQuantity: Number(p.stockQuantity || 0),
     images: (p.images as string[]) || [],
+    discount: Number(p.discount || 0),
     inStock: Boolean(p.inStock),
+    isActive: p.isActive !== false,
+    popularityScore: Number(p.popularityScore || 0),
+    soldCount: Number(p.soldCount || 0),
     slug: String(p.slug || ""),
+    metaTitle: String(p.metaTitle || ""),
+    metaDescription: String(p.metaDescription || ""),
     createdAt: String(p.createdAt),
     updatedAt: String(p.updatedAt),
   }));
 
-  const inStockCount = products.filter((p) => p.inStock).length;
+  const inStockCount = products.filter((p) => p.stockQuantity > 0).length;
 
   return (
     <div>
@@ -64,7 +70,7 @@ export default async function ProductsPage() {
               products.length > 0
                 ? Math.round(
                     products.reduce(
-                      (sum, p) => sum + (1 - p.price / p.originalPrice) * 100,
+                      (sum, p) => sum + p.discount,
                       0
                     ) / products.length
                   ) + "%"

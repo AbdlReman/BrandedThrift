@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "./ImageUploader";
-import RichTextEditor from "./RichTextEditor";
 import type { IProduct } from "@/types/product";
 
-const BRANDS = ["PUMA", "NIKE", "ADIDAS", "NEW BALANCE", "REEBOK"] as const;
-const CATEGORIES = ["Running", "Lifestyle", "Training"] as const;
+const BRANDS = ["PUMA", "NIKE", "ADIDAS", "NEW BALANCE", "REEBOK"];
+const CATEGORIES = ["Running", "Lifestyle", "Training", "Casual", "Sports"];
 
 interface ProductFormProps {
   initialData?: IProduct;
@@ -16,17 +15,18 @@ interface ProductFormProps {
 
 const EMPTY = {
   name: "",
-  brand: "PUMA" as IProduct["brand"],
-  category: "Running" as IProduct["category"],
+  brand: "PUMA",
+  category: "Running",
   price: "" as unknown as number,
-  originalPrice: "" as unknown as number,
-  color: "",
-  shortDescription: "",
-  longDescription: "",
+  description: "",
+  sizesInput: "",
+  colorsInput: "",
+  stockQuantity: 0,
   images: [] as string[],
-  inStock: true,
+  discount: 0,
   metaTitle: "",
   metaDescription: "",
+  isActive: true,
 };
 
 export default function ProductForm({ initialData, mode }: ProductFormProps) {
@@ -38,14 +38,15 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
           brand: initialData.brand,
           category: initialData.category,
           price: initialData.price,
-          originalPrice: initialData.originalPrice,
-          color: initialData.color,
-          shortDescription: initialData.shortDescription,
-          longDescription: initialData.longDescription,
+          description: initialData.description,
+          sizesInput: initialData.sizes.join(", "),
+          colorsInput: initialData.colors.join(", "),
+          stockQuantity: initialData.stockQuantity,
           images: initialData.images,
-          inStock: initialData.inStock,
-          metaTitle: initialData.metaTitle || "",
-          metaDescription: initialData.metaDescription || "",
+          discount: initialData.discount,
+          metaTitle: initialData.metaTitle,
+          metaDescription: initialData.metaDescription,
+          isActive: initialData.isActive,
         }
       : EMPTY
   );
@@ -68,11 +69,16 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
       const url =
         mode === "create" ? "/api/products" : `/api/products/${initialData!._id}`;
       const method = mode === "create" ? "POST" : "PUT";
+      const payload = {
+        ...form,
+        sizes: form.sizesInput.split(",").map((s) => s.trim()).filter(Boolean),
+        colors: form.colorsInput.split(",").map((s) => s.trim()).filter(Boolean),
+      };
 
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -150,51 +156,62 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
           </div>
 
           <div>
-            <label className={labelClass}>Original Price ($) *</label>
+            <label className={labelClass}>Stock Quantity *</label>
             <input
               type="number"
               required
               min="0"
-              step="0.01"
-              value={form.originalPrice}
-              onChange={(e) => set("originalPrice", parseFloat(e.target.value))}
-              placeholder="149.00"
+              value={form.stockQuantity}
+              onChange={(e) => set("stockQuantity", Number(e.target.value || 0))}
               className={inputClass}
             />
           </div>
 
           <div>
-            <label className={labelClass}>Color / Variant *</label>
+            <label className={labelClass}>Discount (%)</label>
             <input
-              type="text"
+              type="number"
+              min="0"
+              max="100"
+              value={form.discount}
+              onChange={(e) => set("discount", Number(e.target.value || 0))}
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Sizes * (comma separated)</label>
+            <input
               required
-              value={form.color}
-              onChange={(e) => set("color", e.target.value)}
-              placeholder="e.g. Black / White"
+              value={form.sizesInput}
+              onChange={(e) => set("sizesInput", e.target.value)}
+              placeholder="7, 8, 9, 10"
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Colors * (comma separated)</label>
+            <input
+              required
+              value={form.colorsInput}
+              onChange={(e) => set("colorsInput", e.target.value)}
+              placeholder="Black, White"
               className={inputClass}
             />
           </div>
 
           <div className="flex items-center gap-3">
-            <label className="text-slate-300 text-xs font-semibold uppercase tracking-widest">
-              In Stock
-            </label>
+            <label className="text-slate-300 text-xs font-semibold uppercase tracking-widest">Active</label>
             <button
               type="button"
-              onClick={() => set("inStock", !form.inStock)}
+              onClick={() => set("isActive", !form.isActive)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                form.inStock ? "bg-indigo-600" : "bg-slate-600"
+                form.isActive ? "bg-indigo-600" : "bg-slate-600"
               }`}
             >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  form.inStock ? "translate-x-6" : "translate-x-1"
-                }`}
-              />
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${form.isActive ? "translate-x-6" : "translate-x-1"}`} />
             </button>
-            <span className={`text-xs font-medium ${form.inStock ? "text-green-400" : "text-slate-500"}`}>
-              {form.inStock ? "In Stock" : "Out of Stock"}
-            </span>
           </div>
         </div>
       </div>
@@ -206,25 +223,17 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
         </h2>
         <div className="space-y-5">
           <div>
-            <label className={labelClass}>Short Description * (plain text, max 500 chars)</label>
+            <label className={labelClass}>Description * (max 1000 chars)</label>
             <textarea
               required
-              rows={3}
-              maxLength={500}
-              value={form.shortDescription}
-              onChange={(e) => set("shortDescription", e.target.value)}
+              rows={5}
+              maxLength={1000}
+              value={form.description}
+              onChange={(e) => set("description", e.target.value)}
               placeholder="Brief product summary shown in listings…"
               className={`${inputClass} resize-none`}
             />
-            <p className="text-slate-500 text-xs mt-1">{form.shortDescription.length}/500</p>
-          </div>
-
-          <div>
-            <label className={labelClass}>Long Description * (rich text)</label>
-            <RichTextEditor
-              value={form.longDescription}
-              onChange={(content) => set("longDescription", content)}
-            />
+            <p className="text-slate-500 text-xs mt-1">{form.description.length}/1000</p>
           </div>
         </div>
       </div>

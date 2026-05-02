@@ -5,11 +5,29 @@ import { usePathname, useRouter } from "next/navigation";
 
 const navLinks = [
   {
+    href: "/admin",
+    label: "Dashboard",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.5h8.25V3H3v10.5Zm0 7.5h8.25v-4.5H3V21Zm9.75 0H21V10.5h-8.25V21Zm0-12H21V3h-8.25v6Z" />
+      </svg>
+    ),
+  },
+  {
     href: "/admin/products",
     label: "Products",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+      </svg>
+    ),
+  },
+  {
+    href: "/admin/orders",
+    label: "Orders",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M6.75 3.75v3m10.5-3v3M5.25 10.5h13.5M6 20.25h12a2.25 2.25 0 0 0 2.25-2.25v-8.25H3.75V18A2.25 2.25 0 0 0 6 20.25Z" />
       </svg>
     ),
   },
@@ -54,6 +72,8 @@ export default function AdminSidebar() {
           const active =
             link.href === "/admin/products"
               ? pathname === "/admin/products" || pathname.startsWith("/admin/products/")
+              : link.href === "/admin"
+              ? pathname === "/admin"
               : pathname === link.href;
           return (
             <Link

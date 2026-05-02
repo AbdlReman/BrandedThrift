@@ -77,7 +77,7 @@ export default function ProductTable({ products }: ProductTableProps) {
                 {/* Name */}
                 <td className="px-4 py-3">
                   <p className="font-medium text-slate-100 max-w-[180px] truncate">{product.name}</p>
-                  <p className="text-slate-500 text-xs">{product.color}</p>
+                  <p className="text-slate-500 text-xs">{product.colors.join(", ")}</p>
                 </td>
 
                 {/* Brand */}
@@ -93,19 +93,19 @@ export default function ProductTable({ products }: ProductTableProps) {
                 {/* Price */}
                 <td className="px-4 py-3">
                   <p className="font-bold text-white">${product.price}</p>
-                  <p className="text-slate-500 text-xs line-through">${product.originalPrice}</p>
+                  <p className="text-slate-500 text-xs">Discount {product.discount}%</p>
                 </td>
 
                 {/* Stock */}
                 <td className="px-4 py-3">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      product.inStock
+                      product.stockQuantity > 0
                         ? "bg-green-900/60 text-green-300"
                         : "bg-red-900/60 text-red-300"
                     }`}
                   >
-                    {product.inStock ? "In Stock" : "Out of Stock"}
+                    {product.stockQuantity > 0 ? `${product.stockQuantity} in stock` : "Out of Stock"}
                   </span>
                 </td>
 

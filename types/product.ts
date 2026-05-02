@@ -1,18 +1,32 @@
 export interface IProduct {
   _id: string;
   name: string;
-  brand: "PUMA" | "NIKE" | "ADIDAS" | "NEW BALANCE" | "REEBOK";
-  category: "Running" | "Lifestyle" | "Training";
+  brand: string;
+  category: string;
   price: number;
-  originalPrice: number;
-  color: string;
-  shortDescription: string;
-  longDescription: string;
+  description: string;
+  sizes: string[];
+  colors: string[];
+  stockQuantity: number;
   images: string[];
+  discount: number;
   inStock: boolean;
+  isActive: boolean;
+  popularityScore: number;
+  soldCount: number;
   slug: string;
-  metaTitle?: string;
-  metaDescription?: string;
+  metaTitle: string;
+  metaDescription: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CartItem {
+  productId: string;
+  name: string;
+  price: number;
+  image: string;
+  size?: string;
+  color?: string;
+  quantity: number;
 }

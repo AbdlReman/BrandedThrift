@@ -25,7 +25,23 @@ export async function PUT(req: NextRequest, { params }: Params) {
     await connectDB();
     const { id } = await params;
     const body = await req.json();
-    const product = await Product.findByIdAndUpdate(id, body, {
+    const payload = {
+      name: body.name,
+      price: Number(body.price || 0),
+      description: body.description || "",
+      category: body.category || "",
+      sizes: Array.isArray(body.sizes) ? body.sizes : [],
+      colors: Array.isArray(body.colors) ? body.colors : [],
+      stockQuantity: Number(body.stockQuantity || 0),
+      images: Array.isArray(body.images) ? body.images : [],
+      brand: body.brand || "",
+      discount: Number(body.discount || 0),
+      metaTitle: body.metaTitle || "",
+      metaDescription: body.metaDescription || "",
+      inStock: Number(body.stockQuantity || 0) > 0,
+      isActive: body.isActive !== false,
+    };
+    const product = await Product.findByIdAndUpdate(id, payload, {
       new: true,
       runValidators: true,
     }).lean();
