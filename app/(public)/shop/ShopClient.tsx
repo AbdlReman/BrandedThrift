@@ -40,12 +40,16 @@ function ProductCard({ product }: { product: IProduct }) {
 
   return (
     <div className="product-card border border-gray-100 p-3">
-      <div className="h-56 bg-gray-100 flex items-center justify-center mb-3">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={mainImage} alt={product.name} className="h-full w-full object-cover" />
-      </div>
+      <Link href={`/shop/${product.slug}`}>
+        <div className="h-56 bg-gray-100 flex items-center justify-center mb-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={mainImage} alt={product.name} className="h-full w-full object-cover" />
+        </div>
+      </Link>
       <p className="text-xs text-gray-500 uppercase">{product.category}</p>
-      <h3 className="font-bold text-sm uppercase tracking-wide">{product.name}</h3>
+      <Link href={`/shop/${product.slug}`} className="inline-block">
+        <h3 className="font-bold text-sm uppercase tracking-wide hover:opacity-70">{product.name}</h3>
+      </Link>
       <p className="text-xs text-gray-400">{product.brand}</p>
 
       {product.colorVariants.length > 0 && (
