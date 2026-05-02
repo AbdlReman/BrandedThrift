@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "./ImageUploader";
-import type { IProduct } from "@/types/product";
+import type { ColorVariant, IProduct } from "@/types/product";
 
 interface ProductFormProps {
   initialData?: IProduct;
@@ -28,9 +28,7 @@ export default function ProductForm({
     price: "" as unknown as number,
     description: "",
     sizesInput: "",
-    colorsInput: "",
     stockQuantity: 0,
-    images: [] as string[],
     discount: 0,
     metaTitle: "",
     metaDescription: "",
@@ -45,15 +43,20 @@ export default function ProductForm({
           price: initialData.price,
           description: initialData.description,
           sizesInput: initialData.sizes.join(", "),
-          colorsInput: initialData.colors.join(", "),
           stockQuantity: initialData.stockQuantity,
-          images: initialData.images,
           discount: initialData.discount,
           metaTitle: initialData.metaTitle,
           metaDescription: initialData.metaDescription,
           isActive: initialData.isActive,
         }
       : emptyForm
+  );
+  const [colorVariants, setColorVariants] = useState<ColorVariant[]>(
+    initialData?.colorVariants?.length
+      ? initialData.colorVariants
+      : initialData?.colors?.length
+      ? [{ color: initialData.colors[0], images: initialData.images || [] }]
+      : [{ color: "", images: [] }]
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -63,8 +66,15 @@ export default function ProductForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.images.length === 0) {
-      setError("Please upload at least one image.");
+    const normalizedColorVariants = colorVariants
+      .map((variant) => ({
+        color: variant.color.trim(),
+        images: variant.images,
+      }))
+      .filter((variant) => variant.color && variant.images.length > 0);
+
+    if (normalizedColorVariants.length === 0) {
+      setError("Please add at least one color with images.");
       return;
     }
     setLoading(true);
@@ -77,7 +87,9 @@ export default function ProductForm({
       const payload = {
         ...form,
         sizes: form.sizesInput.split(",").map((s) => s.trim()).filter(Boolean),
-        colors: form.colorsInput.split(",").map((s) => s.trim()).filter(Boolean),
+        colorVariants: normalizedColorVariants,
+        colors: normalizedColorVariants.map((variant) => variant.color),
+        images: normalizedColorVariants.flatMap((variant) => variant.images),
       };
 
       const res = await fetch(url, {
@@ -101,6 +113,11 @@ export default function ProductForm({
   const inputClass =
     "w-full bg-slate-800 border border-slate-600 text-slate-100 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors placeholder-slate-500";
   const labelClass = "block text-slate-300 text-xs font-semibold uppercase tracking-widest mb-1.5";
+  const updateVariant = (index: number, next: Partial<ColorVariant>) => {
+    setColorVariants((prev) =>
+      prev.map((variant, i) => (i === index ? { ...variant, ...next } : variant))
+    );
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -195,17 +212,6 @@ export default function ProductForm({
             />
           </div>
 
-          <div>
-            <label className={labelClass}>Colors * (comma separated)</label>
-            <input
-              required
-              value={form.colorsInput}
-              onChange={(e) => set("colorsInput", e.target.value)}
-              placeholder="Black, White"
-              className={inputClass}
-            />
-          </div>
-
           <div className="flex items-center gap-3">
             <label className="text-slate-300 text-xs font-semibold uppercase tracking-widest">Active</label>
             <button
@@ -277,15 +283,48 @@ export default function ProductForm({
         </div>
       </div>
 
-      {/* Images */}
+      {/* Color wise images */}
       <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
         <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-5">
-          Product Images
+          Color Variants & Images
         </h2>
-        <ImageUploader
-          initialUrls={initialData?.images}
-          onChange={(urls) => set("images", urls)}
-        />
+        <div className="space-y-6">
+          {colorVariants.map((variant, index) => (
+            <div key={index} className="rounded-lg border border-slate-700 p-4">
+              <div className="flex items-center gap-3 mb-4">
+                <input
+                  type="text"
+                  required
+                  value={variant.color}
+                  onChange={(e) => updateVariant(index, { color: e.target.value })}
+                  placeholder="Color name (e.g. Black)"
+                  className={inputClass}
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setColorVariants((prev) => prev.filter((_, i) => i !== index))
+                  }
+                  disabled={colorVariants.length === 1}
+                  className="text-red-400 text-xs font-medium disabled:opacity-40"
+                >
+                  Remove
+                </button>
+              </div>
+              <ImageUploader
+                initialUrls={variant.images}
+                onChange={(urls) => updateVariant(index, { images: urls })}
+              />
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => setColorVariants((prev) => [...prev, { color: "", images: [] }])}
+            className="text-indigo-400 text-sm font-medium"
+          >
+            + Add another color
+          </button>
+        </div>
       </div>
 
       {/* Error & Submit */}

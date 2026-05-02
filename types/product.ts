@@ -1,3 +1,8 @@
+export interface ColorVariant {
+  color: string;
+  images: string[];
+}
+
 export interface IProduct {
   _id: string;
   name: string;
@@ -7,6 +12,7 @@ export interface IProduct {
   description: string;
   sizes: string[];
   colors: string[];
+  colorVariants: ColorVariant[];
   stockQuantity: number;
   images: string[];
   discount: number;

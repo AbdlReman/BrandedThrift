@@ -4,6 +4,21 @@ import Product from "@/models/Product";
 
 type Params = { params: Promise<{ id: string }> };
 
+function normalizeColorVariants(input: unknown) {
+  if (!Array.isArray(input)) return [];
+  return input
+    .map((variant) => {
+      const v = variant as { color?: unknown; images?: unknown };
+      return {
+        color: String(v.color || "").trim(),
+        images: Array.isArray(v.images)
+          ? v.images.map((img) => String(img)).filter(Boolean)
+          : [],
+      };
+    })
+    .filter((v) => v.color);
+}
+
 export async function GET(_req: NextRequest, { params }: Params) {
   try {
     await connectDB();
@@ -25,15 +40,29 @@ export async function PUT(req: NextRequest, { params }: Params) {
     await connectDB();
     const { id } = await params;
     const body = await req.json();
+    const colorVariants = normalizeColorVariants(body.colorVariants);
+    const colors =
+      colorVariants.length > 0
+        ? colorVariants.map((v) => v.color)
+        : Array.isArray(body.colors)
+        ? body.colors
+        : [];
+    const images =
+      colorVariants.flatMap((v) => v.images).filter(Boolean).length > 0
+        ? colorVariants.flatMap((v) => v.images).filter(Boolean)
+        : Array.isArray(body.images)
+        ? body.images
+        : [];
     const payload = {
       name: body.name,
       price: Number(body.price || 0),
       description: body.description || "",
       category: body.category || "",
       sizes: Array.isArray(body.sizes) ? body.sizes : [],
-      colors: Array.isArray(body.colors) ? body.colors : [],
+      colors,
+      colorVariants,
       stockQuantity: Number(body.stockQuantity || 0),
-      images: Array.isArray(body.images) ? body.images : [],
+      images,
       brand: body.brand || "",
       discount: Number(body.discount || 0),
       metaTitle: body.metaTitle || "",

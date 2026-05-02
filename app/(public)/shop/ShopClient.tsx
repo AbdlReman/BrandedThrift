@@ -11,23 +11,74 @@ const SORTS = [
   { value: "popular", label: "Popular Products" },
 ];
 
-function addToCart(product: IProduct) {
+function addToCart(product: IProduct, selectedColor?: string, selectedImage?: string) {
   const existing = JSON.parse(localStorage.getItem("cart_items") || "[]");
-  const index = existing.findIndex((i: { productId: string }) => i.productId === product._id);
+  const index = existing.findIndex(
+    (i: { productId: string; color?: string }) =>
+      i.productId === product._id && (i.color || "") === (selectedColor || "")
+  );
   if (index >= 0) existing[index].quantity += 1;
   else {
     existing.push({
       productId: product._id,
       name: product.name,
       price: product.price,
-      image: product.images[0] || "",
+      image: selectedImage || product.images[0] || "",
       quantity: 1,
-      color: product.colors[0] || "",
+      color: selectedColor || product.colors[0] || "",
       size: product.sizes[0] || "",
     });
   }
   localStorage.setItem("cart_items", JSON.stringify(existing));
   window.dispatchEvent(new Event("cart_updated"));
+}
+
+function ProductCard({ product }: { product: IProduct }) {
+  const [selectedColor, setSelectedColor] = useState(product.colorVariants[0]?.color || product.colors[0] || "");
+  const activeVariant = product.colorVariants.find((variant) => variant.color === selectedColor) || product.colorVariants[0];
+  const mainImage = activeVariant?.images?.[0] || product.images[0] || "";
+
+  return (
+    <div className="product-card border border-gray-100 p-3">
+      <div className="h-56 bg-gray-100 flex items-center justify-center mb-3">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={mainImage} alt={product.name} className="h-full w-full object-cover" />
+      </div>
+      <p className="text-xs text-gray-500 uppercase">{product.category}</p>
+      <h3 className="font-bold text-sm uppercase tracking-wide">{product.name}</h3>
+      <p className="text-xs text-gray-400">{product.brand}</p>
+
+      {product.colorVariants.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {product.colorVariants.map((variant) => (
+            <button
+              key={`${product._id}-${variant.color}`}
+              type="button"
+              onClick={() => setSelectedColor(variant.color)}
+              className={`text-[11px] px-2 py-1 border ${
+                selectedColor === variant.color ? "border-black bg-black text-white" : "border-gray-300"
+              }`}
+            >
+              {variant.color}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mt-3">
+        <span className="font-black text-lg">${product.price.toFixed(2)}</span>
+        {product.discount > 0 && (
+          <span className="text-xs bg-red-600 text-white px-2 py-1">-{product.discount}%</span>
+        )}
+      </div>
+      <button
+        onClick={() => addToCart(product, selectedColor, mainImage)}
+        className="w-full mt-3 bg-black text-white text-xs font-bold uppercase tracking-widest py-2"
+      >
+        Add to Cart
+      </button>
+    </div>
+  );
 }
 
 export default function ShopClient({ products }: { products: IProduct[] }) {
@@ -91,24 +142,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filtered.map((product) => (
-            <div key={product._id} className="product-card border border-gray-100 p-3">
-              <div className="h-56 bg-gray-100 flex items-center justify-center mb-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={product.images[0] || ""} alt={product.name} className="h-full w-full object-cover" />
-              </div>
-              <p className="text-xs text-gray-500 uppercase">{product.category}</p>
-              <h3 className="font-bold text-sm uppercase tracking-wide">{product.name}</h3>
-              <p className="text-xs text-gray-400">{product.brand}</p>
-              <div className="flex items-center justify-between mt-3">
-                <span className="font-black text-lg">${product.price.toFixed(2)}</span>
-                {product.discount > 0 && (
-                  <span className="text-xs bg-red-600 text-white px-2 py-1">-{product.discount}%</span>
-                )}
-              </div>
-              <button onClick={() => addToCart(product)} className="w-full mt-3 bg-black text-white text-xs font-bold uppercase tracking-widest py-2">
-                Add to Cart
-              </button>
-            </div>
+            <ProductCard key={product._id} product={product} />
           ))}
         </div>
       </div>

@@ -9,6 +9,15 @@ const ProductSchema = new Schema(
     description: { type: String, required: true, maxlength: 1000 },
     sizes: { type: [String], default: [] },
     colors: { type: [String], default: [] },
+    colorVariants: {
+      type: [
+        {
+          color: { type: String, required: true, trim: true },
+          images: { type: [String], default: [] },
+        },
+      ],
+      default: [],
+    },
     stockQuantity: { type: Number, required: true, min: 0, default: 0 },
     images: { type: [String], default: [] },
     discount: { type: Number, min: 0, max: 100, default: 0 },
