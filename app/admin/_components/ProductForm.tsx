@@ -6,6 +6,20 @@ import ImageUploader from "./ImageUploader";
 import RichTextEditor from "./RichTextEditor";
 import type { ColorVariant, IProduct } from "@/types/product";
 
+function newVariantRowKey(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `v-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+}
+
+/** Stable React key per row; must not depend on `color` or inputs remount every keystroke. */
+type ColorVariantRow = ColorVariant & { _key: string };
+
+function withStableRowKeys(variants: ColorVariant[]): ColorVariantRow[] {
+  return variants.map((v) => ({ ...v, _key: newVariantRowKey() }));
+}
+
 function normalizeVariantsFromServer(data: IProduct): ColorVariant[] {
   const raw = data.colorVariants;
   if (Array.isArray(raw) && raw.length > 0) {
@@ -78,8 +92,10 @@ export default function ProductForm({
         }
       : emptyForm
   );
-  const [colorVariants, setColorVariants] = useState<ColorVariant[]>(() =>
-    initialData ? normalizeVariantsFromServer(initialData) : [{ color: "", images: [] }]
+  const [colorVariants, setColorVariants] = useState<ColorVariantRow[]>(() =>
+    initialData
+      ? withStableRowKeys(normalizeVariantsFromServer(initialData))
+      : [{ color: "", images: [], _key: newVariantRowKey() }]
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -89,9 +105,9 @@ export default function ProductForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = colorVariants.map((variant) => ({
-      color: variant.color.trim(),
-      images: variant.images.map(String).filter(Boolean),
+    const trimmed = colorVariants.map(({ color, images }) => ({
+      color: color.trim(),
+      images: images.map(String).filter(Boolean),
     }));
     const missingImages = trimmed.filter((v) => v.color && v.images.length === 0);
     if (missingImages.length > 0) {
@@ -142,7 +158,7 @@ export default function ProductForm({
   const labelClass = "block text-slate-300 text-xs font-semibold uppercase tracking-widest mb-1.5";
   const updateVariant = (index: number, next: Partial<ColorVariant>) => {
     setColorVariants((prev) =>
-      prev.map((variant, i) => (i === index ? { ...variant, ...next } : variant))
+      prev.map((variant, i) => (i === index ? { ...variant, ...next, _key: variant._key } : variant))
     );
   };
 
@@ -325,7 +341,7 @@ export default function ProductForm({
         </h2>
         <div className="space-y-6">
           {colorVariants.map((variant, index) => (
-            <div key={`${index}-${variant.color}`} className="rounded-lg border border-slate-700 p-4">
+            <div key={variant._key} className="rounded-lg border border-slate-700 p-4">
               <div className="flex items-center gap-3 mb-4">
                 <input
                   type="text"
@@ -354,7 +370,9 @@ export default function ProductForm({
           ))}
           <button
             type="button"
-            onClick={() => setColorVariants((prev) => [...prev, { color: "", images: [] }])}
+            onClick={() =>
+              setColorVariants((prev) => [...prev, { color: "", images: [], _key: newVariantRowKey() }])
+            }
             className="text-indigo-400 text-sm font-medium"
           >
             + Add another color
