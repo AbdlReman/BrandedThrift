@@ -32,6 +32,19 @@ const navLinks = [
     ),
   },
   {
+    href: "/admin/coupons",
+    label: "Coupons",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M16.5 6v11.25A2.25 2.25 0 0 1 14.25 19.5H5.25A2.25 2.25 0 0 1 3 17.25V6m13.5 0A2.25 2.25 0 0 0 14.25 3.75h-9A2.25 2.25 0 0 0 3 6m13.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-5.25 3.182a2.25 2.25 0 0 1-2.36 0L3.32 8.159A2.25 2.25 0 0 1 2.25 6.243V6"
+        />
+      </svg>
+    ),
+  },
+  {
     href: "/admin/brands",
     label: "Brands",
     icon: (
@@ -107,6 +120,8 @@ export default function AdminSidebar() {
               ? pathname === "/admin"
               : link.href === "/admin/reviews"
               ? pathname === "/admin/reviews" || pathname.startsWith("/admin/reviews/")
+              : link.href === "/admin/coupons"
+              ? pathname === "/admin/coupons"
               : pathname === link.href;
           return (
             <Link

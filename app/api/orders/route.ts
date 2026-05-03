@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 import Order from "@/models/Order";
+import Coupon from "@/models/Coupon";
+import {
+  computeSubtotalFromOrderItems,
+  discountFromPercent,
+  isCouponUsable,
+} from "@/lib/couponValidation";
 import { sendOrderEmails } from "@/lib/mailer";
 import {
   buildAdminOrderEmailHtml,
@@ -35,7 +41,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const body = await req.json();
-    const { customer, items, subtotal, discountAmount, totalAmount, couponCode } = body;
+    const { customer, items, couponCode } = body;
 
     if (!customer?.name || !customer?.phone || !customer?.email || !customer?.address || !customer?.city) {
       return NextResponse.json({ error: "Missing customer fields" }, { status: 400 });
@@ -45,17 +51,56 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Order items are required" }, { status: 400 });
     }
 
+    const serverSubtotal = computeSubtotalFromOrderItems(items);
+    const codeRaw = String(couponCode || "").trim().toUpperCase();
+    let discountAmount = 0;
+    let couponCodeSaved = "";
+    let couponIdToIncrement: string | null = null;
+
+    if (codeRaw) {
+      const couponDoc = await Coupon.findOne({ code: codeRaw }).lean();
+      if (!couponDoc) {
+        return NextResponse.json({ error: "Invalid coupon code." }, { status: 400 });
+      }
+      const c = couponDoc as Record<string, unknown>;
+      const lean = {
+        _id: c._id,
+        code: String(c.code || ""),
+        discountPercent: Number(c.discountPercent || 0),
+        isActive: Boolean(c.isActive !== false),
+        validFrom: c.validFrom as Date | null,
+        validUntil: c.validUntil as Date | null,
+        maxUses: c.maxUses == null ? null : Number(c.maxUses),
+        usedCount: Number(c.usedCount || 0),
+      };
+      if (!isCouponUsable(lean)) {
+        return NextResponse.json(
+          { error: "This coupon is inactive, expired, or has reached its usage limit." },
+          { status: 400 }
+        );
+      }
+      discountAmount = discountFromPercent(serverSubtotal, lean.discountPercent);
+      couponCodeSaved = lean.code;
+      couponIdToIncrement = String(c._id);
+    }
+
+    const totalAmount = Math.round((serverSubtotal - discountAmount) * 100) / 100;
+
     const order = await Order.create({
       orderNumber: makeOrderNumber(),
       customer,
       items,
-      subtotal: Number(subtotal || 0),
-      discountAmount: Number(discountAmount || 0),
-      totalAmount: Number(totalAmount || 0),
-      couponCode: couponCode || "",
+      subtotal: serverSubtotal,
+      discountAmount,
+      totalAmount,
+      couponCode: couponCodeSaved,
       paymentStatus: "pending",
       orderStatus: "pending",
     });
+
+    if (couponIdToIncrement) {
+      await Coupon.findByIdAndUpdate(couponIdToIncrement, { $inc: { usedCount: 1 } });
+    }
 
     for (const item of items) {
       await Product.findByIdAndUpdate(item.productId, {
@@ -97,10 +142,10 @@ export async function POST(req: NextRequest) {
           image: item.image != null ? String(item.image) : "",
         })
       ),
-      subtotal: Number(subtotal || 0),
-      discountAmount: Number(discountAmount || 0),
-      totalAmount: Number(totalAmount || 0),
-      couponCode: String(couponCode || ""),
+      subtotal: serverSubtotal,
+      discountAmount,
+      totalAmount,
+      couponCode: couponCodeSaved,
     };
 
     const customerHtml = buildCustomerOrderEmailHtml(emailPayload);

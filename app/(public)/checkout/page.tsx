@@ -1,22 +1,28 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { CartItem } from "@/types/product";
+import { discountFromPercent } from "@/lib/couponValidation";
 import { formatPkr } from "@/lib/formatCurrency";
 
-const COUPONS: Record<string, number> = {
-  THRIFT20: 20,
-  SAVE10: 10,
-};
+async function validateCouponCode(code: string) {
+  const res = await fetch("/api/coupons/validate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code }),
+  });
+  return res.json() as Promise<{
+    valid: boolean;
+    code?: string;
+    discountPercent?: number;
+    error?: string;
+  }>;
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const [coupon] = useState(() => {
-    if (typeof window === "undefined") return "";
-    return new URLSearchParams(window.location.search).get("coupon") || "";
-  });
   const [items] = useState<CartItem[]>(() => {
     if (typeof window === "undefined") return [];
     return JSON.parse(localStorage.getItem("cart_items") || "[]");
@@ -31,9 +37,48 @@ export default function CheckoutPage() {
     notes: "",
   });
 
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState("");
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const urlCouponDone = useRef(false);
+
+  const applyCoupon = useCallback(async (code: string) => {
+    const raw = code.trim().toUpperCase();
+    if (!raw) {
+      setAppliedCoupon("");
+      setDiscountPercent(0);
+      return;
+    }
+    const data = await validateCouponCode(raw);
+    if (!data.valid) {
+      toast.error("Coupon not applied", { description: data.error || "Invalid code." });
+      setAppliedCoupon("");
+      setDiscountPercent(0);
+      return;
+    }
+    setAppliedCoupon(data.code || raw);
+    setDiscountPercent(Number(data.discountPercent || 0));
+    toast.success("Coupon applied", { description: `${data.code} · ${data.discountPercent}% off` });
+  }, []);
+
+  useEffect(() => {
+    if (urlCouponDone.current || typeof window === "undefined") return;
+    const param = new URLSearchParams(window.location.search).get("coupon")?.trim();
+    if (!param) return;
+    urlCouponDone.current = true;
+    setCouponInput(param.toUpperCase());
+    void applyCoupon(param);
+  }, [applyCoupon]);
+
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.price * item.quantity, 0), [items]);
-  const discountAmount = subtotal * ((COUPONS[coupon] || 0) / 100);
-  const totalAmount = subtotal - discountAmount;
+  const discountAmount = useMemo(
+    () => discountFromPercent(subtotal, discountPercent),
+    [subtotal, discountPercent]
+  );
+  const totalAmount = useMemo(
+    () => Math.round((subtotal - discountAmount) * 100) / 100,
+    [subtotal, discountAmount]
+  );
 
   const emptyWarned = useRef(false);
   useEffect(() => {
@@ -63,7 +108,7 @@ export default function CheckoutPage() {
           subtotal,
           discountAmount,
           totalAmount,
-          couponCode: coupon,
+          couponCode: appliedCoupon,
         }),
       });
     } catch {
@@ -107,14 +152,61 @@ export default function CheckoutPage() {
           </button>
         </form>
 
-        <div className="border p-5 h-fit">
+        <div className="border p-5 h-fit space-y-4">
           <h2 className="font-black uppercase mb-4">Order Summary</h2>
           <div className="space-y-2 text-sm mb-4">
-            <p className="flex justify-between"><span>Items</span><span>{items.length}</span></p>
-            <p className="flex justify-between"><span>Subtotal</span><span>{formatPkr(subtotal)}</span></p>
-            <p className="flex justify-between"><span>Coupon</span><span>{coupon || "-"}</span></p>
-            <p className="flex justify-between"><span>Discount</span><span>-{formatPkr(discountAmount)}</span></p>
-            <p className="flex justify-between font-bold text-base"><span>Total</span><span>{formatPkr(totalAmount)}</span></p>
+            <p className="flex justify-between">
+              <span>Items</span>
+              <span>{items.length}</span>
+            </p>
+            <p className="flex justify-between">
+              <span>Subtotal</span>
+              <span>{formatPkr(subtotal)}</span>
+            </p>
+            <div className="pt-2 border-t border-gray-200 space-y-2">
+              <label className="block text-xs font-bold uppercase text-gray-500">Coupon code</label>
+              <div className="flex gap-2">
+                <input
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                  placeholder="CODE"
+                  className="flex-1 border px-3 py-2 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => void applyCoupon(couponInput)}
+                  className="border border-black px-3 py-2 text-xs font-bold uppercase whitespace-nowrap"
+                >
+                  Apply
+                </button>
+              </div>
+              {appliedCoupon ? (
+                <button
+                  type="button"
+                  className="text-xs text-gray-500 underline"
+                  onClick={() => {
+                    setAppliedCoupon("");
+                    setDiscountPercent(0);
+                    setCouponInput("");
+                    toast.message("Coupon removed");
+                  }}
+                >
+                  Remove coupon
+                </button>
+              ) : null}
+            </div>
+            <p className="flex justify-between">
+              <span>Coupon</span>
+              <span>{appliedCoupon || "—"}</span>
+            </p>
+            <p className="flex justify-between">
+              <span>Discount{discountPercent ? ` (${discountPercent}%)` : ""}</span>
+              <span>-{formatPkr(discountAmount)}</span>
+            </p>
+            <p className="flex justify-between font-bold text-base pt-2 border-t border-gray-200">
+              <span>Total</span>
+              <span>{formatPkr(totalAmount)}</span>
+            </p>
           </div>
           <div className="space-y-2 text-xs text-gray-600">
             {items.map((i) => (
