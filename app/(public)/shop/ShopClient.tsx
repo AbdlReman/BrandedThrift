@@ -6,11 +6,17 @@ import { formatPkr } from "@/lib/formatCurrency";
 import Link from "next/link";
 
 const SORTS = [
-  { value: "latest", label: "Latest Products" },
-  { value: "priceLow", label: "Low to High Price" },
-  { value: "priceHigh", label: "High to Low Price" },
-  { value: "popular", label: "Popular Products" },
+  { value: "latest", label: "Sort: Latest" },
+  { value: "priceLow", label: "Sort: Price — Low to high" },
+  { value: "priceHigh", label: "Sort: Price — High to low" },
+  { value: "popular", label: "Sort: Popular" },
 ];
+
+const selectClass =
+  "w-full min-w-[8.5rem] max-w-[11rem] sm:max-w-none sm:min-w-[9.5rem] border border-gray-300 rounded-md px-3 py-2.5 text-sm bg-white text-gray-900 shadow-sm " +
+  "focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent cursor-pointer";
+
+const labelClass = "block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1";
 
 function addToCart(product: IProduct, selectedColor?: string, selectedImage?: string) {
   const existing = JSON.parse(localStorage.getItem("cart_items") || "[]");
@@ -65,13 +71,33 @@ function ProductCard({ product }: { product: IProduct }) {
 }
 
 export default function ShopClient({ products }: { products: IProduct[] }) {
-  const categories = useMemo(
-    () => ["All", ...Array.from(new Set(products.map((p) => p.category)))],
-    [products]
-  );
-  const brands = useMemo(() => ["All", ...Array.from(new Set(products.map((p) => p.brand)))], [products]);
-  const sizes = useMemo(() => ["All", ...Array.from(new Set(products.flatMap((p) => p.sizes)))], [products]);
-  const colors = useMemo(() => ["All", ...Array.from(new Set(products.flatMap((p) => p.colors)))], [products]);
+  const categories = useMemo(() => {
+    const rest = Array.from(new Set(products.map((p) => p.category).filter(Boolean))).sort((a, b) =>
+      a.localeCompare(b)
+    );
+    return ["All", ...rest];
+  }, [products]);
+  const brands = useMemo(() => {
+    const rest = Array.from(new Set(products.map((p) => p.brand).filter(Boolean))).sort((a, b) =>
+      a.localeCompare(b)
+    );
+    return ["All", ...rest];
+  }, [products]);
+  const sizes = useMemo(() => {
+    const rest = Array.from(new Set(products.flatMap((p) => p.sizes).map(String))).sort((a, b) => {
+      const na = Number(a);
+      const nb = Number(b);
+      if (!Number.isNaN(na) && !Number.isNaN(nb) && a === String(na) && b === String(nb)) return na - nb;
+      return a.localeCompare(b, undefined, { numeric: true });
+    });
+    return ["All", ...rest];
+  }, [products]);
+  const colors = useMemo(() => {
+    const rest = Array.from(new Set(products.flatMap((p) => p.colors).filter(Boolean))).sort((a, b) =>
+      a.localeCompare(b)
+    );
+    return ["All", ...rest];
+  }, [products]);
 
   const [category, setCategory] = useState("All");
   const [brand, setBrand] = useState("All");
@@ -79,8 +105,6 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
   const [color, setColor] = useState("All");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("latest");
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(500_000);
 
   const filtered = useMemo(() => {
     return products
@@ -88,7 +112,6 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
       .filter((p) => brand === "All" || p.brand === brand)
       .filter((p) => size === "All" || p.sizes.includes(size))
       .filter((p) => color === "All" || p.colors.includes(color))
-      .filter((p) => p.price >= minPrice && p.price <= maxPrice)
       .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
       .sort((a, b) => {
         if (sort === "priceLow") return a.price - b.price;
@@ -96,7 +119,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
         if (sort === "popular") return b.popularityScore - a.popularityScore;
         return +new Date(b.createdAt) - +new Date(a.createdAt);
       });
-  }, [products, category, brand, size, color, minPrice, maxPrice, search, sort]);
+  }, [products, category, brand, size, color, search, sort]);
 
   return (
     <div className="bg-white min-h-screen">
@@ -110,17 +133,106 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid md:grid-cols-6 gap-3 mb-6">
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name..." className="border px-3 py-2 md:col-span-2" />
-          <select value={category} onChange={(e) => setCategory(e.target.value)} className="border px-3 py-2">{categories.map((v) => <option key={v}>{v}</option>)}</select>
-          <select value={brand} onChange={(e) => setBrand(e.target.value)} className="border px-3 py-2">{brands.map((v) => <option key={v}>{v}</option>)}</select>
-          <select value={size} onChange={(e) => setSize(e.target.value)} className="border px-3 py-2">{sizes.map((v) => <option key={v}>{v}</option>)}</select>
-          <select value={color} onChange={(e) => setColor(e.target.value)} className="border px-3 py-2">{colors.map((v) => <option key={v}>{v}</option>)}</select>
-        </div>
-        <div className="grid md:grid-cols-4 gap-3 mb-8">
-          <input type="number" value={minPrice} onChange={(e) => setMinPrice(Number(e.target.value || 0))} className="border px-3 py-2" placeholder="Min Price" />
-          <input type="number" value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value || 500000))} className="border px-3 py-2" placeholder="Max Price (PKR)" />
-          <select value={sort} onChange={(e) => setSort(e.target.value)} className="border px-3 py-2 md:col-span-2">{SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}</select>
+        <div className="border border-gray-200 rounded-lg bg-gray-50/80 px-3 py-4 sm:px-4 mb-8">
+          <div className="flex flex-wrap items-end gap-x-3 gap-y-4 lg:flex-nowrap lg:gap-x-4">
+            <div className="w-[calc(50%-0.375rem)] sm:w-auto sm:flex-1 sm:min-w-0">
+              <label htmlFor="filter-color" className={labelClass}>
+                Color
+              </label>
+              <select
+                id="filter-color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className={selectClass}
+              >
+                {colors.map((v) => (
+                  <option key={v} value={v}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-[calc(50%-0.375rem)] sm:w-auto sm:flex-1 sm:min-w-0">
+              <label htmlFor="filter-brand" className={labelClass}>
+                Brand
+              </label>
+              <select
+                id="filter-brand"
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+                className={selectClass}
+              >
+                {brands.map((v) => (
+                  <option key={v} value={v}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-[calc(50%-0.375rem)] sm:w-auto sm:flex-1 sm:min-w-0">
+              <label htmlFor="filter-size" className={labelClass}>
+                Size
+              </label>
+              <select
+                id="filter-size"
+                value={size}
+                onChange={(e) => setSize(e.target.value)}
+                className={selectClass}
+              >
+                {sizes.map((v) => (
+                  <option key={v} value={v}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-[calc(50%-0.375rem)] sm:w-auto sm:flex-1 sm:min-w-0">
+              <label htmlFor="filter-category" className={labelClass}>
+                Category
+              </label>
+              <select
+                id="filter-category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className={selectClass}
+              >
+                {categories.map((v) => (
+                  <option key={v} value={v}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-full sm:flex-1 sm:min-w-[12rem] lg:w-auto lg:min-w-[13rem]">
+              <label htmlFor="filter-sort" className={labelClass}>
+                Sort
+              </label>
+              <select
+                id="filter-sort"
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className={selectClass}
+              >
+                {SORTS.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-full flex-1 min-w-[10rem] lg:min-w-[14rem]">
+              <label htmlFor="filter-search" className={labelClass}>
+                Search
+              </label>
+              <input
+                id="filter-search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by name…"
+                className="w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm bg-white text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              />
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
