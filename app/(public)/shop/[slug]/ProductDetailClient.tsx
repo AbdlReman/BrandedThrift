@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { IProduct } from "@/types/product";
 import { formatPkr } from "@/lib/formatCurrency";
+import ProductReviewsPanel from "./ProductReviewsPanel";
 
 function addToCart(
   product: IProduct,
@@ -157,18 +158,54 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
       </div>
 
       <div className="mt-12 border-t border-gray-200 pt-8">
-        <h2 className="text-2xl font-black uppercase tracking-tight mb-4">Product Details</h2>
-        {product.detail ? (
-          <div
-            className="prose prose-sm max-w-none"
-            dangerouslySetInnerHTML={{ __html: product.detail }}
-          />
-        ) : (
-          <p className="text-gray-600 leading-relaxed">
-            No detail content added yet.
-          </p>
-        )}
+        <TabbedProductSections productId={product._id} detailHtml={product.detail} />
       </div>
+    </div>
+  );
+}
+
+function TabbedProductSections({
+  productId,
+  detailHtml,
+}: {
+  productId: string;
+  detailHtml: string;
+}) {
+  const [tab, setTab] = useState<"details" | "reviews">("details");
+  const tabBtn =
+    "px-4 py-3 text-sm font-black uppercase tracking-widest border-b-2 -mb-px transition-colors";
+  return (
+    <div>
+      <div className="flex gap-2 border-b border-gray-200 mb-6">
+        <button
+          type="button"
+          onClick={() => setTab("details")}
+          className={`${tabBtn} ${
+            tab === "details" ? "border-black text-black" : "border-transparent text-gray-500 hover:text-gray-800"
+          }`}
+        >
+          Product Details
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab("reviews")}
+          className={`${tabBtn} ${
+            tab === "reviews" ? "border-black text-black" : "border-transparent text-gray-500 hover:text-gray-800"
+          }`}
+        >
+          Reviews
+        </button>
+      </div>
+
+      {tab === "details" ? (
+        detailHtml ? (
+          <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: detailHtml }} />
+        ) : (
+          <p className="text-gray-600 leading-relaxed">No detail content added yet.</p>
+        )
+      ) : (
+        <ProductReviewsPanel productId={productId} />
+      )}
     </div>
   );
 }
