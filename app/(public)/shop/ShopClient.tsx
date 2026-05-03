@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import type { IProduct } from "@/types/product";
 import { formatPkr } from "@/lib/formatCurrency";
 import Link from "next/link";
@@ -38,6 +39,7 @@ function addToCart(product: IProduct, selectedColor?: string, selectedImage?: st
   }
   localStorage.setItem("cart_items", JSON.stringify(existing));
   window.dispatchEvent(new Event("cart_updated"));
+  toast.success("Added to cart", { description: product.name });
 }
 
 function ProductCard({ product }: { product: IProduct }) {

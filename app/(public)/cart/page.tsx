@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import type { CartItem } from "@/types/product";
 import { formatPkr } from "@/lib/formatCurrency";
 
@@ -36,7 +37,11 @@ export default function CartPage() {
     saveItems(next);
   };
 
-  const removeItem = (productId: string) => saveItems(items.filter((item) => item.productId !== productId));
+  const removeItem = (productId: string) => {
+    const removed = items.find((i) => i.productId === productId);
+    saveItems(items.filter((item) => item.productId !== productId));
+    if (removed) toast.success("Removed from cart", { description: removed.name });
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
@@ -76,7 +81,15 @@ export default function CartPage() {
               <input value={couponCode} onChange={(e) => setCouponCode(e.target.value.toUpperCase())} className="border px-3 py-2 w-full" placeholder="Coupon Code" />
               <button onClick={() => setAppliedCoupon(couponCode)} className="w-full mt-2 border border-black py-2 text-sm font-bold uppercase">Apply Coupon</button>
             </div>
-            <Link href={`/checkout?coupon=${appliedCoupon}`} className="block mt-5 bg-black text-white text-center py-2 font-bold uppercase text-sm">
+            <Link
+              href={`/checkout?coupon=${encodeURIComponent(appliedCoupon)}`}
+              onClick={() =>
+                toast.success("Going to checkout", {
+                  description: `${items.length} item group(s) · ${formatPkr(total)}`,
+                })
+              }
+              className="block mt-5 bg-black text-white text-center py-2 font-bold uppercase text-sm"
+            >
               Checkout
             </Link>
           </div>

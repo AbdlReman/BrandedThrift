@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import type { CartItem } from "@/types/product";
 import { formatPkr } from "@/lib/formatCurrency";
 
@@ -34,30 +35,57 @@ export default function CheckoutPage() {
   const discountAmount = subtotal * ((COUPONS[coupon] || 0) / 100);
   const totalAmount = subtotal - discountAmount;
 
+  const emptyWarned = useRef(false);
+  useEffect(() => {
+    if (items.length > 0 || emptyWarned.current) return;
+    emptyWarned.current = true;
+    toast.warning("Your cart is empty", {
+      description: "Browse the shop and add products before checking out.",
+    });
+  }, [items.length]);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (items.length === 0) {
+      toast.error("Cannot place order", { description: "Your cart is empty." });
+      return;
+    }
     setLoading(true);
-    const res = await fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customer: form,
-        items,
-        subtotal,
-        discountAmount,
-        totalAmount,
-        couponCode: coupon,
-      }),
-    });
+    toast.loading("Placing your order…", { id: "place-order" });
+    let res: Response;
+    try {
+      res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer: form,
+          items,
+          subtotal,
+          discountAmount,
+          totalAmount,
+          couponCode: coupon,
+        }),
+      });
+    } catch {
+      toast.dismiss("place-order");
+      setLoading(false);
+      toast.error("Network error", { description: "Could not reach the server. Try again." });
+      return;
+    }
     const data = await res.json();
     setLoading(false);
+    toast.dismiss("place-order");
     if (!res.ok) {
-      alert(data.error || "Checkout failed");
+      toast.error("Order failed", { description: data.error || "Please try again." });
       return;
     }
     localStorage.removeItem("cart_items");
     window.dispatchEvent(new Event("cart_updated"));
-    alert(`Order placed: ${data.order.orderNumber}`);
+    const orderNo = data.order?.orderNumber ?? "confirmed";
+    toast.success("Order placed", {
+      description: `Order ${orderNo}. Thank you for your purchase.`,
+      duration: 5500,
+    });
     router.push("/shop");
   };
 

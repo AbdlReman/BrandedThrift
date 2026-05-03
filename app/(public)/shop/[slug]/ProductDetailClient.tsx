@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import type { CartItem, IProduct } from "@/types/product";
 import { formatPkr } from "@/lib/formatCurrency";
 import ProductReviewsPanel from "./ProductReviewsPanel";
@@ -208,8 +209,12 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
             <button
               type="button"
               onClick={() => {
+                const qty = Math.max(1, Math.floor(quantity || 1));
                 addToCart(product, selectedColor || "Default", mainImage, selectedSize, quantity);
                 setQuantity(1);
+                toast.success("Added to cart", {
+                  description: `${product.name} · Qty ${qty}${selectedSize ? ` · Size ${selectedSize}` : ""}`,
+                });
               }}
               className="w-full sm:w-auto bg-black text-white px-8 py-3 text-sm font-bold uppercase tracking-widest hover:bg-gray-900 transition-colors"
             >
@@ -229,6 +234,9 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
                   size: selectedSize || "",
                 };
                 setCartToSingleItem(line);
+                toast.success("Going to checkout", {
+                  description: `${product.name} × ${qty}`,
+                });
                 router.push("/checkout");
               }}
               className="w-full sm:w-auto border-2 border-black text-black px-8 py-3 text-sm font-bold uppercase tracking-widest hover:bg-gray-50 transition-colors"

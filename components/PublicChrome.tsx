@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { Toaster } from "sonner";
 
 const Navbar = dynamic(() => import("@/components/Navbar"), {
   ssr: false,
@@ -20,6 +21,7 @@ const Footer = dynamic(() => import("@/components/Footer"), {
 export default function PublicChrome({ children }: { children: React.ReactNode }) {
   return (
     <>
+      <Toaster position="top-center" richColors closeButton duration={4000} />
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
