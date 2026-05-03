@@ -9,6 +9,8 @@ export interface CustomerInfo {
   notes?: string;
 }
 
+export type PaymentMethodCode = "" | "easypaisa" | "sadapay" | "meezan";
+
 export interface IOrder {
   _id: string;
   orderNumber: string;
@@ -18,6 +20,9 @@ export interface IOrder {
   discountAmount: number;
   totalAmount: number;
   couponCode?: string;
+  paymentMethod?: PaymentMethodCode;
+  paymentTransactionId?: string;
+  paymentScreenshotUrl?: string;
   paymentStatus: "pending" | "paid" | "failed";
   orderStatus: "pending" | "processing" | "completed" | "cancelled";
   createdAt: string;

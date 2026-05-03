@@ -37,14 +37,38 @@ export async function GET() {
   }
 }
 
+const VALID_PAYMENT_METHODS = ["easypaisa", "sadapay", "meezan"] as const;
+
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const body = await req.json();
-    const { customer, items, couponCode } = body;
+    const { customer, items, couponCode, payment } = body;
 
     if (!customer?.name || !customer?.phone || !customer?.email || !customer?.address || !customer?.city) {
       return NextResponse.json({ error: "Missing customer fields" }, { status: 400 });
+    }
+
+    const paymentMethod = String(payment?.method || "")
+      .trim()
+      .toLowerCase();
+    const paymentTransactionId = String(payment?.transactionId || "").trim();
+    const paymentScreenshotUrl = String(payment?.screenshotUrl || "").trim();
+
+    if (!VALID_PAYMENT_METHODS.includes(paymentMethod as (typeof VALID_PAYMENT_METHODS)[number])) {
+      return NextResponse.json({ error: "Select a payment method." }, { status: 400 });
+    }
+    if (!paymentTransactionId && !paymentScreenshotUrl) {
+      return NextResponse.json(
+        {
+          error:
+            "Please provide either your Transaction ID or a payment screenshot (at least one is required).",
+        },
+        { status: 400 }
+      );
+    }
+    if (paymentScreenshotUrl && !paymentScreenshotUrl.startsWith("https://")) {
+      return NextResponse.json({ error: "Invalid payment screenshot link." }, { status: 400 });
     }
 
     if (!Array.isArray(items) || items.length === 0) {
@@ -94,6 +118,9 @@ export async function POST(req: NextRequest) {
       discountAmount,
       totalAmount,
       couponCode: couponCodeSaved,
+      paymentMethod,
+      paymentTransactionId,
+      paymentScreenshotUrl,
       paymentStatus: "pending",
       orderStatus: "pending",
     });
@@ -146,6 +173,11 @@ export async function POST(req: NextRequest) {
       discountAmount,
       totalAmount,
       couponCode: couponCodeSaved,
+      payment: {
+        methodCode: paymentMethod,
+        transactionId: paymentTransactionId,
+        screenshotUrl: paymentScreenshotUrl,
+      },
     };
 
     const customerHtml = buildCustomerOrderEmailHtml(emailPayload);

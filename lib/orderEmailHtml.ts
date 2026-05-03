@@ -1,4 +1,5 @@
 import { formatPkr } from "@/lib/formatCurrency";
+import { paymentMethodLabel } from "@/lib/paymentLabels";
 
 export type OrderItemInput = {
   productId?: string;
@@ -86,6 +87,46 @@ function customerBlock(c: CustomerInput): string {
 </div>`;
 }
 
+export type OrderEmailPayment = {
+  methodCode: string;
+  transactionId: string;
+  screenshotUrl: string;
+};
+
+function safeHttpsUrl(u: string): string {
+  const t = u.trim();
+  return t.startsWith("https://") ? t : "";
+}
+
+function paymentBlock(p: { methodLabel: string; transactionId: string; screenshotUrl: string }): string {
+  const trx = (p.transactionId || "").trim();
+  const imgUrl = safeHttpsUrl(p.screenshotUrl);
+  const trxLine = trx
+    ? `<p style="margin:0 0 6px;"><strong>Transaction ID / TRX ID:</strong> ${esc(trx)}</p>`
+    : `<p style="margin:0 0 6px;color:#6b7280;"><strong>Transaction ID / TRX ID:</strong> —</p>`;
+  const imgBlock = imgUrl
+    ? `<p style="margin:12px 0 6px;font-weight:600;">Payment screenshot</p>
+  <p style="margin:0;"><a href="${esc(imgUrl)}" target="_blank" rel="noopener noreferrer">Open screenshot</a></p>
+  <p style="margin:8px 0 0;"><img src="${esc(imgUrl)}" alt="Payment" width="360" style="max-width:100%;height:auto;border-radius:8px;border:1px solid #e5e7eb;" /></p>`
+    : `<p style="margin:12px 0 0;color:#6b7280;font-size:13px;">No payment screenshot was uploaded.</p>`;
+  return `<div style="margin:20px 0;padding:16px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;font-size:14px;line-height:1.6;color:#1e3a8a;">
+  <p style="margin:0 0 8px;font-weight:700;">Payment</p>
+  <p style="margin:0 0 6px;"><strong>Method:</strong> ${esc(p.methodLabel)}</p>
+  ${trxLine}
+  ${imgBlock}
+</div>`;
+}
+
+function paymentSection(payment?: OrderEmailPayment): string {
+  const code = (payment?.methodCode || "").trim().toLowerCase();
+  if (!code) return "";
+  return paymentBlock({
+    methodLabel: paymentMethodLabel(code),
+    transactionId: payment?.transactionId || "",
+    screenshotUrl: payment?.screenshotUrl || "",
+  });
+}
+
 export function buildCustomerOrderEmailHtml(opts: {
   orderNumber: string;
   customer: CustomerInput;
@@ -94,11 +135,13 @@ export function buildCustomerOrderEmailHtml(opts: {
   discountAmount: number;
   totalAmount: number;
   couponCode: string;
+  payment?: OrderEmailPayment;
 }): string {
   return `<div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:640px;margin:0 auto;padding:24px;color:#111827;">
   <h1 style="font-size:20px;margin:0 0 8px;">Order ${esc(opts.orderNumber)}</h1>
   <p style="margin:0 0 16px;color:#6b7280;">Hi ${esc(opts.customer.name)}, thank you for your order. Here are your order details.</p>
   ${customerBlock(opts.customer)}
+  ${paymentSection(opts.payment)}
   ${itemsTable(opts.items)}
   ${totalsBlock(opts)}
   <p style="margin-top:24px;font-size:13px;color:#6b7280;">We will contact you if we need anything else.</p>
@@ -113,10 +156,12 @@ export function buildAdminOrderEmailHtml(opts: {
   discountAmount: number;
   totalAmount: number;
   couponCode: string;
+  payment?: OrderEmailPayment;
 }): string {
   return `<div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:640px;margin:0 auto;padding:24px;color:#111827;">
   <h1 style="font-size:20px;margin:0 0 8px;">New order ${esc(opts.orderNumber)}</h1>
   ${customerBlock(opts.customer)}
+  ${paymentSection(opts.payment)}
   ${itemsTable(opts.items)}
   ${totalsBlock(opts)}
 </div>`;

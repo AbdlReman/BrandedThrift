@@ -7,6 +7,8 @@ import type { CartItem } from "@/types/product";
 import { discountFromPercent } from "@/lib/couponValidation";
 import { formatPkr } from "@/lib/formatCurrency";
 
+type PaymentMethod = "easypaisa" | "sadapay" | "meezan" | "";
+
 async function validateCouponCode(code: string) {
   const res = await fetch("/api/coupons/validate", {
     method: "POST",
@@ -19,6 +21,10 @@ async function validateCouponCode(code: string) {
     discountPercent?: number;
     error?: string;
   }>;
+}
+
+function ReqStar() {
+  return <span className="text-red-600 font-bold">*</span>;
 }
 
 export default function CheckoutPage() {
@@ -41,6 +47,11 @@ export default function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] = useState("");
   const [discountPercent, setDiscountPercent] = useState(0);
   const urlCouponDone = useRef(false);
+
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("");
+  const [paymentTransactionId, setPaymentTransactionId] = useState("");
+  const [paymentScreenshotUrl, setPaymentScreenshotUrl] = useState("");
+  const [uploadingShot, setUploadingShot] = useState(false);
 
   const applyCoupon = useCallback(async (code: string) => {
     const raw = code.trim().toUpperCase();
@@ -89,12 +100,51 @@ export default function CheckoutPage() {
     });
   }, [items.length]);
 
+  const onScreenshotChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingShot(true);
+    try {
+      const fd = new FormData();
+      fd.append("images", file);
+      fd.append("folder", "payment-screenshots");
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = (await res.json()) as { urls?: string[]; error?: string };
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+      const url = data.urls?.[0];
+      if (!url) throw new Error("No image URL returned");
+      setPaymentScreenshotUrl(url);
+      toast.success("Screenshot uploaded");
+    } catch (err) {
+      setPaymentScreenshotUrl("");
+      toast.error("Upload failed", {
+        description: err instanceof Error ? err.message : "Try again.",
+      });
+    } finally {
+      setUploadingShot(false);
+      e.target.value = "";
+    }
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) {
       toast.error("Cannot place order", { description: "Your cart is empty." });
       return;
     }
+    if (!paymentMethod) {
+      toast.error("Payment method required", { description: "Choose EasyPaisa, Sada Pay, or Meezan Bank." });
+      return;
+    }
+    const trx = paymentTransactionId.trim();
+    const shot = paymentScreenshotUrl.trim();
+    if (!trx && !shot) {
+      toast.error("Payment proof required", {
+        description: "Enter your Transaction ID / TRX ID or upload a payment screenshot (at least one).",
+      });
+      return;
+    }
+
     setLoading(true);
     toast.loading("Placing your order…", { id: "place-order" });
     let res: Response;
@@ -105,10 +155,12 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           customer: form,
           items,
-          subtotal,
-          discountAmount,
-          totalAmount,
           couponCode: appliedCoupon,
+          payment: {
+            method: paymentMethod,
+            transactionId: trx,
+            screenshotUrl: shot,
+          },
         }),
       });
     } catch {
@@ -134,19 +186,180 @@ export default function CheckoutPage() {
     router.push("/shop");
   };
 
+  const labelClass = "block text-xs font-bold uppercase text-gray-600 mb-1";
+  const inputClass = "border px-3 py-2 w-full";
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
       <h1 className="text-3xl font-black uppercase mb-6">Checkout</h1>
       <div className="grid lg:grid-cols-3 gap-8">
-        <form onSubmit={onSubmit} className="lg:col-span-2 border p-6 space-y-4">
+        <form onSubmit={onSubmit} className="lg:col-span-2 border p-6 space-y-5">
+          <h2 className="text-sm font-black uppercase tracking-wide text-gray-800 border-b pb-2">Shipping & contact</h2>
           <div className="grid md:grid-cols-2 gap-4">
-            <input required placeholder="Customer Name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className="border px-3 py-2" />
-            <input required placeholder="Phone" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className="border px-3 py-2" />
+            <div>
+              <label className={labelClass}>
+                Customer name <ReqStar />
+              </label>
+              <input
+                required
+                placeholder="Full name"
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>
+                Phone <ReqStar />
+              </label>
+              <input
+                required
+                placeholder="Phone number"
+                value={form.phone}
+                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                className={inputClass}
+              />
+            </div>
           </div>
-          <input required type="email" placeholder="Email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} className="border px-3 py-2 w-full" />
-          <input required placeholder="Address" value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} className="border px-3 py-2 w-full" />
-          <input required placeholder="City" value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} className="border px-3 py-2 w-full" />
-          <textarea placeholder="Notes" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} className="border px-3 py-2 w-full" rows={4} />
+          <div>
+            <label className={labelClass}>
+              Email <ReqStar />
+            </label>
+            <input
+              required
+              type="email"
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>
+              Address <ReqStar />
+            </label>
+            <input
+              required
+              placeholder="Street address"
+              value={form.address}
+              onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>
+              City <ReqStar />
+            </label>
+            <input
+              required
+              placeholder="City"
+              value={form.city}
+              onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Notes</label>
+            <textarea
+              placeholder="Delivery notes (optional)"
+              value={form.notes}
+              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+              className={inputClass}
+              rows={3}
+            />
+          </div>
+
+          <h2 className="text-sm font-black uppercase tracking-wide text-gray-800 border-b pb-2 pt-2">
+            Payment method <ReqStar />
+          </h2>
+          <fieldset className="space-y-2">
+            <legend className="sr-only">Choose how you paid</legend>
+            {(
+              [
+                { value: "easypaisa" as const, label: "EasyPaisa" },
+                { value: "sadapay" as const, label: "Sada Pay" },
+                { value: "meezan" as const, label: "Meezan Bank" },
+              ] as const
+            ).map((opt) => (
+              <label
+                key={opt.value}
+                className={`flex items-center gap-3 border px-3 py-2 cursor-pointer ${
+                  paymentMethod === opt.value ? "border-black bg-gray-50" : "border-gray-200"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value={opt.value}
+                  checked={paymentMethod === opt.value}
+                  onChange={() => setPaymentMethod(opt.value)}
+                  className="accent-black"
+                />
+                <span className="text-sm font-medium">{opt.label}</span>
+              </label>
+            ))}
+          </fieldset>
+
+          {paymentMethod === "easypaisa" ? (
+            <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-950">
+              <p className="font-bold mb-1">EasyPaisa transfer details</p>
+              <p>
+                <span className="text-blue-800">Account:</span>{" "}
+                <span className="font-mono font-semibold">0302 0058237</span>
+              </p>
+              <p>
+                <span className="text-blue-800">Account holder:</span> Waleed
+              </p>
+              <p className="mt-2 text-blue-900">
+                Send exactly <strong>{formatPkr(totalAmount)}</strong> to this account, then enter your TRX ID and/or
+                upload a screenshot below.
+              </p>
+            </div>
+          ) : null}
+
+          {paymentMethod === "sadapay" || paymentMethod === "meezan" ? (
+            <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800">
+              <p className="font-bold mb-1">
+                {paymentMethod === "sadapay" ? "Sada Pay" : "Meezan Bank"}
+              </p>
+              <p>
+                Pay the order total <strong>{formatPkr(totalAmount)}</strong> using your chosen method, then enter your
+                Transaction ID / TRX ID and/or upload a payment screenshot below.
+              </p>
+            </div>
+          ) : null}
+
+          <div>
+            <label className={labelClass}>Transaction ID / TRX ID</label>
+            <input
+              placeholder="Enter your transaction ID"
+              value={paymentTransactionId}
+              onChange={(e) => setPaymentTransactionId(e.target.value)}
+              className={inputClass}
+              autoComplete="off"
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Payment screenshot</label>
+            <input
+              type="file"
+              accept="image/*"
+              disabled={uploadingShot}
+              onChange={(e) => void onScreenshotChange(e)}
+              className="text-sm w-full"
+            />
+            {uploadingShot ? <p className="text-xs text-gray-500 mt-1">Uploading…</p> : null}
+            {paymentScreenshotUrl ? (
+              <p className="text-xs text-green-700 mt-2">Screenshot attached — ready to submit.</p>
+            ) : null}
+          </div>
+
+          <p className="text-xs text-gray-600 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+            <strong>Note:</strong> Please provide either your Transaction ID <strong>or</strong> a payment screenshot (at
+            least one is required).
+          </p>
+
           <button disabled={loading} className="bg-black text-white px-5 py-2 text-sm font-bold uppercase">
             {loading ? "Placing..." : "Place Order"}
           </button>

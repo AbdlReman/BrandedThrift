@@ -26,6 +26,13 @@ const OrderSchema = new Schema(
     discountAmount: { type: Number, default: 0, min: 0 },
     totalAmount: { type: Number, required: true, min: 0 },
     couponCode: { type: String, default: "" },
+    paymentMethod: {
+      type: String,
+      enum: ["", "easypaisa", "sadapay", "meezan"],
+      default: "",
+    },
+    paymentTransactionId: { type: String, default: "", trim: true },
+    paymentScreenshotUrl: { type: String, default: "", trim: true },
     paymentStatus: {
       type: String,
       enum: ["pending", "paid", "failed"],
