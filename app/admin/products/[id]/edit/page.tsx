@@ -55,7 +55,10 @@ export default async function EditProductPage({
     sizes: Array.isArray(p.sizes) ? (p.sizes as string[]) : [],
     colors: Array.isArray(p.colors) ? (p.colors as string[]) : [],
     colorVariants: Array.isArray(p.colorVariants)
-      ? (p.colorVariants as { color: string; images: string[] }[])
+      ? (p.colorVariants as Record<string, unknown>[]).map((v) => ({
+          color: String(v.color ?? "").trim(),
+          images: Array.isArray(v.images) ? (v.images as unknown[]).map((u) => String(u)).filter(Boolean) : [],
+        }))
       : [],
     stockQuantity: Number(p.stockQuantity || 0),
     images: (p.images as string[]) || [],

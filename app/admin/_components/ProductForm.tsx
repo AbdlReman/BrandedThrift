@@ -6,6 +6,30 @@ import ImageUploader from "./ImageUploader";
 import RichTextEditor from "./RichTextEditor";
 import type { ColorVariant, IProduct } from "@/types/product";
 
+function normalizeVariantsFromServer(data: IProduct): ColorVariant[] {
+  const raw = data.colorVariants;
+  if (Array.isArray(raw) && raw.length > 0) {
+    const mapped = raw
+      .map((v) => ({
+        color: String(v.color ?? "").trim(),
+        images: Array.isArray(v.images) ? v.images.map(String).filter(Boolean) : [],
+      }))
+      .filter((v) => v.color);
+    if (mapped.length > 0) return mapped;
+  }
+  const colors = Array.isArray(data.colors) ? data.colors.map((c) => String(c).trim()).filter(Boolean) : [];
+  const images = Array.isArray(data.images) ? data.images.map(String).filter(Boolean) : [];
+  if (colors.length === 0) return [{ color: "", images: [] }];
+  if (colors.length === 1) return [{ color: colors[0], images: [...images] }];
+  if (images.length === colors.length) {
+    return colors.map((c, i) => ({ color: c, images: images[i] ? [images[i]] : [] }));
+  }
+  return colors.map((c, i) => ({
+    color: c,
+    images: i === 0 ? [...images] : [],
+  }));
+}
+
 interface ProductFormProps {
   initialData?: IProduct;
   mode: "create" | "edit";
@@ -54,12 +78,8 @@ export default function ProductForm({
         }
       : emptyForm
   );
-  const [colorVariants, setColorVariants] = useState<ColorVariant[]>(
-    initialData?.colorVariants?.length
-      ? initialData.colorVariants
-      : initialData?.colors?.length
-      ? [{ color: initialData.colors[0], images: initialData.images || [] }]
-      : [{ color: "", images: [] }]
+  const [colorVariants, setColorVariants] = useState<ColorVariant[]>(() =>
+    initialData ? normalizeVariantsFromServer(initialData) : [{ color: "", images: [] }]
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -69,12 +89,16 @@ export default function ProductForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const normalizedColorVariants = colorVariants
-      .map((variant) => ({
-        color: variant.color.trim(),
-        images: variant.images,
-      }))
-      .filter((variant) => variant.color && variant.images.length > 0);
+    const trimmed = colorVariants.map((variant) => ({
+      color: variant.color.trim(),
+      images: variant.images.map(String).filter(Boolean),
+    }));
+    const missingImages = trimmed.filter((v) => v.color && v.images.length === 0);
+    if (missingImages.length > 0) {
+      setError("Each color must have at least one image. Add images or remove empty color rows.");
+      return;
+    }
+    const normalizedColorVariants = trimmed.filter((variant) => variant.color && variant.images.length > 0);
 
     if (normalizedColorVariants.length === 0) {
       setError("Please add at least one color with images.");
@@ -301,7 +325,7 @@ export default function ProductForm({
         </h2>
         <div className="space-y-6">
           {colorVariants.map((variant, index) => (
-            <div key={index} className="rounded-lg border border-slate-700 p-4">
+            <div key={`${index}-${variant.color}`} className="rounded-lg border border-slate-700 p-4">
               <div className="flex items-center gap-3 mb-4">
                 <input
                   type="text"

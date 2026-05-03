@@ -1,14 +1,24 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 
 interface ImageUploaderProps {
   initialUrls?: string[];
   onChange: (urls: string[]) => void;
 }
 
-export default function ImageUploader({ initialUrls = [], onChange }: ImageUploaderProps) {
-  const [previews, setPreviews] = useState<string[]>(initialUrls);
+export default function ImageUploader({ initialUrls, onChange }: ImageUploaderProps) {
+  const urls = initialUrls ?? [];
+  const [previews, setPreviews] = useState<string[]>(() => [...urls]);
+  const lastSerialized = useRef<string>("");
+
+  useEffect(() => {
+    const next = [...urls];
+    const key = next.join("\0");
+    if (key === lastSerialized.current) return;
+    lastSerialized.current = key;
+    setPreviews(next);
+  }, [urls]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 

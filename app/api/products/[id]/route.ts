@@ -71,10 +71,14 @@ export async function PUT(req: NextRequest, { params }: Params) {
       inStock: Number(body.stockQuantity || 0) > 0,
       isActive: body.isActive !== false,
     };
-    const product = await Product.findByIdAndUpdate(id, payload, {
-      new: true,
-      runValidators: true,
-    }).lean();
+    const product = await Product.findByIdAndUpdate(
+      id,
+      { $set: payload },
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).lean();
     if (!product) return NextResponse.json({ error: "Not found" }, { status: 404 });
     const p = product as Record<string, unknown>;
     return NextResponse.json({
