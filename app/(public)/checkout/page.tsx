@@ -192,8 +192,8 @@ export default function CheckoutPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
       <h1 className="text-3xl font-black uppercase mb-6">Checkout</h1>
-      <div className="grid lg:grid-cols-3 gap-8">
-        <form onSubmit={onSubmit} className="lg:col-span-2 border p-6 space-y-5">
+      <form onSubmit={onSubmit} className="grid lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 border p-6 space-y-5">
           <h2 className="text-sm font-black uppercase tracking-wide text-gray-800 border-b pb-2">Shipping & contact</h2>
           <div className="grid md:grid-cols-2 gap-4">
             <div>
@@ -268,104 +268,9 @@ export default function CheckoutPage() {
               rows={3}
             />
           </div>
+        </div>
 
-          <h2 className="text-sm font-black uppercase tracking-wide text-gray-800 border-b pb-2 pt-2">
-            Payment method <ReqStar />
-          </h2>
-          <fieldset className="space-y-2">
-            <legend className="sr-only">Choose how you paid</legend>
-            {(
-              [
-                { value: "easypaisa" as const, label: "EasyPaisa" },
-                { value: "sadapay" as const, label: "Sada Pay" },
-                { value: "meezan" as const, label: "Meezan Bank" },
-              ] as const
-            ).map((opt) => (
-              <label
-                key={opt.value}
-                className={`flex items-center gap-3 border px-3 py-2 cursor-pointer ${
-                  paymentMethod === opt.value ? "border-black bg-gray-50" : "border-gray-200"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value={opt.value}
-                  checked={paymentMethod === opt.value}
-                  onChange={() => setPaymentMethod(opt.value)}
-                  className="accent-black"
-                />
-                <span className="text-sm font-medium">{opt.label}</span>
-              </label>
-            ))}
-          </fieldset>
-
-          {paymentMethod === "easypaisa" ? (
-            <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-950">
-              <p className="font-bold mb-1">EasyPaisa transfer details</p>
-              <p>
-                <span className="text-blue-800">Account:</span>{" "}
-                <span className="font-mono font-semibold">0302 0058237</span>
-              </p>
-              <p>
-                <span className="text-blue-800">Account holder:</span> Waleed
-              </p>
-              <p className="mt-2 text-blue-900">
-                Send exactly <strong>{formatPkr(totalAmount)}</strong> to this account, then enter your TRX ID and/or
-                upload a screenshot below.
-              </p>
-            </div>
-          ) : null}
-
-          {paymentMethod === "sadapay" || paymentMethod === "meezan" ? (
-            <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800">
-              <p className="font-bold mb-1">
-                {paymentMethod === "sadapay" ? "Sada Pay" : "Meezan Bank"}
-              </p>
-              <p>
-                Pay the order total <strong>{formatPkr(totalAmount)}</strong> using your chosen method, then enter your
-                Transaction ID / TRX ID and/or upload a payment screenshot below.
-              </p>
-            </div>
-          ) : null}
-
-          <div>
-            <label className={labelClass}>Transaction ID / TRX ID</label>
-            <input
-              placeholder="Enter your transaction ID"
-              value={paymentTransactionId}
-              onChange={(e) => setPaymentTransactionId(e.target.value)}
-              className={inputClass}
-              autoComplete="off"
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Payment screenshot</label>
-            <input
-              type="file"
-              accept="image/*"
-              disabled={uploadingShot}
-              onChange={(e) => void onScreenshotChange(e)}
-              className="text-sm w-full"
-            />
-            {uploadingShot ? <p className="text-xs text-gray-500 mt-1">Uploading…</p> : null}
-            {paymentScreenshotUrl ? (
-              <p className="text-xs text-green-700 mt-2">Screenshot attached — ready to submit.</p>
-            ) : null}
-          </div>
-
-          <p className="text-xs text-gray-600 bg-amber-50 border border-amber-200 rounded px-3 py-2">
-            <strong>Note:</strong> Please provide either your Transaction ID <strong>or</strong> a payment screenshot (at
-            least one is required).
-          </p>
-
-          <button disabled={loading} className="bg-black text-white px-5 py-2 text-sm font-bold uppercase">
-            {loading ? "Placing..." : "Place Order"}
-          </button>
-        </form>
-
-        <div className="border p-5 h-fit space-y-4">
+        <div className="border p-5 h-fit space-y-5">
           <h2 className="font-black uppercase mb-4">Order Summary</h2>
           <div className="space-y-2 text-sm mb-4">
             <p className="flex justify-between">
@@ -421,7 +326,7 @@ export default function CheckoutPage() {
               <span>{formatPkr(totalAmount)}</span>
             </p>
           </div>
-          <div className="space-y-2 text-xs text-gray-600">
+          <div className="space-y-2 text-xs text-gray-600 border-b border-gray-200 pb-4">
             {items.map((i) => (
               <p key={`${i.productId}-${i.size}-${i.color}`}>
                 {i.name}
@@ -435,8 +340,105 @@ export default function CheckoutPage() {
               </p>
             ))}
           </div>
+
+          <div className="space-y-4 pt-1">
+            <h3 className="text-sm font-black uppercase tracking-wide text-gray-800 border-b pb-2">
+              Payment method <ReqStar />
+            </h3>
+            <fieldset className="space-y-2">
+              <legend className="sr-only">Choose how you paid</legend>
+              {(
+                [
+                  { value: "easypaisa" as const, label: "EasyPaisa" },
+                  { value: "sadapay" as const, label: "Sada Pay" },
+                  { value: "meezan" as const, label: "Meezan Bank" },
+                ] as const
+              ).map((opt) => (
+                <label
+                  key={opt.value}
+                  className={`flex items-center gap-3 border px-3 py-2 cursor-pointer ${
+                    paymentMethod === opt.value ? "border-black bg-gray-50" : "border-gray-200"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value={opt.value}
+                    checked={paymentMethod === opt.value}
+                    onChange={() => setPaymentMethod(opt.value)}
+                    className="accent-black"
+                  />
+                  <span className="text-sm font-medium">{opt.label}</span>
+                </label>
+              ))}
+            </fieldset>
+
+            {paymentMethod === "easypaisa" ? (
+              <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-950">
+                <p className="font-bold mb-1">EasyPaisa transfer details</p>
+                <p>
+                  <span className="text-blue-800">Account:</span>{" "}
+                  <span className="font-mono font-semibold">0302 0058237</span>
+                </p>
+                <p>
+                  <span className="text-blue-800">Account holder:</span> Waleed
+                </p>
+                <p className="mt-2 text-blue-900">
+                  Send exactly <strong>{formatPkr(totalAmount)}</strong> to this account, then enter your TRX ID and/or
+                  upload a screenshot below.
+                </p>
+              </div>
+            ) : null}
+
+            {paymentMethod === "sadapay" || paymentMethod === "meezan" ? (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800">
+                <p className="font-bold mb-1">
+                  {paymentMethod === "sadapay" ? "Sada Pay" : "Meezan Bank"}
+                </p>
+                <p>
+                  Pay the order total <strong>{formatPkr(totalAmount)}</strong> using your chosen method, then enter your
+                  Transaction ID / TRX ID and/or upload a payment screenshot below.
+                </p>
+              </div>
+            ) : null}
+
+            <div>
+              <label className={labelClass}>Transaction ID / TRX ID</label>
+              <input
+                placeholder="Enter your transaction ID"
+                value={paymentTransactionId}
+                onChange={(e) => setPaymentTransactionId(e.target.value)}
+                className={inputClass}
+                autoComplete="off"
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Payment screenshot</label>
+              <input
+                type="file"
+                accept="image/*"
+                disabled={uploadingShot}
+                onChange={(e) => void onScreenshotChange(e)}
+                className="text-sm w-full"
+              />
+              {uploadingShot ? <p className="text-xs text-gray-500 mt-1">Uploading…</p> : null}
+              {paymentScreenshotUrl ? (
+                <p className="text-xs text-green-700 mt-2">Screenshot attached — ready to submit.</p>
+              ) : null}
+            </div>
+
+            <p className="text-xs text-gray-600 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+              <strong>Note:</strong> Please provide either your Transaction ID <strong>or</strong> a payment screenshot (at
+              least one is required).
+            </p>
+
+            <button disabled={loading} className="w-full bg-black text-white px-5 py-2.5 text-sm font-bold uppercase">
+              {loading ? "Placing..." : "Place Order"}
+            </button>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
