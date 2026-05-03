@@ -1,7 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import type { IProduct } from "@/types/product";
+import type { CartItem, IProduct } from "@/types/product";
 import { formatPkr } from "@/lib/formatCurrency";
 import ProductReviewsPanel from "./ProductReviewsPanel";
 
@@ -37,7 +38,14 @@ function addToCart(
   window.dispatchEvent(new Event("cart_updated"));
 }
 
+/** Replaces the cart with this line only, then caller navigates to checkout (typical “Buy now”). */
+function setCartToSingleItem(item: CartItem) {
+  localStorage.setItem("cart_items", JSON.stringify([item]));
+  window.dispatchEvent(new Event("cart_updated"));
+}
+
 export default function ProductDetailClient({ product }: { product: IProduct }) {
+  const router = useRouter();
   const variants = useMemo(() => {
     if (product.colorVariants.length > 0) return product.colorVariants;
     if (product.colors.length > 0) {
@@ -196,16 +204,38 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              addToCart(product, selectedColor || "Default", mainImage, selectedSize, quantity);
-              setQuantity(1);
-            }}
-            className="mt-8 w-full md:w-auto bg-black text-white px-8 py-3 text-sm font-bold uppercase tracking-widest"
-          >
-            Add to Cart
-          </button>
+          <div className="mt-8 flex flex-col sm:flex-row flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                addToCart(product, selectedColor || "Default", mainImage, selectedSize, quantity);
+                setQuantity(1);
+              }}
+              className="w-full sm:w-auto bg-black text-white px-8 py-3 text-sm font-bold uppercase tracking-widest hover:bg-gray-900 transition-colors"
+            >
+              Add to Cart
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const qty = Math.max(1, Math.floor(quantity || 1));
+                const line: CartItem = {
+                  productId: product._id,
+                  name: product.name,
+                  price: product.price,
+                  image: mainImage,
+                  quantity: qty,
+                  color: selectedColor || "Default",
+                  size: selectedSize || "",
+                };
+                setCartToSingleItem(line);
+                router.push("/checkout");
+              }}
+              className="w-full sm:w-auto border-2 border-black text-black px-8 py-3 text-sm font-bold uppercase tracking-widest hover:bg-gray-50 transition-colors"
+            >
+              Buy Now
+            </button>
+          </div>
         </div>
       </div>
 
