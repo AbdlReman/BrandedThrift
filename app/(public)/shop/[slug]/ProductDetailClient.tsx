@@ -4,11 +4,19 @@ import { useMemo, useState } from "react";
 import type { IProduct } from "@/types/product";
 import { formatPkr } from "@/lib/formatCurrency";
 
-function addToCart(product: IProduct, selectedColor: string, selectedImage: string) {
+function addToCart(
+  product: IProduct,
+  selectedColor: string,
+  selectedImage: string,
+  selectedSize: string
+) {
   const existing = JSON.parse(localStorage.getItem("cart_items") || "[]");
+  const sizeKey = selectedSize || "";
   const index = existing.findIndex(
-    (i: { productId: string; color?: string }) =>
-      i.productId === product._id && (i.color || "") === (selectedColor || "")
+    (i: { productId: string; color?: string; size?: string }) =>
+      i.productId === product._id &&
+      (i.color || "") === (selectedColor || "") &&
+      (i.size || "") === sizeKey
   );
   if (index >= 0) existing[index].quantity += 1;
   else {
@@ -19,7 +27,7 @@ function addToCart(product: IProduct, selectedColor: string, selectedImage: stri
       image: selectedImage,
       quantity: 1,
       color: selectedColor,
-      size: product.sizes[0] || "",
+      size: sizeKey,
     });
   }
   localStorage.setItem("cart_items", JSON.stringify(existing));
@@ -36,6 +44,11 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
   }, [product.colorVariants, product.colors, product.images]);
 
   const [selectedColor, setSelectedColor] = useState(variants[0]?.color || "Default");
+  const sizes = useMemo(
+    () => (Array.isArray(product.sizes) ? product.sizes.map((s) => String(s).trim()).filter(Boolean) : []),
+    [product.sizes]
+  );
+  const [selectedSize, setSelectedSize] = useState(() => sizes[0] || "");
   const allImages = useMemo(() => {
     const fromVariants = variants.flatMap((variant) => variant.images || []);
     const merged = [...fromVariants, ...product.images].filter(Boolean);
@@ -110,8 +123,32 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
             </div>
           </div>
 
+          {sizes.length > 0 && (
+            <div className="mt-6">
+              <p className="text-xs font-bold uppercase tracking-widest mb-3">Size</p>
+              <div className="flex flex-wrap gap-2">
+                {sizes.map((size) => (
+                  <button
+                    key={`${product._id}-size-${size}`}
+                    type="button"
+                    onClick={() => setSelectedSize(size)}
+                    className={`text-xs px-3 py-2 border font-semibold min-w-[2.5rem] ${
+                      selectedSize === size
+                        ? "bg-black text-white border-black"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <button
-            onClick={() => addToCart(product, selectedColor || "Default", mainImage)}
+            onClick={() =>
+              addToCart(product, selectedColor || "Default", mainImage, selectedSize)
+            }
             className="mt-8 w-full md:w-auto bg-black text-white px-8 py-3 text-sm font-bold uppercase tracking-widest"
           >
             Add to Cart
