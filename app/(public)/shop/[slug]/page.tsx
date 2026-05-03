@@ -55,6 +55,7 @@ export default async function ProductDetailPage({
     category: String(p.category || ""),
     price: Number(p.price || 0),
     description: String(p.description || p.longDescription || p.shortDescription || ""),
+    detail: String(p.detail || ""),
     sizes: Array.isArray(p.sizes) ? (p.sizes as string[]) : [],
     colors: normalizedVariants.map((variant) => variant.color),
     colorVariants: normalizedVariants,

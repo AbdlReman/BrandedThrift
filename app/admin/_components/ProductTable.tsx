@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { IProduct } from "@/types/product";
+import { formatPkr } from "@/lib/formatCurrency";
 
 interface ProductTableProps {
   products: IProduct[];
@@ -92,7 +93,7 @@ export default function ProductTable({ products }: ProductTableProps) {
 
                 {/* Price */}
                 <td className="px-4 py-3">
-                  <p className="font-bold text-white">${product.price}</p>
+                  <p className="font-bold text-white">{formatPkr(product.price)}</p>
                   <p className="text-slate-500 text-xs">Discount {product.discount}%</p>
                 </td>
 

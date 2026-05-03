@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 import Order from "@/models/Order";
+import { formatPkr } from "@/lib/formatCurrency";
 import { sendOrderEmails } from "@/lib/mailer";
 
 function makeOrderNumber() {
@@ -64,7 +65,7 @@ export async function POST(req: NextRequest) {
     const orderItemsHtml = items
       .map(
         (item: { name: string; quantity: number; price: number }) =>
-          `<li>${item.name} x${item.quantity} - $${item.price}</li>`
+          `<li>${item.name} x${item.quantity} - ${formatPkr(Number(item.price))}</li>`
       )
       .join("");
 
@@ -73,7 +74,7 @@ export async function POST(req: NextRequest) {
       <p>Hi ${customer.name},</p>
       <p>Thank you for your order. We have received it and will process it soon.</p>
       <ul>${orderItemsHtml}</ul>
-      <p><strong>Total:</strong> $${Number(totalAmount || 0).toFixed(2)}</p>
+      <p><strong>Total:</strong> ${formatPkr(Number(totalAmount || 0))}</p>
     `;
 
     const adminHtml = `
@@ -81,7 +82,7 @@ export async function POST(req: NextRequest) {
       <p><strong>Customer:</strong> ${customer.name} (${customer.email}, ${customer.phone})</p>
       <p><strong>Address:</strong> ${customer.address}, ${customer.city}</p>
       <ul>${orderItemsHtml}</ul>
-      <p><strong>Total:</strong> $${Number(totalAmount || 0).toFixed(2)}</p>
+      <p><strong>Total:</strong> ${formatPkr(Number(totalAmount || 0))}</p>
     `;
 
     if (process.env.ADMIN_EMAIL && process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {

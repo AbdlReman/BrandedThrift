@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "./ImageUploader";
+import RichTextEditor from "./RichTextEditor";
 import type { ColorVariant, IProduct } from "@/types/product";
 
 interface ProductFormProps {
@@ -27,6 +28,7 @@ export default function ProductForm({
     category: fallbackCategory,
     price: "" as unknown as number,
     description: "",
+    detail: "",
     sizesInput: "",
     stockQuantity: 0,
     discount: 0,
@@ -42,6 +44,7 @@ export default function ProductForm({
           category: initialData.category,
           price: initialData.price,
           description: initialData.description,
+          detail: initialData.detail,
           sizesInput: initialData.sizes.join(", "),
           stockQuantity: initialData.stockQuantity,
           discount: initialData.discount,
@@ -164,7 +167,7 @@ export default function ProductForm({
           </div>
 
           <div>
-            <label className={labelClass}>Price ($) *</label>
+            <label className={labelClass}>Price (PKR) *</label>
             <input
               type="number"
               required
@@ -245,6 +248,14 @@ export default function ProductForm({
               className={`${inputClass} resize-none`}
             />
             <p className="text-slate-500 text-xs mt-1">{form.description.length}/1000</p>
+          </div>
+
+          <div>
+            <label className={labelClass}>Detail (Rich Text)</label>
+            <RichTextEditor
+              value={form.detail}
+              onChange={(content) => set("detail", content)}
+            />
           </div>
         </div>
       </div>

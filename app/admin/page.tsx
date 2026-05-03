@@ -1,4 +1,5 @@
 import { connectDB } from "@/lib/mongodb";
+import { formatPkr } from "@/lib/formatCurrency";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
 
@@ -49,7 +50,7 @@ export default async function AdminPage() {
           { label: "Total Orders", value: totalOrders },
           { label: "Pending Orders", value: pendingOrders },
           { label: "Completed Orders", value: completedOrders },
-          { label: "Revenue", value: `$${revenue.toFixed(2)}` },
+          { label: "Revenue", value: formatPkr(revenue) },
         ].map((stat) => (
           <div key={stat.label} className="bg-slate-800 border border-slate-700 rounded-xl p-4">
             <p className="text-xs text-slate-500 uppercase tracking-widest">{stat.label}</p>
@@ -80,7 +81,7 @@ export default async function AdminPage() {
                   <p className="text-slate-100 text-sm">{String((o.customer as { name: string })?.name || "Customer")}</p>
                   <p className="text-xs text-slate-500">{String(o.orderNumber || "")}</p>
                 </div>
-                <p className="text-sm font-semibold text-white">${Number(o.totalAmount || 0).toFixed(2)}</p>
+                <p className="text-sm font-semibold text-white">{formatPkr(Number(o.totalAmount || 0))}</p>
               </div>
             ))}
           </div>

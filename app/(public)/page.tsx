@@ -1,12 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
+import { formatPkr } from "@/lib/formatCurrency";
 
 const featuredProducts = [
   {
     id: 1,
     name: "Velocity Runner Pro",
-    price: 129,
-    originalPrice: 180,
+    price: 12999,
+    originalPrice: 17999,
     brand: "PUMA",
     color: "Black / White",
     bg: "bg-gray-100",
@@ -15,8 +16,8 @@ const featuredProducts = [
   {
     id: 2,
     name: "Street Glide Elite",
-    price: 99,
-    originalPrice: 145,
+    price: 9999,
+    originalPrice: 14499,
     brand: "NIKE",
     color: "Red / Black",
     bg: "bg-red-50",
@@ -25,8 +26,8 @@ const featuredProducts = [
   {
     id: 3,
     name: "Classic Court Low",
-    price: 85,
-    originalPrice: 120,
+    price: 8499,
+    originalPrice: 11999,
     brand: "ADIDAS",
     color: "White / Navy",
     bg: "bg-blue-50",
@@ -35,8 +36,8 @@ const featuredProducts = [
   {
     id: 4,
     name: "Trail Blazer X9",
-    price: 149,
-    originalPrice: 210,
+    price: 14999,
+    originalPrice: 20999,
     brand: "NEW BALANCE",
     color: "Grey / Orange",
     bg: "bg-orange-50",
@@ -159,8 +160,8 @@ export default function HomePage() {
                 <h3 className="font-bold text-sm uppercase tracking-wide mb-1">{product.name}</h3>
                 <p className="text-gray-500 text-xs mb-2">{product.color}</p>
                 <div className="flex items-center gap-3">
-                  <span className="font-black text-lg">${product.price}</span>
-                  <span className="text-gray-400 line-through text-sm">${product.originalPrice}</span>
+                  <span className="font-black text-lg">{formatPkr(product.price)}</span>
+                  <span className="text-gray-400 line-through text-sm">{formatPkr(product.originalPrice)}</span>
                   <span className="text-red-600 text-xs font-bold">
                     -{Math.round((1 - product.price / product.originalPrice) * 100)}%
                   </span>
@@ -195,7 +196,7 @@ export default function HomePage() {
           {[
             { icon: "✓", title: "100% Authentic", desc: "Every shoe is verified authentic. No replicas, no exceptions." },
             { icon: "♻", title: "Sustainable", desc: "Pre-loved and new stock — great for your wallet and the planet." },
-            { icon: "⚡", title: "Fast Delivery", desc: "Orders dispatched within 24 hours. Free shipping over $75." },
+            { icon: "⚡", title: "Fast Delivery", desc: "Orders dispatched within 24 hours. Free shipping over Rs. 20,000." },
           ].map(({ icon, title, desc }) => (
             <div key={title} className="text-center">
               <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-black">

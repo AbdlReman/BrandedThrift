@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { IProduct } from "@/types/product";
+import { formatPkr } from "@/lib/formatCurrency";
 import Link from "next/link";
 
 const SORTS = [
@@ -51,7 +52,7 @@ function ProductCard({ product }: { product: IProduct }) {
       </Link>
 
       <div className="flex items-center justify-between mt-3">
-        <span className="font-black text-lg">${product.price.toFixed(2)}</span>
+        <span className="font-black text-lg">{formatPkr(product.price)}</span>
       </div>
       <button
         onClick={() => addToCart(product, selectedColor, mainImage)}
@@ -79,7 +80,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("latest");
   const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(1000);
+  const [maxPrice, setMaxPrice] = useState(500_000);
 
   const filtered = useMemo(() => {
     return products
@@ -118,7 +119,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
         </div>
         <div className="grid md:grid-cols-4 gap-3 mb-8">
           <input type="number" value={minPrice} onChange={(e) => setMinPrice(Number(e.target.value || 0))} className="border px-3 py-2" placeholder="Min Price" />
-          <input type="number" value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value || 1000))} className="border px-3 py-2" placeholder="Max Price" />
+          <input type="number" value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value || 500000))} className="border px-3 py-2" placeholder="Max Price (PKR)" />
           <select value={sort} onChange={(e) => setSort(e.target.value)} className="border px-3 py-2 md:col-span-2">{SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}</select>
         </div>
 

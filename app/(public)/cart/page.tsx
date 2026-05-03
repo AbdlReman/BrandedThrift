@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { CartItem } from "@/types/product";
+import { formatPkr } from "@/lib/formatCurrency";
 
 const COUPONS: Record<string, number> = {
   THRIFT20: 20,
@@ -55,7 +56,7 @@ export default function CartPage() {
                 <div className="flex-1">
                   <h3 className="font-bold">{item.name}</h3>
                   <p className="text-sm text-gray-500">{item.color} {item.size ? `· ${item.size}` : ""}</p>
-                  <p className="font-semibold mt-1">${item.price.toFixed(2)}</p>
+                  <p className="font-semibold mt-1">{formatPkr(item.price)}</p>
                   <div className="flex items-center gap-3 mt-2">
                     <input type="number" min={1} value={item.quantity} onChange={(e) => updateQuantity(item.productId, Number(e.target.value || 1))} className="w-16 border px-2 py-1" />
                     <button onClick={() => removeItem(item.productId)} className="text-red-600 text-sm">Remove</button>
@@ -67,9 +68,9 @@ export default function CartPage() {
           <div className="border p-5 h-fit">
             <h2 className="font-black uppercase mb-4">Summary</h2>
             <div className="space-y-2 text-sm">
-              <p className="flex justify-between"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></p>
-              <p className="flex justify-between"><span>Discount</span><span>-${discountAmount.toFixed(2)}</span></p>
-              <p className="flex justify-between font-bold text-base"><span>Total</span><span>${total.toFixed(2)}</span></p>
+              <p className="flex justify-between"><span>Subtotal</span><span>{formatPkr(subtotal)}</span></p>
+              <p className="flex justify-between"><span>Discount</span><span>-{formatPkr(discountAmount)}</span></p>
+              <p className="flex justify-between font-bold text-base"><span>Total</span><span>{formatPkr(total)}</span></p>
             </div>
             <div className="mt-4">
               <input value={couponCode} onChange={(e) => setCouponCode(e.target.value.toUpperCase())} className="border px-3 py-2 w-full" placeholder="Coupon Code" />

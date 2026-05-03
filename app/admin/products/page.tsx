@@ -19,6 +19,7 @@ export default async function ProductsPage() {
     category: String(p.category || ""),
     price: Number(p.price),
     description: String(p.description || ""),
+    detail: String(p.detail || ""),
     sizes: Array.isArray(p.sizes) ? (p.sizes as string[]) : [],
     colors: Array.isArray(p.colors) ? (p.colors as string[]) : [],
     colorVariants: Array.isArray(p.colorVariants)

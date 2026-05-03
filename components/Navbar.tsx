@@ -34,7 +34,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
       {/* Top promo bar */}
       <div className="bg-black text-white text-center py-2 text-xs font-bold tracking-widest uppercase">
-        Free Shipping on Orders Over $75 | Use Code: THRIFT20
+        Free shipping on orders over Rs. 20,000 | Use code: THRIFT20
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

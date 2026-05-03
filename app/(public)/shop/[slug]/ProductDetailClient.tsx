@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { IProduct } from "@/types/product";
+import { formatPkr } from "@/lib/formatCurrency";
 
 function addToCart(product: IProduct, selectedColor: string, selectedImage: string) {
   const existing = JSON.parse(localStorage.getItem("cart_items") || "[]");
@@ -84,7 +85,7 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
         <div>
           <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">{product.brand}</p>
           <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight">{product.name}</h1>
-          <p className="text-2xl font-black mt-4">${product.price.toFixed(2)}</p>
+          <p className="text-2xl font-black mt-4">{formatPkr(product.price)}</p>
           <p className="text-gray-600 mt-4 leading-relaxed">
             {product.description || "Premium product with authentic quality and comfort."}
           </p>
@@ -116,6 +117,20 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
             Add to Cart
           </button>
         </div>
+      </div>
+
+      <div className="mt-12 border-t border-gray-200 pt-8">
+        <h2 className="text-2xl font-black uppercase tracking-tight mb-4">Product Details</h2>
+        {product.detail ? (
+          <div
+            className="prose prose-sm max-w-none"
+            dangerouslySetInnerHTML={{ __html: product.detail }}
+          />
+        ) : (
+          <p className="text-gray-600 leading-relaxed">
+            No detail content added yet.
+          </p>
+        )}
       </div>
     </div>
   );

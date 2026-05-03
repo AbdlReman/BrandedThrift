@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { connectDB } from "@/lib/mongodb";
+import { formatPkr } from "@/lib/formatCurrency";
 import Order from "@/models/Order";
 
 export const metadata: Metadata = { title: "Orders — Admin" };
@@ -39,7 +40,7 @@ export default async function AdminOrdersPage() {
                 <p className="text-slate-400 text-sm">{order.customer.phone} · {order.customer.address}, {order.customer.city}</p>
               </div>
               <div className="text-right">
-                <p className="text-white font-black">${order.totalAmount.toFixed(2)}</p>
+                <p className="text-white font-black">{formatPkr(order.totalAmount)}</p>
                 <p className="text-xs text-slate-400">{new Date(order.createdAt).toLocaleString()}</p>
                 <p className="text-xs text-slate-300">Payment: {order.paymentStatus}</p>
                 <p className="text-xs text-slate-300">Order: {order.orderStatus}</p>
@@ -48,7 +49,7 @@ export default async function AdminOrdersPage() {
             <div className="mt-4 border-t border-slate-700 pt-3 space-y-1">
               {order.items.map((item, idx) => (
                 <p key={`${order._id}-${idx}`} className="text-sm text-slate-300">
-                  {item.name} x{item.quantity} - ${Number(item.price).toFixed(2)}
+                  {item.name} x{item.quantity} - {formatPkr(Number(item.price))}
                 </p>
               ))}
             </div>

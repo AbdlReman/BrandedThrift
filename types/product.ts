@@ -10,6 +10,7 @@ export interface IProduct {
   category: string;
   price: number;
   description: string;
+  detail: string;
   sizes: string[];
   colors: string[];
   colorVariants: ColorVariant[];

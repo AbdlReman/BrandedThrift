@@ -57,6 +57,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
       name: body.name,
       price: Number(body.price || 0),
       description: body.description || "",
+      detail: body.detail || "",
       category: body.category || "",
       sizes: Array.isArray(body.sizes) ? body.sizes : [],
       colors,

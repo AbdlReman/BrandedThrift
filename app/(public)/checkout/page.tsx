@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { CartItem } from "@/types/product";
+import { formatPkr } from "@/lib/formatCurrency";
 
 const COUPONS: Record<string, number> = {
   THRIFT20: 20,
@@ -82,10 +83,10 @@ export default function CheckoutPage() {
           <h2 className="font-black uppercase mb-4">Order Summary</h2>
           <div className="space-y-2 text-sm mb-4">
             <p className="flex justify-between"><span>Items</span><span>{items.length}</span></p>
-            <p className="flex justify-between"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></p>
+            <p className="flex justify-between"><span>Subtotal</span><span>{formatPkr(subtotal)}</span></p>
             <p className="flex justify-between"><span>Coupon</span><span>{coupon || "-"}</span></p>
-            <p className="flex justify-between"><span>Discount</span><span>-${discountAmount.toFixed(2)}</span></p>
-            <p className="flex justify-between font-bold text-base"><span>Total</span><span>${totalAmount.toFixed(2)}</span></p>
+            <p className="flex justify-between"><span>Discount</span><span>-{formatPkr(discountAmount)}</span></p>
+            <p className="flex justify-between font-bold text-base"><span>Total</span><span>{formatPkr(totalAmount)}</span></p>
           </div>
           <div className="space-y-2 text-xs text-gray-600">
             {items.map((i) => (

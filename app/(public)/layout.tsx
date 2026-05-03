@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "../globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import PublicChrome from "@/components/PublicChrome";
 
 export const metadata: Metadata = {
   title: "Branded Thrift | Premium Shoes",
@@ -12,11 +11,9 @@ export default function PublicLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="h-full">
-      <body className="min-h-full flex flex-col antialiased">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+    <html lang="en-PK" className="h-full" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col antialiased" suppressHydrationWarning>
+        <PublicChrome>{children}</PublicChrome>
       </body>
     </html>
   );
