@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/mongodb";
 import { formatPkr } from "@/lib/formatCurrency";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
+import SalesChart from "./_components/SalesChart";
 
 export const dynamic = "force-dynamic";
 
@@ -27,16 +28,10 @@ export default async function AdminPage() {
     .sort((a, b) => Number(b.soldCount || 0) - Number(a.soldCount || 0))
     .slice(0, 6);
 
-  const salesByDay = Array.from({ length: 7 }).map((_, idx) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (6 - idx));
-    const key = date.toISOString().slice(0, 10);
-    const dayRevenue = orders
-      .filter((o) => String(o.createdAt).slice(0, 10) === key)
-      .reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
-    return { key, revenue: dayRevenue };
-  });
-  const maxRevenue = Math.max(...salesByDay.map((d) => d.revenue), 1);
+  const chartOrders = orders.map((o) => ({
+    createdAt: String(o.createdAt),
+    totalAmount: Number(o.totalAmount || 0),
+  }));
 
   return (
     <div className="space-y-8">
@@ -60,17 +55,7 @@ export default async function AdminPage() {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-slate-800 border border-slate-700 rounded-xl p-5">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4">Sales Chart (7 days)</h2>
-          <div className="flex items-end gap-3 h-48">
-            {salesByDay.map((day) => (
-              <div key={day.key} className="flex-1 flex flex-col items-center">
-                <div className="w-full bg-indigo-500/80 rounded-t" style={{ height: `${(day.revenue / maxRevenue) * 100}%` }} />
-                <p className="text-[10px] text-slate-500 mt-2">{day.key.slice(5)}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        <SalesChart orders={chartOrders} />
 
         <div className="bg-slate-800 border border-slate-700 rounded-xl p-5">
           <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4">Recent Orders</h2>
