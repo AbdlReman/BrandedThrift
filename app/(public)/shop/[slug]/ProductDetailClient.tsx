@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { IProduct } from "@/types/product";
 import { formatPkr } from "@/lib/formatCurrency";
 import ProductReviewsPanel from "./ProductReviewsPanel";
@@ -9,8 +9,10 @@ function addToCart(
   product: IProduct,
   selectedColor: string,
   selectedImage: string,
-  selectedSize: string
+  selectedSize: string,
+  quantity: number
 ) {
+  const qty = Math.max(1, Math.floor(quantity || 1));
   const existing = JSON.parse(localStorage.getItem("cart_items") || "[]");
   const sizeKey = selectedSize || "";
   const index = existing.findIndex(
@@ -19,14 +21,14 @@ function addToCart(
       (i.color || "") === (selectedColor || "") &&
       (i.size || "") === sizeKey
   );
-  if (index >= 0) existing[index].quantity += 1;
+  if (index >= 0) existing[index].quantity += qty;
   else {
     existing.push({
       productId: product._id,
       name: product.name,
       price: product.price,
       image: selectedImage,
-      quantity: 1,
+      quantity: qty,
       color: selectedColor,
       size: sizeKey,
     });
@@ -50,6 +52,24 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
     [product.sizes]
   );
   const [selectedSize, setSelectedSize] = useState(() => sizes[0] || "");
+  const maxSelectableQty = useMemo(() => {
+    const stock = Number(product.stockQuantity || 0);
+    if (stock > 0) return Math.min(99, stock);
+    return 99;
+  }, [product.stockQuantity]);
+  const [quantity, setQuantity] = useState(1);
+
+  const bumpQty = (delta: number) => {
+    setQuantity((q) => {
+      const next = q + delta;
+      return Math.min(maxSelectableQty, Math.max(1, next));
+    });
+  };
+
+  useEffect(() => {
+    setQuantity((q) => Math.min(maxSelectableQty, Math.max(1, q)));
+  }, [maxSelectableQty]);
+
   const allImages = useMemo(() => {
     const fromVariants = variants.flatMap((variant) => variant.images || []);
     const merged = [...fromVariants, ...product.images].filter(Boolean);
@@ -146,10 +166,42 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
             </div>
           )}
 
+          <div className="mt-6">
+            <p className="text-xs font-bold uppercase tracking-widest mb-3">Quantity</p>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                aria-label="Decrease quantity"
+                onClick={() => bumpQty(-1)}
+                disabled={quantity <= 1}
+                className="h-10 w-10 border border-gray-300 text-lg font-bold leading-none hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                -
+              </button>
+              <span className="min-w-[2.5rem] text-center text-base font-bold tabular-nums">{quantity}</span>
+              <button
+                type="button"
+                aria-label="Increase quantity"
+                onClick={() => bumpQty(1)}
+                disabled={quantity >= maxSelectableQty}
+                className="h-10 w-10 border border-gray-300 text-lg font-bold leading-none hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                +
+              </button>
+              {product.stockQuantity > 0 && (
+                <span className="text-xs text-gray-500">
+                  {product.stockQuantity} in stock
+                </span>
+              )}
+            </div>
+          </div>
+
           <button
-            onClick={() =>
-              addToCart(product, selectedColor || "Default", mainImage, selectedSize)
-            }
+            type="button"
+            onClick={() => {
+              addToCart(product, selectedColor || "Default", mainImage, selectedSize, quantity);
+              setQuantity(1);
+            }}
             className="mt-8 w-full md:w-auto bg-black text-white px-8 py-3 text-sm font-bold uppercase tracking-widest"
           >
             Add to Cart
