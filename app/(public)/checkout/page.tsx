@@ -7,7 +7,7 @@ import type { CartItem } from "@/types/product";
 import { discountFromPercent } from "@/lib/couponValidation";
 import { formatPkr } from "@/lib/formatCurrency";
 
-type PaymentMethod = "easypaisa" | "sadapay" | "meezan" | "";
+type PaymentMethod = "easypaisa" | "jazzcash" | "mcbislamic" | "";
 
 async function validateCouponCode(code: string) {
   const res = await fetch("/api/coupons/validate", {
@@ -135,7 +135,7 @@ export default function CheckoutPage() {
       return;
     }
     if (!paymentMethod) {
-      toast.error("Payment method required", { description: "Choose EasyPaisa, Sada Pay, or Meezan Bank." });
+      toast.error("Payment method required", { description: "Choose EasyPaisa, JazzCash, or MCB Islamic Bank." });
       return;
     }
     const trx = paymentTransactionId.trim();
@@ -374,8 +374,8 @@ export default function CheckoutPage() {
               {(
                 [
                   { value: "easypaisa" as const, label: "EasyPaisa" },
-                  { value: "sadapay" as const, label: "Sada Pay" },
-                  { value: "meezan" as const, label: "Meezan Bank" },
+                  { value: "jazzcash" as const, label: "JazzCash" },
+                  { value: "mcbislamic" as const, label: "MCB Islamic Bank" },
                 ] as const
               ).map((opt) => (
                 <label
@@ -402,10 +402,10 @@ export default function CheckoutPage() {
                 <p className="font-bold mb-1">EasyPaisa transfer details</p>
                 <p>
                   <span className="text-blue-800">Account:</span>{" "}
-                  <span className="font-mono font-semibold">0302 0058237</span>
+                  <span className="font-mono font-semibold">03231589585</span>
                 </p>
                 <p>
-                  <span className="text-blue-800">Account holder:</span> Waleed
+                  <span className="text-blue-800">Account holder:</span> Waleed Ishtiaq
                 </p>
                 <p className="mt-2 text-blue-900">
                   Send exactly <strong>{formatPkr(totalAmount)}</strong> to this account, then enter your TRX ID and/or
@@ -414,14 +414,40 @@ export default function CheckoutPage() {
               </div>
             ) : null}
 
-            {paymentMethod === "sadapay" || paymentMethod === "meezan" ? (
+            {paymentMethod === "jazzcash" ? (
               <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800">
-                <p className="font-bold mb-1">
-                  {paymentMethod === "sadapay" ? "Sada Pay" : "Meezan Bank"}
+                <p className="font-bold mb-1">JazzCash transfer details</p>
+                <p>
+                  <span className="text-slate-700">Account:</span>{" "}
+                  <span className="font-mono font-semibold">03231589585</span>
                 </p>
                 <p>
-                  Pay the order total <strong>{formatPkr(totalAmount)}</strong> using your chosen method, then enter your
-                  Transaction ID / TRX ID and/or upload a payment screenshot below.
+                  <span className="text-slate-700">Account holder:</span> Waleed Ishtiaq
+                </p>
+                <p className="mt-2">
+                  Send exactly <strong>{formatPkr(totalAmount)}</strong> to this account, then enter your TRX ID and/or
+                  upload a screenshot below.
+                </p>
+              </div>
+            ) : null}
+
+            {paymentMethod === "mcbislamic" ? (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800">
+                <p className="font-bold mb-1">MCB Islamic Bank transfer details</p>
+                <p>
+                  <span className="text-slate-700">IBAN:</span>{" "}
+                  <span className="font-mono font-semibold">PK15MCIB2511007217870001</span>
+                </p>
+                <p>
+                  <span className="text-slate-700">Account number:</span>{" "}
+                  <span className="font-mono font-semibold">2511007217870001</span>
+                </p>
+                <p>
+                  <span className="text-slate-700">Account holder:</span> Waleed Ishtiaq
+                </p>
+                <p>
+                  Send exactly <strong>{formatPkr(totalAmount)}</strong> to this account, then enter your TRX ID and/or
+                  upload a screenshot below.
                 </p>
               </div>
             ) : null}
