@@ -2,19 +2,39 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          subject: form.subject.trim(),
+          message: form.message.trim(),
+        }),
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        toast.error("Message not sent", { description: data.error || "Please try again." });
+        return;
+      }
       setSubmitted(true);
-    }, 1200);
+      toast.success("Message sent", { description: "We will get back to you soon." });
+    } catch {
+      toast.error("Network error", { description: "Could not reach the server. Try again." });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

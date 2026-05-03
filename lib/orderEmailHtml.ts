@@ -1,4 +1,5 @@
 import { formatPkr } from "@/lib/formatCurrency";
+import { getRecipientInboxEmail, smtpCredentialsReady } from "@/lib/mailer";
 import { paymentMethodLabel } from "@/lib/paymentLabels";
 
 export type OrderItemInput = {
@@ -174,16 +175,9 @@ export function buildAdminOrderEmailHtml(opts: {
 }
 
 export function getOrderNotificationEmail(): string | undefined {
-  const a = process.env.ADMIN_EMAIL?.trim();
-  const b = process.env.ORDER_NOTIFY_EMAIL?.trim();
-  return a || b || undefined;
+  return getRecipientInboxEmail();
 }
 
 export function smtpConfigured(): boolean {
-  return Boolean(
-    process.env.SMTP_HOST?.trim() &&
-      process.env.SMTP_USER?.trim() &&
-      process.env.SMTP_PASS?.trim() &&
-      getOrderNotificationEmail()
-  );
+  return Boolean(smtpCredentialsReady() && getOrderNotificationEmail());
 }

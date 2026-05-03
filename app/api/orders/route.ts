@@ -210,7 +210,7 @@ export async function POST(req: NextRequest) {
       }
     } else {
       console.warn(
-        "Order confirmation email skipped: set ADMIN_EMAIL (or ORDER_NOTIFY_EMAIL), SMTP_HOST, SMTP_USER, SMTP_PASS. Use Gmail App Password on port 587."
+        "Order confirmation email skipped: set RECIPIENT_EMAIL, EMAIL_USER, and EMAIL_PASS (Gmail App Password on port 587), or full SMTP_* vars."
       );
     }
 
