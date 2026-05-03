@@ -44,6 +44,8 @@ export default function ProductReviewsPanel({ productId }: { productId: string }
   const [body, setBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const [showAddForm, setShowAddForm] = useState(false);
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editAuthor, setEditAuthor] = useState("");
   const [editRating, setEditRating] = useState(5);
@@ -73,6 +75,7 @@ export default function ProductReviewsPanel({ productId }: { productId: string }
 
   const startEdit = (r: IReview) => {
     if (!canEdit(r._id)) return;
+    setShowAddForm(false);
     setEditingId(r._id);
     setEditAuthor(r.authorName);
     setEditRating(r.rating);
@@ -99,6 +102,7 @@ export default function ProductReviewsPanel({ productId }: { productId: string }
       setAuthorName("");
       setRating(5);
       setBody("");
+      setShowAddForm(false);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Submit failed");
@@ -159,72 +163,99 @@ export default function ProductReviewsPanel({ productId }: { productId: string }
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-800 text-sm px-4 py-3 rounded">{error}</div>
       )}
 
-      <form onSubmit={submitNew} className="border border-gray-200 p-5 space-y-4 bg-gray-50/50">
-        <h3 className="text-sm font-black uppercase tracking-widest">Write a review</h3>
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Your name</label>
-            <input
-              required
-              maxLength={80}
-              value={authorName}
-              onChange={(e) => setAuthorName(e.target.value)}
-              className="w-full border border-gray-300 px-3 py-2 text-sm"
-              placeholder="e.g. Ali"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Rating</label>
-            <select
-              value={rating}
-              onChange={(e) => setRating(Number(e.target.value))}
-              className="w-full border border-gray-300 px-3 py-2 text-sm"
-            >
-              {[5, 4, 3, 2, 1].map((n) => (
-                <option key={n} value={n}>
-                  {n} {n === 1 ? "star" : "stars"}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <div>
-          <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Your review</label>
-          <textarea
-            required
-            maxLength={2000}
-            rows={4}
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            className="w-full border border-gray-300 px-3 py-2 text-sm resize-y"
-            placeholder="Share your experience with this product…"
-          />
-          <p className="text-xs text-gray-400 mt-1">{body.length}/2000</p>
-        </div>
-        <button
-          type="submit"
-          disabled={submitting}
-          className="bg-black text-white px-6 py-2.5 text-xs font-bold uppercase tracking-widest disabled:opacity-50"
-        >
-          {submitting ? "Submitting…" : "Submit review"}
-        </button>
-        <p className="text-xs text-gray-500 leading-relaxed">
-          After posting, you can edit or delete this review from this browser only (we save a private link on your
-          device).
-        </p>
-      </form>
-
-      <div>
-        <h3 className="text-sm font-black uppercase tracking-widest mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 gap-y-2">
+        <h3 className="text-sm font-black uppercase tracking-widest">
           Customer reviews ({reviews.length})
         </h3>
+        <button
+          type="button"
+          onClick={() => {
+            setShowAddForm((open) => !open);
+            setEditingId(null);
+          }}
+          className="shrink-0 bg-black text-white px-5 py-2.5 text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors"
+        >
+          {showAddForm ? "Close" : "Add review"}
+        </button>
+      </div>
+
+      {showAddForm && (
+        <form
+          onSubmit={submitNew}
+          className="border border-gray-200 p-5 space-y-4 bg-gray-50/50"
+        >
+          <h4 className="text-xs font-black uppercase tracking-widest text-gray-600">Write a review</h4>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Your name</label>
+              <input
+                required
+                maxLength={80}
+                value={authorName}
+                onChange={(e) => setAuthorName(e.target.value)}
+                className="w-full border border-gray-300 px-3 py-2 text-sm bg-white"
+                placeholder="e.g. Ali"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Rating</label>
+              <select
+                value={rating}
+                onChange={(e) => setRating(Number(e.target.value))}
+                className="w-full border border-gray-300 px-3 py-2 text-sm bg-white"
+              >
+                {[5, 4, 3, 2, 1].map((n) => (
+                  <option key={n} value={n}>
+                    {n} {n === 1 ? "star" : "stars"}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Your review</label>
+            <textarea
+              required
+              maxLength={2000}
+              rows={4}
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              className="w-full border border-gray-300 px-3 py-2 text-sm resize-y bg-white"
+              placeholder="Share your experience with this product…"
+            />
+            <p className="text-xs text-gray-400 mt-1">{body.length}/2000</p>
+          </div>
+          <div className="flex flex-wrap gap-3 items-center">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="bg-black text-white px-6 py-2.5 text-xs font-bold uppercase tracking-widest disabled:opacity-50"
+            >
+              {submitting ? "Submitting…" : "Submit review"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowAddForm(false)}
+              className="border border-gray-300 px-5 py-2.5 text-xs font-bold uppercase text-gray-700 hover:bg-white"
+            >
+              Cancel
+            </button>
+          </div>
+          <p className="text-xs text-gray-500 leading-relaxed">
+            After posting, you can edit or delete this review from this browser only (we save a private link on your
+            device).
+          </p>
+        </form>
+      )}
+
+      <div>
         {reviews.length === 0 ? (
-          <p className="text-gray-500 text-sm">No reviews yet. Be the first to review this product.</p>
+          <p className="text-gray-500 text-sm">No reviews yet. Use &quot;Add review&quot; to share your experience.</p>
         ) : (
           <ul className="space-y-6">
             {reviews.map((r) => (
@@ -320,3 +351,4 @@ export default function ProductReviewsPanel({ productId }: { productId: string }
     </div>
   );
 }
+
