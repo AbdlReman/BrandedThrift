@@ -6,6 +6,10 @@ export interface CustomerInfo {
   email: string;
   address: string;
   city: string;
+  /** Optional — state or province */
+  state?: string;
+  /** Optional — ZIP / postal code */
+  postalCode?: string;
   notes?: string;
 }
 

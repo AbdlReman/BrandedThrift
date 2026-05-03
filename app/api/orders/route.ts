@@ -49,6 +49,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing customer fields" }, { status: 400 });
     }
 
+    const customerDoc = {
+      name: String(customer.name).trim(),
+      phone: String(customer.phone).trim(),
+      email: String(customer.email).trim().toLowerCase(),
+      address: String(customer.address).trim(),
+      city: String(customer.city).trim(),
+      state: String(customer.state ?? "").trim(),
+      postalCode: String(customer.postalCode ?? "").trim(),
+      notes: String(customer.notes ?? "").trim(),
+    };
+
     const paymentMethod = String(payment?.method || "")
       .trim()
       .toLowerCase();
@@ -112,7 +123,7 @@ export async function POST(req: NextRequest) {
 
     const order = await Order.create({
       orderNumber: makeOrderNumber(),
-      customer,
+      customer: customerDoc,
       items,
       subtotal: serverSubtotal,
       discountAmount,
@@ -143,12 +154,14 @@ export async function POST(req: NextRequest) {
     const emailPayload = {
       orderNumber: String(order.orderNumber),
       customer: {
-        name: String(customer.name),
-        phone: String(customer.phone),
-        email: String(customer.email),
-        address: String(customer.address),
-        city: String(customer.city),
-        notes: String(customer.notes || ""),
+        name: customerDoc.name,
+        phone: customerDoc.phone,
+        email: customerDoc.email,
+        address: customerDoc.address,
+        city: customerDoc.city,
+        state: customerDoc.state,
+        postalCode: customerDoc.postalCode,
+        notes: customerDoc.notes,
       },
       items: items.map(
         (item: {
@@ -186,7 +199,7 @@ export async function POST(req: NextRequest) {
     if (smtpConfigured() && notifyEmail) {
       try {
         await sendOrderEmails({
-          customerEmail: String(customer.email).trim(),
+          customerEmail: customerDoc.email,
           adminEmail: notifyEmail,
           subject: `Order ${order.orderNumber} confirmed`,
           customerHtml,

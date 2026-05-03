@@ -9,6 +9,8 @@ const OrderSchema = new Schema(
       email: { type: String, required: true, trim: true, lowercase: true },
       address: { type: String, required: true, trim: true },
       city: { type: String, required: true, trim: true },
+      state: { type: String, default: "", trim: true },
+      postalCode: { type: String, default: "", trim: true },
       notes: { type: String, default: "" },
     },
     items: [

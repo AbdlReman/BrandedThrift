@@ -17,6 +17,8 @@ export type CustomerInput = {
   email: string;
   address: string;
   city: string;
+  state?: string;
+  postalCode?: string;
   notes?: string;
 };
 
@@ -78,11 +80,15 @@ function totalsBlock(opts: {
 
 function customerBlock(c: CustomerInput): string {
   const notes = (c.notes || "").trim();
+  const state = (c.state || "").trim();
+  const postal = (c.postalCode || "").trim();
   return `<div style="margin:20px 0;padding:16px;background:#f9fafb;border-radius:8px;font-size:14px;line-height:1.6;color:#374151;">
   <p style="margin:0 0 8px;font-weight:700;color:#111827;">${esc(c.name)}</p>
   <p style="margin:0;"><strong>Email:</strong> ${esc(c.email)}</p>
   <p style="margin:0;"><strong>Phone:</strong> ${esc(c.phone)}</p>
   <p style="margin:0;"><strong>Address:</strong> ${esc(c.address)}, ${esc(c.city)}</p>
+  ${state ? `<p style="margin:4px 0 0;"><strong>State / Province:</strong> ${esc(state)}</p>` : ""}
+  ${postal ? `<p style="margin:0;"><strong>Postal code:</strong> ${esc(postal)}</p>` : ""}
   ${notes ? `<p style="margin:8px 0 0;"><strong>Notes:</strong> ${esc(notes)}</p>` : ""}
 </div>`;
 }

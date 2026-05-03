@@ -40,6 +40,8 @@ export default function CheckoutPage() {
     email: "",
     address: "",
     city: "",
+    state: "",
+    postalCode: "",
     notes: "",
   });
 
@@ -257,6 +259,28 @@ export default function CheckoutPage() {
               onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
               className={inputClass}
             />
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>State / Province</label>
+              <input
+                placeholder="Optional"
+                value={form.state}
+                onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))}
+                className={inputClass}
+                autoComplete="address-level1"
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Postal code</label>
+              <input
+                placeholder="Optional"
+                value={form.postalCode}
+                onChange={(e) => setForm((f) => ({ ...f, postalCode: e.target.value }))}
+                className={inputClass}
+                autoComplete="postal-code"
+              />
+            </div>
           </div>
           <div>
             <label className={labelClass}>Notes</label>

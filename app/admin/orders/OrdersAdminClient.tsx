@@ -23,6 +23,8 @@ export type AdminOrderRow = {
     email: string;
     address: string;
     city: string;
+    state?: string;
+    postalCode?: string;
     notes?: string;
   };
   items: AdminOrderItem[];
@@ -147,6 +149,16 @@ export default function OrdersAdminClient({ orders }: { orders: AdminOrderRow[] 
                   <p>
                     <span className="text-slate-500">Address:</span> {selected.customer.address}, {selected.customer.city}
                   </p>
+                  {(selected.customer.state || "").trim() ? (
+                    <p>
+                      <span className="text-slate-500">State / Province:</span> {selected.customer.state}
+                    </p>
+                  ) : null}
+                  {(selected.customer.postalCode || "").trim() ? (
+                    <p>
+                      <span className="text-slate-500">Postal code:</span> {selected.customer.postalCode}
+                    </p>
+                  ) : null}
                   {selected.customer.notes ? (
                     <p className="text-slate-400 pt-2 border-t border-slate-700 mt-2">
                       <span className="text-slate-500">Notes:</span> {selected.customer.notes}
