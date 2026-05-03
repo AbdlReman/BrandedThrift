@@ -90,7 +90,16 @@ export default function CheckoutPage() {
           </div>
           <div className="space-y-2 text-xs text-gray-600">
             {items.map((i) => (
-              <p key={`${i.productId}-${i.size}-${i.color}`}>{i.name} x{i.quantity}</p>
+              <p key={`${i.productId}-${i.size}-${i.color}`}>
+                {i.name}
+                {(i.color || i.size) && (
+                  <span className="text-gray-500">
+                    {" "}
+                    · {i.color || "—"} / {i.size || "—"}
+                  </span>
+                )}{" "}
+                ×{i.quantity}
+              </p>
             ))}
           </div>
         </div>

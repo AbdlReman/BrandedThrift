@@ -2,8 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 import Order from "@/models/Order";
-import { formatPkr } from "@/lib/formatCurrency";
 import { sendOrderEmails } from "@/lib/mailer";
+import {
+  buildAdminOrderEmailHtml,
+  buildCustomerOrderEmailHtml,
+  getOrderNotificationEmail,
+  smtpConfigured,
+} from "@/lib/orderEmailHtml";
 
 function makeOrderNumber() {
   return `BT-${Date.now().toString().slice(-8)}`;
@@ -62,37 +67,61 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const orderItemsHtml = items
-      .map(
-        (item: { name: string; quantity: number; price: number }) =>
-          `<li>${item.name} x${item.quantity} - ${formatPkr(Number(item.price))}</li>`
-      )
-      .join("");
+    const notifyEmail = getOrderNotificationEmail();
+    const emailPayload = {
+      orderNumber: String(order.orderNumber),
+      customer: {
+        name: String(customer.name),
+        phone: String(customer.phone),
+        email: String(customer.email),
+        address: String(customer.address),
+        city: String(customer.city),
+        notes: String(customer.notes || ""),
+      },
+      items: items.map(
+        (item: {
+          productId?: string;
+          name: string;
+          quantity: number;
+          price: number;
+          color?: string;
+          size?: string;
+          image?: string;
+        }) => ({
+          productId: item.productId ? String(item.productId) : "",
+          name: String(item.name || ""),
+          quantity: Math.max(1, Number(item.quantity || 1)),
+          price: Number(item.price || 0),
+          color: item.color != null ? String(item.color) : "",
+          size: item.size != null ? String(item.size) : "",
+          image: item.image != null ? String(item.image) : "",
+        })
+      ),
+      subtotal: Number(subtotal || 0),
+      discountAmount: Number(discountAmount || 0),
+      totalAmount: Number(totalAmount || 0),
+      couponCode: String(couponCode || ""),
+    };
 
-    const customerHtml = `
-      <h2>Order Confirmation (${order.orderNumber})</h2>
-      <p>Hi ${customer.name},</p>
-      <p>Thank you for your order. We have received it and will process it soon.</p>
-      <ul>${orderItemsHtml}</ul>
-      <p><strong>Total:</strong> ${formatPkr(Number(totalAmount || 0))}</p>
-    `;
+    const customerHtml = buildCustomerOrderEmailHtml(emailPayload);
+    const adminHtml = buildAdminOrderEmailHtml(emailPayload);
 
-    const adminHtml = `
-      <h2>New Order ${order.orderNumber}</h2>
-      <p><strong>Customer:</strong> ${customer.name} (${customer.email}, ${customer.phone})</p>
-      <p><strong>Address:</strong> ${customer.address}, ${customer.city}</p>
-      <ul>${orderItemsHtml}</ul>
-      <p><strong>Total:</strong> ${formatPkr(Number(totalAmount || 0))}</p>
-    `;
-
-    if (process.env.ADMIN_EMAIL && process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-      await sendOrderEmails({
-        customerEmail: customer.email,
-        adminEmail: process.env.ADMIN_EMAIL,
-        subject: `Order ${order.orderNumber} confirmed`,
-        customerHtml,
-        adminHtml,
-      });
+    if (smtpConfigured() && notifyEmail) {
+      try {
+        await sendOrderEmails({
+          customerEmail: String(customer.email).trim(),
+          adminEmail: notifyEmail,
+          subject: `Order ${order.orderNumber} confirmed`,
+          customerHtml,
+          adminHtml,
+        });
+      } catch (mailErr) {
+        console.error("Order email failed (order still saved):", mailErr);
+      }
+    } else {
+      console.warn(
+        "Order confirmation email skipped: set ADMIN_EMAIL (or ORDER_NOTIFY_EMAIL), SMTP_HOST, SMTP_USER, SMTP_PASS. Use Gmail App Password on port 587."
+      );
     }
 
     return NextResponse.json({
