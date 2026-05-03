@@ -198,7 +198,7 @@ export default function CheckoutPage() {
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>
-                Customer name <ReqStar />
+                Name <ReqStar />
               </label>
               <input
                 required
