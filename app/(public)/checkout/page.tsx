@@ -84,7 +84,7 @@ export default function CheckoutPage() {
     const orderNo = data.order?.orderNumber ?? "confirmed";
     toast.success("Order placed", {
       description: `Order ${orderNo}. Thank you for your purchase.`,
-      duration: 5500,
+      duration: 3000,
     });
     router.push("/shop");
   };

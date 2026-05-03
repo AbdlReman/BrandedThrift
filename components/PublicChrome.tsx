@@ -21,7 +21,7 @@ const Footer = dynamic(() => import("@/components/Footer"), {
 export default function PublicChrome({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Toaster position="top-center" richColors closeButton duration={4000} />
+      <Toaster position="top-center" richColors closeButton duration={3000} />
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
