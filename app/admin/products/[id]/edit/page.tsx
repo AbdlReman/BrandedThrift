@@ -41,7 +41,9 @@ export default async function EditProductPage({
     )
   );
   const finalBrandOptions = brandOptions.length > 0 ? brandOptions : ["PUMA"];
-  const finalCategoryOptions = categoryOptions.length > 0 ? categoryOptions : ["Running"];
+  const finalCategoryOptions = Array.from(
+    new Set((categoryOptions.length > 0 ? categoryOptions : ["Running"]).concat(["Men", "Women"]))
+  );
 
   const p = raw as Record<string, unknown>;
   const product: IProduct = {

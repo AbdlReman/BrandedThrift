@@ -62,25 +62,18 @@ export default function HomePage() {
         <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[420px] h-[420px] rounded-full border border-gray-800 opacity-30" />
         <div className="absolute right-20 top-1/2 -translate-y-1/2 w-[320px] h-[320px] rounded-full border border-gray-700 opacity-20" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 w-full">
-          <div className="max-w-3xl">
-            <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-6">
-              New Collection — Spring 2025
-            </p>
-            <h1 className="text-white mb-6 animate-fade-in-up text-3xl md:text-4xl font-black leading-snug max-w-xl">
-              Move
-        
-              <span className="text-gray-400"> Fast.</span>
-                <br />
-              Look
-            
-              Good.
+        <div className="relative max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-white mb-4 animate-fade-in-up text-4xl md:text-6xl font-black uppercase tracking-tight">
+              Thrifted Branded Shoes
             </h1>
-            <p className="text-gray-300 text-sm max-w-md mb-10 leading-relaxed">
-              Authentic branded footwear curated from the world&apos;s best labels —
-              at prices that make sense.
+            <p className="text-gray-100 text-base md:text-lg mb-3 leading-relaxed">
+              Upgrade your style for less - branded looks without the cost.
             </p>
-            <div className="flex flex-wrap gap-4">
+            <p className="text-gray-200 text-sm md:text-base max-w-2xl mx-auto mb-10">
+              100% original branded shoes - preloved, no repairs, affordable.
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center">
               <Link href="/shop" className="btn-primary">
                 Shop Now
               </Link>
@@ -91,16 +84,6 @@ export default function HomePage() {
                 Our Story
               </Link>
             </div>
-
-            {/* Stats */}
-            <div className="flex gap-12 mt-16 pt-8 border-t border-gray-800">
-              {[["500+", "Styles"], ["50+", "Brands"], ["10K+", "Happy Customers"]].map(([num, label]) => (
-                <div key={label}>
-                  <p className="text-2xl font-black">{num}</p>
-                  <p className="text-gray-500 text-xs uppercase tracking-widest">{label}</p>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
 
@@ -108,7 +91,7 @@ export default function HomePage() {
       </section>
 
       {/* Category Strip */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-8">Shop by Category</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {categories.map((cat) => (
@@ -132,7 +115,7 @@ export default function HomePage() {
       </section>
 
       {/* Featured Products */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+      <section className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 pb-20">
         <div className="flex items-end justify-between mb-10">
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Curated For You</p>
@@ -173,13 +156,12 @@ export default function HomePage() {
       </section>
 
       {/* Full-width Banner */}
-      <section className="bg-black text-white py-24 text-center" style={{backgroundImage: 'url(/images/bg.webp)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
-        <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Limited Time</p>
+      <section className="bg-black text-white py-24 text-center">
         <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tight mb-6">
-          Up to 50% Off
+          THRIFTED SHOES FROM BRANDS YOU LOVE
         </h2>
-        <p className="text-gray-400 mb-10 max-w-md mx-auto">
-          Don&apos;t miss out on our biggest sale of the season. Premium brands, serious savings.
+        <p className="text-gray-300 mb-10 max-w-xl mx-auto">
+          Up to 30% Off. Premium looks, better prices, and free shipping all over Pakistan.
         </p>
         <Link href="/shop" className="btn-primary">
           Shop the Sale
@@ -187,7 +169,7 @@ export default function HomePage() {
       </section>
 
       {/* Why Us */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <section className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center mb-14">
           <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Why Branded Thrift</p>
           <h2 className="text-4xl font-black uppercase tracking-tight">The Difference</h2>
@@ -196,7 +178,7 @@ export default function HomePage() {
           {[
             { icon: "✓", title: "100% Authentic", desc: "Every shoe is verified authentic. No replicas, no exceptions." },
             { icon: "♻", title: "Sustainable", desc: "Pre-loved and new stock — great for your wallet and the planet." },
-            { icon: "⚡", title: "Fast Delivery", desc: "Orders dispatched within 24 hours. Free shipping over Rs. 20,000." },
+            { icon: "⚡", title: "Fast Delivery", desc: "Orders dispatched quickly with free shipping all over Pakistan." },
           ].map(({ icon, title, desc }) => (
             <div key={title} className="text-center">
               <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-black">

@@ -47,7 +47,7 @@ body {
   left: 0;
   width: 0;
   height: 2px;
-  background: #0a0a0a;
+  background: currentColor;
   transition: width 0.25s ease;
 }
 
@@ -55,31 +55,34 @@ body {
 
 .btn-primary {
   display: inline-block;
-  background: #0a0a0a;
-  color: #fff;
-  padding: 0.85rem 2.5rem;
+  background: #ffffff;
+  color: #0a0a0a;
+  border: 2px solid #ffffff;
+  padding: 0.85rem 2.3rem;
   font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-weight: 800;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   transition: background 0.2s ease, color 0.2s ease;
+  cursor: pointer;
 }
 
-.btn-primary:hover { background: #333; }
+.btn-primary:hover { background: transparent; color: #fff; }
 
 .btn-outline {
   display: inline-block;
-  border: 2px solid #0a0a0a;
-  color: #0a0a0a;
+  border: 2px solid #ffffff;
+  color: #ffffff;
   padding: 0.75rem 2.5rem;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   transition: background 0.2s ease, color 0.2s ease;
+  cursor: pointer;
 }
 
-.btn-outline:hover { background: #0a0a0a; color: #fff; }
+.btn-outline:hover { background: #fff; color: #0a0a0a; }
 
 .product-card:hover .product-img { transform: scale(1.04); }
 .product-img { transition: transform 0.4s ease; }

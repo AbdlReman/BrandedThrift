@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { IProduct } from "@/types/product";
 import { formatPkr } from "@/lib/formatCurrency";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 const SORTS = [
   { value: "latest", label: "Sort: Latest" },
@@ -42,7 +43,13 @@ function addToCart(product: IProduct, selectedColor?: string, selectedImage?: st
   toast.success("Added to cart", { description: product.name });
 }
 
-function ProductCard({ product }: { product: IProduct }) {
+function ProductCard({
+  product,
+  onOpenImage,
+}: {
+  product: IProduct;
+  onOpenImage: (src: string, alt: string) => void;
+}) {
   const [selectedColor] = useState(product.colorVariants[0]?.color || product.colors[0] || "");
   const activeVariant =
     product.colorVariants.find((variant) => variant.color === selectedColor) || product.colorVariants[0];
@@ -51,16 +58,26 @@ function ProductCard({ product }: { product: IProduct }) {
   const finalPrice = hasDiscount ? product.price * (1 - product.discount / 100) : product.price;
 
   return (
-    <div className="product-card border border-gray-100 p-3">
+    <div className="product-card border border-gray-100 p-4">
       <Link href={`/shop/${product.slug}`}>
-        <div className="relative h-56 bg-gray-100 flex items-center justify-center mb-3">
+        <div className="relative h-72 bg-gray-100 flex items-center justify-center mb-3">
           {hasDiscount && (
             <div className="absolute top-2 right-2 text-sm font-black tracking-widest text-red-600">
               -{Math.round(product.discount)}%
             </div>
           )}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={mainImage} alt={product.name} className="h-full w-full object-cover" />
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              onOpenImage(mainImage, product.name);
+            }}
+            className="h-full w-full cursor-zoom-in"
+            aria-label={`Open ${product.name} image`}
+          >
+            <img src={mainImage} alt={product.name} className="h-full w-full object-contain" />
+          </button>
         </div>
       </Link>
       <Link href={`/shop/${product.slug}`} className="inline-block">
@@ -79,15 +96,17 @@ function ProductCard({ product }: { product: IProduct }) {
       </div>
       <button
         onClick={() => addToCart(product, selectedColor, mainImage)}
-        className="w-full mt-3 bg-black text-white text-xs font-bold uppercase tracking-widest py-2"
+        className="w-full mt-3 bg-black text-white text-xs font-bold uppercase tracking-widest py-2 cursor-pointer"
       >
-        Add to Cart
+        Quick Add
       </button>
     </div>
   );
 }
 
 export default function ShopClient({ products }: { products: IProduct[] }) {
+  const searchParams = useSearchParams();
+  const requestedCategory = searchParams.get("category");
   const categories = useMemo(() => {
     const rest = Array.from(new Set(products.map((p) => p.category).filter(Boolean))).sort((a, b) =>
       a.localeCompare(b)
@@ -116,12 +135,23 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
     return ["All", ...rest];
   }, [products]);
 
-  const [category, setCategory] = useState("All");
+  const [category, setCategory] = useState(
+    requestedCategory && categories.includes(requestedCategory) ? requestedCategory : "All"
+  );
   const [brand, setBrand] = useState("All");
   const [size, setSize] = useState("All");
   const [color, setColor] = useState("All");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("latest");
+  const [previewImage, setPreviewImage] = useState<{ src: string; alt: string } | null>(null);
+
+  useEffect(() => {
+    if (requestedCategory && categories.includes(requestedCategory)) {
+      setCategory(requestedCategory);
+      return;
+    }
+    setCategory("All");
+  }, [requestedCategory, categories]);
 
   const filtered = useMemo(() => {
     return products
@@ -141,7 +171,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
   return (
     <div className="bg-white min-h-screen">
       <div className="bg-black text-white py-14">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">
             <Link href="/" className="hover:text-white transition-colors">Home</Link> / Shop
           </p>
@@ -149,7 +179,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
           <p className="text-gray-400 mt-2">{filtered.length} products</p>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="border border-gray-200 rounded-lg bg-gray-50/80 px-3 py-4 sm:px-4 mb-8">
           <div className="flex flex-wrap items-end gap-x-3 gap-y-4 lg:flex-nowrap lg:gap-x-4">
             <div className="w-[calc(50%-0.375rem)] sm:w-auto sm:flex-1 sm:min-w-0">
@@ -252,12 +282,36 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
           {filtered.map((product) => (
-            <ProductCard key={product._id} product={product} />
+            <ProductCard
+              key={product._id}
+              product={product}
+              onOpenImage={(src, alt) => setPreviewImage({ src, alt })}
+            />
           ))}
         </div>
       </div>
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-[90] bg-black/80 flex items-center justify-center p-4"
+          onClick={() => setPreviewImage(null)}
+        >
+          <button
+            type="button"
+            className="absolute top-4 right-4 text-white text-2xl"
+            onClick={() => setPreviewImage(null)}
+            aria-label="Close image preview"
+          >
+            ×
+          </button>
+          <img
+            src={previewImage.src}
+            alt={previewImage.alt}
+            className="max-h-[90vh] max-w-[92vw] object-contain bg-white p-2"
+          />
+        </div>
+      )}
     </div>
   );
 }

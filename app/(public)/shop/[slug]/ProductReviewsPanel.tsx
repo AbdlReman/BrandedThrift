@@ -46,10 +46,6 @@ export default function ProductReviewsPanel({ productId }: { productId: string }
 
   const [showAddForm, setShowAddForm] = useState(false);
 
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editAuthor, setEditAuthor] = useState("");
-  const [editRating, setEditRating] = useState(5);
-  const [editBody, setEditBody] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -71,20 +67,6 @@ export default function ProductReviewsPanel({ productId }: { productId: string }
     load();
   }, [load]);
 
-  const canEdit = (id: string) => Boolean(tokens[id]);
-
-  const startEdit = (r: IReview) => {
-    if (!canEdit(r._id)) return;
-    setShowAddForm(false);
-    setEditingId(r._id);
-    setEditAuthor(r.authorName);
-    setEditRating(r.rating);
-    setEditBody(r.body);
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-  };
 
   const submitNew = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,33 +88,6 @@ export default function ProductReviewsPanel({ productId }: { productId: string }
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Submit failed");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const saveEdit = async (id: string) => {
-    const token = tokens[id];
-    if (!token) return;
-    setSubmitting(true);
-    setError("");
-    try {
-      const res = await fetch(`/api/reviews/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          editToken: token,
-          authorName: editAuthor,
-          rating: editRating,
-          body: editBody,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Could not update review");
-      setEditingId(null);
-      await load();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Update failed");
     } finally {
       setSubmitting(false);
     }
@@ -176,7 +131,6 @@ export default function ProductReviewsPanel({ productId }: { productId: string }
           type="button"
           onClick={() => {
             setShowAddForm((open) => !open);
-            setEditingId(null);
           }}
           className="shrink-0 bg-black text-white px-5 py-2.5 text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors"
         >
@@ -246,10 +200,7 @@ export default function ProductReviewsPanel({ productId }: { productId: string }
               Cancel
             </button>
           </div>
-          <p className="text-xs text-gray-500 leading-relaxed">
-            After posting, you can edit or delete this review from this browser only (we save a private link on your
-            device).
-          </p>
+          <p className="text-xs text-gray-500 leading-relaxed">After posting, you can delete this review from this browser.</p>
         </form>
       )}
 
@@ -260,89 +211,34 @@ export default function ProductReviewsPanel({ productId }: { productId: string }
           <ul className="space-y-6">
             {reviews.map((r) => (
               <li key={r._id} className="border-b border-gray-200 pb-6 last:border-0">
-                {editingId === r._id ? (
-                  <div className="space-y-3">
-                    <div className="grid sm:grid-cols-2 gap-3">
-                      <input
-                        value={editAuthor}
-                        onChange={(e) => setEditAuthor(e.target.value)}
-                        className="border border-gray-300 px-3 py-2 text-sm"
-                        maxLength={80}
-                      />
-                      <select
-                        value={editRating}
-                        onChange={(e) => setEditRating(Number(e.target.value))}
-                        className="border border-gray-300 px-3 py-2 text-sm"
-                      >
-                        {[5, 4, 3, 2, 1].map((n) => (
-                          <option key={n} value={n}>
-                            {n} stars
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <textarea
-                      value={editBody}
-                      onChange={(e) => setEditBody(e.target.value)}
-                      rows={4}
-                      maxLength={2000}
-                      className="w-full border border-gray-300 px-3 py-2 text-sm"
-                    />
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => saveEdit(r._id)}
-                        disabled={submitting}
-                        className="bg-black text-white px-4 py-2 text-xs font-bold uppercase disabled:opacity-50"
-                      >
-                        Save
-                      </button>
-                      <button
-                        type="button"
-                        onClick={cancelEdit}
-                        className="border border-gray-300 px-4 py-2 text-xs font-bold uppercase"
-                      >
-                        Cancel
-                      </button>
-                    </div>
+                <>
+                  <div className="flex flex-wrap items-baseline gap-2 justify-between">
+                    <p className="font-bold text-gray-900">{r.authorName}</p>
+                    <time className="text-xs text-gray-400" dateTime={r.createdAt}>
+                      {new Date(r.createdAt).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </time>
                   </div>
-                ) : (
-                  <>
-                    <div className="flex flex-wrap items-baseline gap-2 justify-between">
-                      <p className="font-bold text-gray-900">{r.authorName}</p>
-                      <time className="text-xs text-gray-400" dateTime={r.createdAt}>
-                        {new Date(r.createdAt).toLocaleDateString(undefined, {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </time>
+                  <div className="mt-1 text-sm">
+                    <Stars value={r.rating} />
+                    <span className="sr-only">{r.rating} out of 5 stars</span>
+                  </div>
+                  <p className="mt-2 text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">{r.body}</p>
+                  {tokens[r._id] && (
+                    <div className="mt-3 flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => deleteReview(r._id)}
+                        className="text-xs font-bold uppercase text-red-600 underline underline-offset-2"
+                      >
+                        Delete
+                      </button>
                     </div>
-                    <div className="mt-1 text-sm">
-                      <Stars value={r.rating} />
-                      <span className="sr-only">{r.rating} out of 5 stars</span>
-                    </div>
-                    <p className="mt-2 text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">{r.body}</p>
-                    {canEdit(r._id) && (
-                      <div className="mt-3 flex gap-3">
-                        <button
-                          type="button"
-                          onClick={() => startEdit(r)}
-                          className="text-xs font-bold uppercase text-gray-700 underline underline-offset-2"
-                        >
-                          Edit your review
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => deleteReview(r._id)}
-                          className="text-xs font-bold uppercase text-red-600 underline underline-offset-2"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
+                  )}
+                </>
               </li>
             ))}
           </ul>

@@ -54,7 +54,7 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-16">
           {/* Info */}
           <div className="lg:col-span-2 space-y-10">
@@ -69,7 +69,7 @@ export default function ContactPage() {
                       </svg>
                     ),
                     label: "Our Location",
-                    value: "123 Sneaker St, New York, NY 10001",
+                    value: "Pakistan",
                   },
                   {
                     icon: (
@@ -77,9 +77,9 @@ export default function ContactPage() {
                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.83a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16" />
                       </svg>
                     ),
-                    label: "Phone",
-                    value: "03231589585",
-                    href: "tel:+923231589585",
+                    label: "Phone / WhatsApp",
+                    value: "03140151948",
+                    href: "https://wa.me/923140151948",
                   },
                   {
                     icon: (
@@ -127,9 +127,12 @@ export default function ContactPage() {
               <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Quick Answers</p>
               <div className="space-y-4">
                 {[
-                  { q: "How long does shipping take?", a: "Standard: 3-5 business days. Express: 1-2 days." },
+                  { q: "How long does shipping take?", a: "Standard shipping takes 3-5 business days." },
                   { q: "Are all shoes authentic?", a: "Yes — every shoe is verified by our authentication team." },
-                  { q: "What is your return policy?", a: "Free returns within 30 days, no questions asked." },
+                  {
+                    q: "Are the shoes used?",
+                    a: "Yes - all pairs are preloved, but we ensure they are in great condition before listing.",
+                  },
                 ].map(({ q, a }) => (
                   <div key={q} className="border-l-2 border-black pl-4">
                     <p className="font-bold text-sm mb-1">{q}</p>
@@ -238,13 +241,6 @@ export default function ContactPage() {
         </div>
       </div>
 
-      {/* Map placeholder */}
-      <div className="bg-gray-100 h-64 flex items-center justify-center border-t border-gray-200">
-        <div className="text-center">
-          <p className="text-4xl mb-2">📍</p>
-          <p className="text-xs font-bold uppercase tracking-widest text-gray-500">123 Sneaker St, New York, NY 10001</p>
-        </div>
-      </div>
     </div>
   );
 }

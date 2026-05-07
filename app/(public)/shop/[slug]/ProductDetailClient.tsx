@@ -94,6 +94,7 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
   );
   const colorImages = activeVariant?.images?.length ? activeVariant.images : product.images;
   const [selectedImage, setSelectedImage] = useState(colorImages[0] || allImages[0] || "");
+  const [showImagePreview, setShowImagePreview] = useState(false);
   const mainImage = selectedImage || colorImages[0] || allImages[0] || "";
 
   const handleColorChange = (color: string) => {
@@ -104,7 +105,7 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="grid lg:grid-cols-2 gap-10">
         <div>
           <div className="relative bg-gray-100 border border-gray-200 h-[460px]">
@@ -114,7 +115,14 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
               </div>
             )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={mainImage} alt={product.name} className="h-full w-full object-cover" />
+            <button
+              type="button"
+              onClick={() => setShowImagePreview(true)}
+              className="h-full w-full cursor-zoom-in"
+              aria-label={`Open ${product.name} image`}
+            >
+              <img src={mainImage} alt={product.name} className="h-full w-full object-contain" />
+            </button>
           </div>
           <div className="grid grid-cols-4 gap-3 mt-3">
             {allImages.map((image, idx) => (
@@ -127,7 +135,7 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
                 }`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={image} alt={`${product.name}-${idx}`} className="h-full w-full object-cover" />
+                <img src={image} alt={`${product.name}-${idx}`} className="h-full w-full object-contain" />
               </button>
             ))}
           </div>
@@ -276,6 +284,22 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
       <div className="mt-12 border-t border-gray-200 pt-8">
         <TabbedProductSections productId={product._id} detailHtml={product.detail} />
       </div>
+      {showImagePreview && (
+        <div
+          className="fixed inset-0 z-[90] bg-black/80 flex items-center justify-center p-4"
+          onClick={() => setShowImagePreview(false)}
+        >
+          <button
+            type="button"
+            className="absolute top-4 right-4 text-white text-2xl"
+            onClick={() => setShowImagePreview(false)}
+            aria-label="Close image preview"
+          >
+            ×
+          </button>
+          <img src={mainImage} alt={product.name} className="max-h-[90vh] max-w-[92vw] object-contain bg-white p-2" />
+        </div>
+      )}
     </div>
   );
 }
