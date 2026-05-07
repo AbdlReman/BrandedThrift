@@ -148,7 +148,7 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <div className="p-1 sm:p-2">
           <p className="text-xs uppercase tracking-widest text-slate-500 mb-2">{product.brand}</p>
           <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-slate-900">{product.name}</h2>
           <div className="mt-4 space-y-1">
