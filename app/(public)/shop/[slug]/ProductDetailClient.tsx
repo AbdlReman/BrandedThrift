@@ -105,10 +105,17 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
   };
 
   return (
-    <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="bg-slate-50 min-h-screen">
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white py-10">
+        <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-300 mb-2">{product.brand || "Shop"}</p>
+          <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight">{product.name}</h1>
+        </div>
+      </div>
+      <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="grid lg:grid-cols-2 gap-10">
         <div>
-          <div className="relative bg-gray-100 border border-gray-200 h-[460px]">
+          <div className="relative bg-white border border-slate-200 rounded-xl h-[460px] shadow-sm">
             {hasDiscount && (
               <div className="absolute top-3 right-3 text-sm font-black tracking-widest text-red-600">
                 -{Math.round(product.discount)}%
@@ -130,8 +137,8 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
                 key={`${image}-${idx}`}
                 type="button"
                 onClick={() => setSelectedImage(image)}
-                className={`border bg-gray-100 h-24 ${
-                  mainImage === image ? "border-black" : "border-gray-200"
+                className={`border rounded-lg bg-white h-24 shadow-sm ${
+                  mainImage === image ? "border-slate-700" : "border-slate-200"
                 }`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -141,9 +148,9 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
           </div>
         </div>
 
-        <div>
-          <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">{product.brand}</p>
-          <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight">{product.name}</h1>
+        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+          <p className="text-xs uppercase tracking-widest text-slate-500 mb-2">{product.brand}</p>
+          <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-slate-900">{product.name}</h2>
           <div className="mt-4 space-y-1">
             {hasDiscount ? (
               <p className="text-2xl font-black flex items-baseline gap-2">
@@ -168,10 +175,10 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
                   key={`${product._id}-${variant.color}`}
                   type="button"
                   onClick={() => handleColorChange(variant.color)}
-                  className={`text-xs px-3 py-2 border font-semibold ${
+                  className={`text-xs px-3 py-2 rounded-md border font-semibold transition-colors ${
                     selectedColor === variant.color
-                      ? "bg-black text-white border-black"
-                      : "border-gray-300"
+                      ? "bg-slate-800 text-white border-slate-800"
+                      : "border-slate-300 text-slate-700 hover:bg-slate-100"
                   }`}
                 >
                   {variant.color}
@@ -189,10 +196,10 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
                     key={`${product._id}-size-${size}`}
                     type="button"
                     onClick={() => setSelectedSize(size)}
-                    className={`text-xs px-3 py-2 border font-semibold min-w-[2.5rem] ${
+                    className={`text-xs px-3 py-2 rounded-md border font-semibold min-w-[2.5rem] transition-colors ${
                       selectedSize === size
-                        ? "bg-black text-white border-black"
-                        : "border-gray-300"
+                        ? "bg-slate-800 text-white border-slate-800"
+                        : "border-slate-300 text-slate-700 hover:bg-slate-100"
                     }`}
                   >
                     {size}
@@ -210,7 +217,7 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
                 aria-label="Decrease quantity"
                 onClick={() => bumpQty(-1)}
                 disabled={quantity <= 1}
-                className="h-10 w-10 border border-gray-300 text-lg font-bold leading-none hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="h-10 w-10 border border-slate-300 rounded-md text-lg font-bold leading-none hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 -
               </button>
@@ -220,7 +227,7 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
                 aria-label="Increase quantity"
                 onClick={() => bumpQty(1)}
                 disabled={isOutOfStock || quantity >= maxSelectableQty}
-                className="h-10 w-10 border border-gray-300 text-lg font-bold leading-none hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="h-10 w-10 border border-slate-300 rounded-md text-lg font-bold leading-none hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 +
               </button>
@@ -248,7 +255,7 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
                   description: `${product.name} · Qty ${qty}${selectedSize ? ` · Size ${selectedSize}` : ""}`,
                 });
               }}
-              className="w-full sm:w-auto bg-black text-white px-8 py-3 text-sm font-bold uppercase tracking-widest hover:bg-gray-900 transition-colors disabled:cursor-not-allowed disabled:bg-gray-400"
+              className="w-full sm:w-auto bg-slate-800 text-white px-8 py-3 text-sm font-bold uppercase tracking-widest rounded-lg hover:bg-slate-700 transition-colors disabled:cursor-not-allowed disabled:bg-slate-400"
             >
               {isOutOfStock ? "Out of Stock" : "Add to Cart"}
             </button>
@@ -273,7 +280,7 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
                 });
                 router.push("/checkout");
               }}
-              className="w-full sm:w-auto border-2 border-black text-black px-8 py-3 text-sm font-bold uppercase tracking-widest hover:bg-gray-50 transition-colors disabled:cursor-not-allowed disabled:border-gray-400 disabled:text-gray-400"
+              className="w-full sm:w-auto border-2 border-slate-700 text-slate-800 px-8 py-3 text-sm font-bold uppercase tracking-widest rounded-lg hover:bg-slate-100 transition-colors disabled:cursor-not-allowed disabled:border-slate-400 disabled:text-slate-400"
             >
               {isOutOfStock ? "Out of Stock" : "Buy Now"}
             </button>
@@ -281,12 +288,12 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
         </div>
       </div>
 
-      <div className="mt-12 border-t border-gray-200 pt-8">
+      <div className="mt-12 border-t border-slate-200 pt-8">
         <TabbedProductSections productId={product._id} detailHtml={product.detail} />
       </div>
       {showImagePreview && (
         <div
-          className="fixed inset-0 z-[90] bg-black/80 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[90] bg-slate-900/85 flex items-center justify-center p-4"
           onClick={() => setShowImagePreview(false)}
         >
           <button
@@ -300,6 +307,7 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
           <img src={mainImage} alt={product.name} className="max-h-[90vh] max-w-[92vw] object-contain bg-white p-2" />
         </div>
       )}
+      </div>
     </div>
   );
 }
@@ -316,12 +324,14 @@ function TabbedProductSections({
     "px-4 py-3 text-sm font-black uppercase tracking-widest border-b-2 -mb-px transition-colors";
   return (
     <div>
-      <div className="flex gap-2 border-b border-gray-200 mb-6">
+      <div className="flex gap-2 border-b border-slate-200 mb-6">
         <button
           type="button"
           onClick={() => setTab("details")}
           className={`${tabBtn} ${
-            tab === "details" ? "border-black text-black" : "border-transparent text-gray-500 hover:text-gray-800"
+            tab === "details"
+              ? "border-slate-800 text-slate-900"
+              : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
           Product Details
@@ -330,7 +340,9 @@ function TabbedProductSections({
           type="button"
           onClick={() => setTab("reviews")}
           className={`${tabBtn} ${
-            tab === "reviews" ? "border-black text-black" : "border-transparent text-gray-500 hover:text-gray-800"
+            tab === "reviews"
+              ? "border-slate-800 text-slate-900"
+              : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
           Reviews

@@ -15,10 +15,10 @@ const SORTS = [
 ];
 
 const selectClass =
-  "w-full min-w-[8.5rem] max-w-[11rem] sm:max-w-none sm:min-w-[9.5rem] border border-gray-300 rounded-md px-3 py-2.5 text-sm bg-white text-gray-900 shadow-sm " +
-  "focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent cursor-pointer";
+  "w-full min-w-[8.5rem] max-w-[11rem] sm:max-w-none sm:min-w-[9.5rem] border border-slate-300 rounded-lg px-3 py-2.5 text-sm bg-white text-slate-900 shadow-sm " +
+  "focus:outline-none focus:ring-2 focus:ring-slate-600/40 focus:border-slate-500 cursor-pointer";
 
-const labelClass = "block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1";
+const labelClass = "block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1";
 
 function addToCart(product: IProduct, selectedColor?: string, selectedImage?: string) {
   const existing = JSON.parse(localStorage.getItem("cart_items") || "[]");
@@ -58,9 +58,9 @@ function ProductCard({
   const finalPrice = hasDiscount ? product.price * (1 - product.discount / 100) : product.price;
 
   return (
-    <div className="product-card border border-gray-100 p-4">
+    <div className="product-card border border-slate-200 bg-white rounded-xl p-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
       <Link href={`/shop/${product.slug}`}>
-        <div className="relative h-72 bg-gray-100 flex items-center justify-center mb-3">
+        <div className="relative h-72 bg-slate-50 rounded-lg overflow-hidden flex items-center justify-center mb-3">
           {hasDiscount && (
             <div className="absolute top-2 right-2 text-sm font-black tracking-widest text-red-600">
               -{Math.round(product.discount)}%
@@ -81,22 +81,24 @@ function ProductCard({
         </div>
       </Link>
       <Link href={`/shop/${product.slug}`} className="inline-block">
-        <h3 className="font-bold text-sm uppercase tracking-wide hover:opacity-70">{product.name}</h3>
+        <h3 className="font-bold text-sm uppercase tracking-wide text-slate-900 hover:text-slate-700 transition-colors">
+          {product.name}
+        </h3>
       </Link>
 
       <div className="flex items-center justify-between mt-3">
         {hasDiscount ? (
           <div className="flex items-baseline gap-2">
             <span className="text-sm line-through text-gray-400">{formatPkr(product.price)}</span>
-            <span className="font-black text-lg text-black">{formatPkr(finalPrice)}</span>
+            <span className="font-black text-lg text-slate-900">{formatPkr(finalPrice)}</span>
           </div>
         ) : (
-          <span className="font-black text-lg text-black">{formatPkr(product.price)}</span>
+          <span className="font-black text-lg text-slate-900">{formatPkr(product.price)}</span>
         )}
       </div>
       <button
         onClick={() => addToCart(product, selectedColor, mainImage)}
-        className="w-full mt-3 bg-black text-white text-xs font-bold uppercase tracking-widest py-2 cursor-pointer"
+        className="w-full mt-3 bg-slate-800 text-white text-xs font-bold uppercase tracking-widest py-2.5 rounded-lg hover:bg-slate-700 transition-colors cursor-pointer"
       >
         Quick Add
       </button>
@@ -169,18 +171,18 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
   }, [products, category, brand, size, color, search, sort]);
 
   return (
-    <div className="bg-white min-h-screen">
-      <div className="bg-black text-white py-14">
+    <div className="bg-slate-50 min-h-screen">
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white py-14">
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-300 mb-3">
             <Link href="/" className="hover:text-white transition-colors">Home</Link> / Shop
           </p>
           <h1 className="text-5xl font-black uppercase tracking-tight">All Shoes</h1>
-          <p className="text-gray-400 mt-2">{filtered.length} products</p>
+          <p className="text-slate-300 mt-2">{filtered.length} products</p>
         </div>
       </div>
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="border border-gray-200 rounded-lg bg-gray-50/80 px-3 py-4 sm:px-4 mb-8">
+        <div className="border border-slate-200 rounded-xl bg-white px-3 py-4 sm:px-4 mb-8 shadow-sm">
           <div className="flex flex-wrap items-end gap-x-3 gap-y-4 lg:flex-nowrap lg:gap-x-4">
             <div className="w-[calc(50%-0.375rem)] sm:w-auto sm:flex-1 sm:min-w-0">
               <label htmlFor="filter-color" className={labelClass}>
@@ -276,7 +278,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name…"
-                className="w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm bg-white text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm bg-white text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-600/40 focus:border-slate-500"
               />
             </div>
           </div>
@@ -294,7 +296,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
       </div>
       {previewImage && (
         <div
-          className="fixed inset-0 z-[90] bg-black/80 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[90] bg-slate-900/85 flex items-center justify-center p-4"
           onClick={() => setPreviewImage(null)}
         >
           <button
