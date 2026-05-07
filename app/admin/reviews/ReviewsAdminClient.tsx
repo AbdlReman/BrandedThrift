@@ -34,6 +34,7 @@ export default function ReviewsAdminClient({ products }: { products: ProductOpti
   const [editRating, setEditRating] = useState(5);
   const [editBody, setEditBody] = useState("");
 
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const perPage = 10;
 
@@ -80,11 +81,21 @@ export default function ReviewsAdminClient({ products }: { products: ProductOpti
     void Promise.all([load(), loadProducts()]);
   }, [load, loadProducts]);
 
-  const totalPages = Math.max(1, Math.ceil(reviews.length / perPage));
+  const searchedReviews = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return reviews;
+    return reviews.filter((review) =>
+      [review.productName, review.authorName, review.body]
+        .map((value) => String(value || "").toLowerCase())
+        .some((value) => value.includes(term))
+    );
+  }, [reviews, search]);
+
+  const totalPages = Math.max(1, Math.ceil(searchedReviews.length / perPage));
   const currentPage = Math.min(page, totalPages);
   const visibleReviews = useMemo(
-    () => reviews.slice((currentPage - 1) * perPage, currentPage * perPage),
-    [reviews, currentPage]
+    () => searchedReviews.slice((currentPage - 1) * perPage, currentPage * perPage),
+    [searchedReviews, currentPage]
   );
 
   const startEdit = (r: AdminReview) => {
@@ -247,9 +258,21 @@ export default function ReviewsAdminClient({ products }: { products: ProductOpti
 
       <section>
         <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4">All reviews</h2>
+        <div className="mb-4">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Search by product, author, or review text..."
+            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none"
+          />
+        </div>
         {loading ? (
           <p className="text-slate-500 text-sm">Loading…</p>
-        ) : reviews.length === 0 ? (
+        ) : searchedReviews.length === 0 ? (
           <p className="text-slate-500 text-sm">No reviews yet.</p>
         ) : (
           <div className="space-y-4">
@@ -357,8 +380,8 @@ export default function ReviewsAdminClient({ products }: { products: ProductOpti
             </div>
             <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-900/50 px-4 py-3 text-xs text-slate-400">
               <p>
-                Showing {reviews.length === 0 ? 0 : (currentPage - 1) * perPage + 1}-
-                {Math.min(currentPage * perPage, reviews.length)} of {reviews.length}
+                Showing {searchedReviews.length === 0 ? 0 : (currentPage - 1) * perPage + 1}-
+                {Math.min(currentPage * perPage, searchedReviews.length)} of {searchedReviews.length}
               </p>
               <div className="flex items-center gap-2">
                 <button

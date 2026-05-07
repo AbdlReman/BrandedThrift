@@ -15,6 +15,7 @@ export default function ProductTable({ products }: ProductTableProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [publishingAll, setPublishingAll] = useState(false);
   const [filter, setFilter] = useState<"all" | "active" | "outOfStock" | "draft" | "sale">("all");
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const perPage = 10;
 
@@ -61,9 +62,19 @@ export default function ProductTable({ products }: ProductTableProps) {
     return products;
   }, [products, filter]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / perPage));
+  const searchedProducts = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return filteredProducts;
+    return filteredProducts.filter((product) =>
+      [product.name, product.brand, product.category, product.slug]
+        .map((value) => String(value || "").toLowerCase())
+        .some((value) => value.includes(term))
+    );
+  }, [filteredProducts, search]);
+
+  const totalPages = Math.max(1, Math.ceil(searchedProducts.length / perPage));
   const currentPage = Math.min(page, totalPages);
-  const paginatedProducts = filteredProducts.slice((currentPage - 1) * perPage, currentPage * perPage);
+  const paginatedProducts = searchedProducts.slice((currentPage - 1) * perPage, currentPage * perPage);
 
   if (products.length === 0) {
     return (
@@ -120,6 +131,18 @@ export default function ProductTable({ products }: ProductTableProps) {
             {publishingAll ? "Publishing..." : `Publish All (${draftCount})`}
           </button>
         )}
+      </div>
+      <div>
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          placeholder="Search products by name, brand, category..."
+          className="w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none"
+        />
       </div>
 
       <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
@@ -237,8 +260,8 @@ export default function ProductTable({ products }: ProductTableProps) {
 
       <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-xs text-slate-400">
         <p>
-          Showing {filteredProducts.length === 0 ? 0 : (currentPage - 1) * perPage + 1}-
-          {Math.min(currentPage * perPage, filteredProducts.length)} of {filteredProducts.length}
+          Showing {searchedProducts.length === 0 ? 0 : (currentPage - 1) * perPage + 1}-
+          {Math.min(currentPage * perPage, searchedProducts.length)} of {searchedProducts.length}
         </p>
         <div className="flex items-center gap-2">
           <button
