@@ -5,14 +5,21 @@ import Product from "@/models/Product";
 import ReviewsAdminClient from "./ReviewsAdminClient";
 
 export const metadata: Metadata = { title: "Reviews — Admin" };
+export const dynamic = "force-dynamic";
 
 export default async function AdminReviewsPage() {
   await connectDB();
-  const raw = await Product.find({}).select("name").sort({ name: 1 }).lean();
+  const raw = await Product.find({
+    isActive: true,
+    $or: [{ status: "Published" }, { status: { $exists: false } }],
+  })
+    .select("name")
+    .sort({ name: 1 })
+    .lean();
   const products = (raw as { _id: unknown; name?: string }[]).map((p) => ({
     _id: String(p._id),
-    name: String(p.name || ""),
-  }));
+    name: String(p.name || "").trim(),
+  })).filter((p) => p._id && p.name);
 
   return (
     <div>

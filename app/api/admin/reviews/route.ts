@@ -71,7 +71,13 @@ export async function POST(req: NextRequest) {
     }
 
     await connectDB();
-    const product = await Product.findById(productId).select("_id name").lean();
+    const product = await Product.findOne({
+      _id: productId,
+      isActive: true,
+      $or: [{ status: "Published" }, { status: { $exists: false } }],
+    })
+      .select("_id name")
+      .lean();
     if (!product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
 
     const created = await Review.create({
