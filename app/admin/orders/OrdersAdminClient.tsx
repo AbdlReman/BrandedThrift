@@ -181,9 +181,9 @@ export default function OrdersAdminClient({ orders }: { orders: AdminOrderRow[] 
                     <button
                       type="button"
                       onClick={() => setOpenId(order._id)}
-                      className="text-xs font-bold uppercase tracking-wide text-cyan-400 hover:text-cyan-300"
+                      className="cursor-pointer text-xs font-bold uppercase tracking-wide text-cyan-400 hover:text-cyan-300"
                     >
-                      View Detail
+                      View
                     </button>
                     <button
                       type="button"
@@ -192,7 +192,7 @@ export default function OrdersAdminClient({ orders }: { orders: AdminOrderRow[] 
                         updatingId === order._id
                       }
                       onClick={() => changeStatus(order._id, "completed")}
-                      className="rounded-md border border-emerald-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-emerald-300 hover:bg-emerald-900/40 disabled:opacity-50"
+                      className="cursor-pointer rounded-md border border-emerald-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-emerald-300 hover:bg-emerald-900/40 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {updatingId === order._id && updatingTo === "completed"
                         ? "Saving..."
@@ -205,7 +205,7 @@ export default function OrdersAdminClient({ orders }: { orders: AdminOrderRow[] 
                         updatingId === order._id
                       }
                       onClick={() => changeStatus(order._id, "cancelled")}
-                      className="rounded-md border border-red-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-red-300 hover:bg-red-900/40 disabled:opacity-50"
+                      className="cursor-pointer rounded-md border border-red-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-red-300 hover:bg-red-900/40 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {updatingId === order._id && updatingTo === "cancelled"
                         ? "Saving..."
