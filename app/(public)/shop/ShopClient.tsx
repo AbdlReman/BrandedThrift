@@ -60,10 +60,15 @@ function ProductCard({
   return (
     <div className="product-card border border-slate-200 bg-white rounded-xl p-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
       <Link href={`/shop/${product.slug}`}>
-        <div className="relative h-72 bg-slate-50 rounded-lg overflow-hidden flex items-center justify-center mb-3">
+        <div className="relative h-64 bg-slate-100 rounded-lg overflow-hidden mb-4">
           {hasDiscount && (
-            <div className="absolute top-2 right-2 text-sm font-black tracking-widest text-red-600">
+            <div className="absolute top-3 right-3 z-10 bg-red-600 text-white text-[11px] font-black tracking-widest px-2 py-1 rounded">
               -{Math.round(product.discount)}%
+            </div>
+          )}
+          {product.brand && (
+            <div className="absolute top-3 left-3 z-10 bg-slate-900 text-white text-[11px] font-bold px-2 py-1 rounded uppercase tracking-wider">
+              {product.brand}
             </div>
           )}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -76,7 +81,7 @@ function ProductCard({
             className="h-full w-full cursor-zoom-in"
             aria-label={`Open ${product.name} image`}
           >
-            <img src={mainImage} alt={product.name} className="h-full w-full object-contain" />
+            <img src={mainImage} alt={product.name} className="h-full w-full object-cover" />
           </button>
         </div>
       </Link>

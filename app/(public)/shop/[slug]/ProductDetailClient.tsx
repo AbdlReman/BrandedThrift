@@ -115,9 +115,9 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="grid lg:grid-cols-2 gap-10">
         <div>
-          <div className="relative bg-white border border-slate-200 rounded-xl h-[460px] shadow-sm">
+          <div className="relative bg-gradient-to-br from-slate-100 to-slate-200 border border-slate-200 rounded-xl aspect-square shadow-sm overflow-hidden">
             {hasDiscount && (
-              <div className="absolute top-3 right-3 text-sm font-black tracking-widest text-red-600">
+              <div className="absolute top-3 right-3 z-10 bg-red-600 text-white text-xs font-black tracking-widest px-2 py-1 rounded">
                 -{Math.round(product.discount)}%
               </div>
             )}
@@ -128,7 +128,7 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
               className="h-full w-full cursor-zoom-in"
               aria-label={`Open ${product.name} image`}
             >
-              <img src={mainImage} alt={product.name} className="h-full w-full object-contain" />
+              <img src={mainImage} alt={product.name} className="h-full w-full object-cover" />
             </button>
           </div>
           <div className="grid grid-cols-4 gap-3 mt-3">
@@ -137,12 +137,12 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
                 key={`${image}-${idx}`}
                 type="button"
                 onClick={() => setSelectedImage(image)}
-                className={`border rounded-lg bg-white h-24 shadow-sm ${
+                className={`border rounded-lg bg-slate-100 aspect-square overflow-hidden shadow-sm ${
                   mainImage === image ? "border-slate-700" : "border-slate-200"
                 }`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={image} alt={`${product.name}-${idx}`} className="h-full w-full object-contain" />
+                <img src={image} alt={`${product.name}-${idx}`} className="h-full w-full object-cover" />
               </button>
             ))}
           </div>
