@@ -56,20 +56,24 @@ function ProductCard({
   const mainImage = activeVariant?.images?.[0] || product.images[0] || "";
   const hasDiscount = Number(product.discount || 0) > 0;
   const finalPrice = hasDiscount ? product.price * (1 - product.discount / 100) : product.price;
+  const discountPercent = hasDiscount
+    ? Math.round((1 - finalPrice / Math.max(product.price, 1)) * 100)
+    : 0;
+  const displayColor = selectedColor || product.colors[0] || "Classic";
 
   return (
-    <div className="product-card border border-slate-200 bg-white rounded-xl p-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+    <div className="product-card group cursor-pointer">
       <Link href={`/shop/${product.slug}`}>
-        <div className="relative h-64 bg-slate-100 rounded-lg overflow-hidden mb-4">
-          {hasDiscount && (
-            <div className="absolute top-3 right-3 z-10 bg-red-600 text-white text-[11px] font-black tracking-widest px-2 py-1 rounded">
-              -{Math.round(product.discount)}%
-            </div>
-          )}
+        <div className="h-64 flex items-center justify-center overflow-hidden mb-4 relative bg-gray-100">
           {product.brand && (
-            <div className="absolute top-3 left-3 z-10 bg-slate-900 text-white text-[11px] font-bold px-2 py-1 rounded uppercase tracking-wider">
+            <span className="absolute top-3 left-3 bg-black text-white text-xs font-bold px-2 py-1 uppercase tracking-widest">
               {product.brand}
-            </div>
+            </span>
+          )}
+          {hasDiscount && (
+            <span className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2 py-1">
+              SALE
+            </span>
           )}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <button
@@ -85,28 +89,17 @@ function ProductCard({
           </button>
         </div>
       </Link>
-      <Link href={`/shop/${product.slug}`} className="inline-block">
-        <h3 className="font-bold text-sm uppercase tracking-wide text-slate-900 hover:text-slate-700 transition-colors">
-          {product.name}
-        </h3>
-      </Link>
-
-      <div className="flex items-center justify-between mt-3">
-        {hasDiscount ? (
-          <div className="flex items-baseline gap-2">
-            <span className="text-sm line-through text-gray-400">{formatPkr(product.price)}</span>
-            <span className="font-black text-lg text-slate-900">{formatPkr(finalPrice)}</span>
-          </div>
-        ) : (
-          <span className="font-black text-lg text-slate-900">{formatPkr(product.price)}</span>
-        )}
+      <div>
+        <Link href={`/shop/${product.slug}`} className="inline-block">
+          <h3 className="font-bold text-sm uppercase tracking-wide mb-1">{product.name}</h3>
+        </Link>
+        <p className="text-gray-500 text-xs mb-2">{displayColor}</p>
+        <div className="flex items-center gap-3">
+          <span className="font-black text-lg">{formatPkr(finalPrice)}</span>
+          {hasDiscount && <span className="text-gray-400 line-through text-sm">{formatPkr(product.price)}</span>}
+          {hasDiscount && <span className="text-red-600 text-xs font-bold">-{discountPercent}%</span>}
+        </div>
       </div>
-      <button
-        onClick={() => addToCart(product, selectedColor, mainImage)}
-        className="w-full mt-3 bg-slate-800 text-white text-xs font-bold uppercase tracking-widest py-2.5 rounded-lg hover:bg-slate-700 transition-colors cursor-pointer"
-      >
-        Quick Add
-      </button>
     </div>
   );
 }
@@ -179,11 +172,18 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
     <div className="bg-slate-50 min-h-screen">
       <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white py-14">
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-300 mb-3">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link> / Shop
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-300 mb-2">
+            Curated For You
           </p>
-          <h1 className="text-5xl font-black uppercase tracking-tight">All Shoes</h1>
-          <p className="text-slate-300 mt-2">{filtered.length} products</p>
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <h1 className="text-4xl font-black uppercase tracking-tight">Featured Drops</h1>
+              <p className="text-slate-300 mt-2 text-sm">{filtered.length} products available</p>
+            </div>
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-300 hidden sm:block">
+              <Link href="/" className="hover:text-white transition-colors">Home</Link> / Shop
+            </p>
+          </div>
         </div>
       </div>
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -289,7 +289,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filtered.map((product) => (
             <ProductCard
               key={product._id}
