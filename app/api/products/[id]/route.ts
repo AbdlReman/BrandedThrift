@@ -53,6 +53,8 @@ export async function PUT(req: NextRequest, { params }: Params) {
         : Array.isArray(body.images)
         ? body.images
         : [];
+    const publish = body.publish === true || body.status === "Published" || body.isActive === true;
+    const nextStatus = publish ? "Published" : "Draft";
     const payload = {
       name: body.name,
       price: Number(body.price || 0),
@@ -69,7 +71,8 @@ export async function PUT(req: NextRequest, { params }: Params) {
       metaTitle: body.metaTitle || "",
       metaDescription: body.metaDescription || "",
       inStock: Number(body.stockQuantity || 0) > 0,
-      isActive: body.isActive !== false,
+      isActive: publish,
+      status: nextStatus,
     };
     const product = await Product.findByIdAndUpdate(
       id,

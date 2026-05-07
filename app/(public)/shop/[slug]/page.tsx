@@ -13,7 +13,11 @@ export default async function ProductDetailPage({
 }) {
   const { slug } = await params;
   await connectDB();
-  const raw = await Product.findOne({ slug, isActive: true }).lean();
+  const raw = await Product.findOne({
+    slug,
+    isActive: true,
+    $or: [{ status: "Published" }, { status: { $exists: false } }],
+  }).lean();
   if (!raw) notFound();
 
   const p = raw as Record<string, unknown>;
@@ -64,6 +68,10 @@ export default async function ProductDetailPage({
     discount: Number(p.discount || 0),
     inStock: Boolean(p.inStock),
     isActive: p.isActive !== false,
+    status:
+      p.status === "Published" || (p.status == null && p.isActive !== false)
+        ? "Published"
+        : "Draft",
     popularityScore: Number(p.popularityScore || 0),
     soldCount: Number(p.soldCount || 0),
     slug: String(p.slug || ""),

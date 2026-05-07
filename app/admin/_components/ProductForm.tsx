@@ -72,7 +72,7 @@ export default function ProductForm({
     discount: 0,
     metaTitle: "",
     metaDescription: "",
-    isActive: true,
+    publish: false,
   };
   const [form, setForm] = useState(
     initialData
@@ -88,7 +88,7 @@ export default function ProductForm({
           discount: initialData.discount,
           metaTitle: initialData.metaTitle,
           metaDescription: initialData.metaDescription,
-          isActive: initialData.isActive,
+          publish: initialData.status === "Published" || initialData.isActive,
         }
       : emptyForm
   );
@@ -129,6 +129,8 @@ export default function ProductForm({
       const method = mode === "create" ? "POST" : "PUT";
       const payload = {
         ...form,
+        status: form.publish ? "Published" : "Draft",
+        isActive: form.publish,
         sizes: form.sizesInput.split(",").map((s) => s.trim()).filter(Boolean),
         colorVariants: normalizedColorVariants,
         colors: normalizedColorVariants.map((variant) => variant.color),
@@ -256,16 +258,19 @@ export default function ProductForm({
           </div>
 
           <div className="flex items-center gap-3">
-            <label className="text-slate-300 text-xs font-semibold uppercase tracking-widest">Active</label>
-            <button
-              type="button"
-              onClick={() => set("isActive", !form.isActive)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                form.isActive ? "bg-indigo-600" : "bg-slate-600"
-              }`}
-            >
-              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${form.isActive ? "translate-x-6" : "translate-x-1"}`} />
-            </button>
+            <label htmlFor="publish" className="text-slate-300 text-xs font-semibold uppercase tracking-widest">
+              Publish
+            </label>
+            <input
+              id="publish"
+              type="checkbox"
+              checked={form.publish}
+              onChange={(e) => set("publish", e.target.checked)}
+              className="h-4 w-4 rounded border-slate-500 bg-slate-700 text-indigo-500 focus:ring-indigo-500"
+            />
+            <span className={`text-xs ${form.publish ? "text-green-300" : "text-amber-300"}`}>
+              {form.publish ? "Published" : "Draft"}
+            </span>
           </div>
         </div>
       </div>

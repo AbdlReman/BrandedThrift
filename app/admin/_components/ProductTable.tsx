@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { IProduct } from "@/types/product";
 import { formatPkr } from "@/lib/formatCurrency";
 
@@ -13,6 +13,10 @@ interface ProductTableProps {
 export default function ProductTable({ products }: ProductTableProps) {
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [publishingAll, setPublishingAll] = useState(false);
+  const [filter, setFilter] = useState<"all" | "active" | "outOfStock" | "draft">("all");
+  const [page, setPage] = useState(1);
+  const perPage = 10;
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
@@ -24,6 +28,41 @@ export default function ProductTable({ products }: ProductTableProps) {
       setDeletingId(null);
     }
   };
+
+  const handlePublishAllDrafts = async () => {
+    if (!confirm("Publish all draft products?")) return;
+    setPublishingAll(true);
+    try {
+      const res = await fetch("/api/products", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "publishAllDrafts" }),
+      });
+      if (!res.ok) throw new Error("Failed to publish drafts");
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      alert("Unable to publish all drafts right now.");
+    } finally {
+      setPublishingAll(false);
+    }
+  };
+
+  const draftCount = useMemo(
+    () => products.filter((product) => product.status !== "Published").length,
+    [products]
+  );
+
+  const filteredProducts = useMemo(() => {
+    if (filter === "active") return products.filter((product) => product.status === "Published");
+    if (filter === "outOfStock") return products.filter((product) => product.stockQuantity <= 0);
+    if (filter === "draft") return products.filter((product) => product.status !== "Published");
+    return products;
+  }, [products, filter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / perPage));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedProducts = filteredProducts.slice((currentPage - 1) * perPage, currentPage * perPage);
 
   if (products.length === 0) {
     return (
@@ -42,13 +81,53 @@ export default function ProductTable({ products }: ProductTableProps) {
   }
 
   return (
-    <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {[
+            { key: "all", label: "All" },
+            { key: "active", label: "Active" },
+            { key: "outOfStock", label: "Out of Stock" },
+            { key: "draft", label: "Draft" },
+          ].map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => {
+                setFilter(item.key as "all" | "active" | "outOfStock" | "draft");
+                setPage(1);
+              }}
+              className={`rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-widest transition-colors ${
+                filter === item.key
+                  ? "bg-indigo-600 text-white"
+                  : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        {draftCount > 0 && (
+          <button
+            type="button"
+            onClick={handlePublishAllDrafts}
+            disabled={publishingAll}
+            className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition-colors hover:bg-emerald-700 disabled:opacity-60"
+          >
+            {publishingAll ? "Publishing..." : `Publish All (${draftCount})`}
+          </button>
+        )}
+      </div>
+
+      <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-slate-700/60 text-slate-400 text-xs uppercase tracking-widest">
               <th className="text-left px-4 py-3">Image</th>
               <th className="text-left px-4 py-3">Product</th>
+              <th className="text-left px-4 py-3">Status</th>
               <th className="text-left px-4 py-3">Brand</th>
               <th className="text-left px-4 py-3">Category</th>
               <th className="text-left px-4 py-3">Price</th>
@@ -57,7 +136,7 @@ export default function ProductTable({ products }: ProductTableProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-700">
-            {products.map((product) => (
+            {paginatedProducts.map((product) => (
               <tr key={product._id} className="hover:bg-slate-700/30 transition-colors">
                 {/* Image */}
                 <td className="px-4 py-3">
@@ -79,6 +158,18 @@ export default function ProductTable({ products }: ProductTableProps) {
                 <td className="px-4 py-3">
                   <p className="font-medium text-slate-100 max-w-[180px] truncate">{product.name}</p>
                   <p className="text-slate-500 text-xs">{product.colors.join(", ")}</p>
+                </td>
+
+                <td className="px-4 py-3">
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      product.status === "Published"
+                        ? "bg-emerald-900/60 text-emerald-300"
+                        : "bg-amber-900/60 text-amber-300"
+                    }`}
+                  >
+                    {product.status === "Published" ? "Published" : "Draft"}
+                  </span>
                 </td>
 
                 {/* Brand */}
@@ -132,6 +223,35 @@ export default function ProductTable({ products }: ProductTableProps) {
             ))}
           </tbody>
         </table>
+      </div>
+      </div>
+
+      <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-xs text-slate-400">
+        <p>
+          Showing {filteredProducts.length === 0 ? 0 : (currentPage - 1) * perPage + 1}-
+          {Math.min(currentPage * perPage, filteredProducts.length)} of {filteredProducts.length}
+        </p>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+            disabled={currentPage <= 1}
+            className="rounded-md border border-slate-600 px-3 py-1.5 text-slate-200 disabled:opacity-40"
+          >
+            Previous
+          </button>
+          <span className="text-slate-300">
+            Page {currentPage} / {totalPages}
+          </span>
+          <button
+            type="button"
+            onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+            disabled={currentPage >= totalPages}
+            className="rounded-md border border-slate-600 px-3 py-1.5 text-slate-200 disabled:opacity-40"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -38,7 +38,10 @@ export async function GET(req: NextRequest) {
     const maxPrice = Number(searchParams.get("maxPrice") || Number.MAX_SAFE_INTEGER);
     const sort = searchParams.get("sort") || "latest";
 
-    const query: Record<string, unknown> = { isActive: true };
+    const query: Record<string, unknown> = {
+      isActive: true,
+      $or: [{ status: "Published" }, { status: { $exists: false } }],
+    };
     if (category) query.category = category;
     if (brand) query.brand = brand;
     if (size) query.sizes = size;
@@ -83,6 +86,8 @@ export async function POST(req: NextRequest) {
         ? body.images
         : [];
 
+    const publish = body.publish === true || body.status === "Published" || body.isActive === true;
+    const nextStatus = publish ? "Published" : "Draft";
     const product = new Product({
       name: body.name,
       price: Number(body.price || 0),
@@ -99,7 +104,8 @@ export async function POST(req: NextRequest) {
       metaTitle: body.metaTitle || "",
       metaDescription: body.metaDescription || "",
       inStock: Number(body.stockQuantity || 0) > 0,
-      isActive: body.isActive !== false,
+      isActive: publish,
+      status: nextStatus,
     });
     await product.save();
     return NextResponse.json(
@@ -109,6 +115,26 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     console.error("POST /api/products error:", error);
     const msg = error instanceof Error ? error.message : "Failed to create product";
+    return NextResponse.json({ error: msg }, { status: 400 });
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    await connectDB();
+    const body = await req.json();
+    if (body?.action !== "publishAllDrafts") {
+      return NextResponse.json({ error: "Unsupported action" }, { status: 400 });
+    }
+
+    const result = await Product.updateMany(
+      { status: "Draft" },
+      { $set: { status: "Published", isActive: true } }
+    );
+    return NextResponse.json({ updatedCount: result.modifiedCount || 0 });
+  } catch (error: unknown) {
+    console.error("PATCH /api/products error:", error);
+    const msg = error instanceof Error ? error.message : "Failed to publish draft products";
     return NextResponse.json({ error: msg }, { status: 400 });
   }
 }

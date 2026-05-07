@@ -7,7 +7,12 @@ export const dynamic = "force-dynamic";
 
 export default async function ShopPage() {
   await connectDB();
-  const raw = await Product.find({ isActive: true }).sort({ createdAt: -1 }).lean();
+  const raw = await Product.find({
+    isActive: true,
+    $or: [{ status: "Published" }, { status: { $exists: false } }],
+  })
+    .sort({ createdAt: -1 })
+    .lean();
   const products: IProduct[] = (raw as Record<string, unknown>[]).map((p) => {
     const images = Array.isArray(p.images) ? (p.images as string[]) : [];
     const colors = Array.isArray(p.colors) ? (p.colors as string[]) : [];
@@ -50,6 +55,10 @@ export default async function ShopPage() {
       discount: Number(p.discount || 0),
       inStock: Boolean(p.inStock),
       isActive: p.isActive !== false,
+      status:
+        p.status === "Published" || (p.status == null && p.isActive !== false)
+          ? "Published"
+          : "Draft",
       popularityScore: Number(p.popularityScore || 0),
       soldCount: Number(p.soldCount || 0),
       slug: String(p.slug || ""),

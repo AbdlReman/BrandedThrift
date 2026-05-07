@@ -30,6 +30,10 @@ export default async function ProductsPage() {
     discount: Number(p.discount || 0),
     inStock: Boolean(p.inStock),
     isActive: p.isActive !== false,
+    status:
+      p.status === "Published" || (p.status == null && p.isActive !== false)
+        ? "Published"
+        : "Draft",
     popularityScore: Number(p.popularityScore || 0),
     soldCount: Number(p.soldCount || 0),
     slug: String(p.slug || ""),
