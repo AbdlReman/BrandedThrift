@@ -36,6 +36,7 @@ export default function ReviewsAdminClient({ products }: { products: ProductOpti
   const [editBody, setEditBody] = useState("");
 
   const [search, setSearch] = useState("");
+  const [ratingFilter, setRatingFilter] = useState<0 | 1 | 2 | 3 | 4 | 5>(0);
   const [page, setPage] = useState(1);
   const perPage = 10;
 
@@ -82,15 +83,20 @@ export default function ReviewsAdminClient({ products }: { products: ProductOpti
     void Promise.all([load(), loadProducts()]);
   }, [load, loadProducts]);
 
+  const filteredReviews = useMemo(() => {
+    if (ratingFilter === 0) return reviews;
+    return reviews.filter((review) => Number(review.rating) === ratingFilter);
+  }, [reviews, ratingFilter]);
+
   const searchedReviews = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return reviews;
-    return reviews.filter((review) =>
+    if (!term) return filteredReviews;
+    return filteredReviews.filter((review) =>
       [review.productName, review.authorName, review.body]
         .map((value) => String(value || "").toLowerCase())
         .some((value) => value.includes(term))
     );
-  }, [reviews, search]);
+  }, [filteredReviews, search]);
 
   const totalPages = Math.max(1, Math.ceil(searchedReviews.length / perPage));
   const currentPage = Math.min(page, totalPages);
@@ -198,7 +204,7 @@ export default function ReviewsAdminClient({ products }: { products: ProductOpti
 
       <section>
         <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4">All reviews</h2>
-        <div className="mb-4">
+        <div className="mb-4 grid gap-3 md:grid-cols-2">
           <input
             type="text"
             value={search}
@@ -209,6 +215,21 @@ export default function ReviewsAdminClient({ products }: { products: ProductOpti
             placeholder="Search by product, author, or review text..."
             className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none"
           />
+          <select
+            value={ratingFilter}
+            onChange={(e) => {
+              setRatingFilter(Number(e.target.value) as 0 | 1 | 2 | 3 | 4 | 5);
+              setPage(1);
+            }}
+            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-slate-100 focus:border-indigo-500 focus:outline-none"
+          >
+            <option value={0}>All ratings</option>
+            <option value={5}>5 star</option>
+            <option value={4}>4 star</option>
+            <option value={3}>3 star</option>
+            <option value={2}>2 star</option>
+            <option value={1}>1 star</option>
+          </select>
         </div>
         {loading ? (
           <p className="text-slate-500 text-sm">Loading…</p>
