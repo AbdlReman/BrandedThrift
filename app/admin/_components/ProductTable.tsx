@@ -236,7 +236,7 @@ export default function ProductTable({ products }: ProductTableProps) {
                       Edit
                     </Link>
                     <Link
-                      href={`/shop/${product.slug}`}
+                      href={`/admin/products/${product._id}/preview`}
                       target="_blank"
                       className="text-slate-300 hover:text-slate-100 text-xs font-medium transition-colors"
                     >
