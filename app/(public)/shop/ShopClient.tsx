@@ -56,7 +56,7 @@ function ProductCard({ product }: { product: IProduct }) {
         <div className="relative h-56 bg-gray-100 flex items-center justify-center mb-3">
           {hasDiscount && (
             <div className="absolute top-2 right-2 rounded-full bg-red-600 px-2.5 py-1 text-[11px] font-black uppercase tracking-widest text-white shadow">
-              -{Math.round(product.discount)}% OFF
+              -{Math.round(product.discount)}%
             </div>
           )}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -68,16 +68,14 @@ function ProductCard({ product }: { product: IProduct }) {
       </Link>
 
       <div className="flex items-center justify-between mt-3">
-        <div className="flex flex-col">
-          {hasDiscount ? (
-            <>
-              <span className="text-xs line-through text-gray-400">{formatPkr(product.price)}</span>
-              <span className="font-black text-lg text-red-600">{formatPkr(finalPrice)}</span>
-            </>
-          ) : (
-            <span className="font-black text-lg">{formatPkr(product.price)}</span>
-          )}
-        </div>
+        {hasDiscount ? (
+          <div className="flex items-baseline gap-2">
+            <span className="text-sm line-through text-gray-400">{formatPkr(product.price)}</span>
+            <span className="font-black text-lg text-black">{formatPkr(finalPrice)}</span>
+          </div>
+        ) : (
+          <span className="font-black text-lg text-black">{formatPkr(product.price)}</span>
+        )}
       </div>
       <button
         onClick={() => addToCart(product, selectedColor, mainImage)}
