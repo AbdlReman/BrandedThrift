@@ -156,16 +156,22 @@ export default function HomePage() {
       </section>
 
       {/* Full-width Banner */}
-      <section className="bg-black text-white py-24 text-center">
-        <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tight mb-6">
+      <section
+        className="relative text-white py-24 text-center overflow-hidden"
+        style={{ backgroundImage: "url(/images/hero.webp)", backgroundSize: "cover", backgroundPosition: "center" }}
+      >
+        <div className="absolute inset-0 bg-slate-900/75" />
+        <div className="relative z-10 px-4">
+        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight mb-6">
           THRIFTED SHOES FROM BRANDS YOU LOVE
         </h2>
-        <p className="text-gray-300 mb-10 max-w-xl mx-auto">
+        <p className="text-slate-200 mb-10 max-w-xl mx-auto">
           Up to 30% Off. Premium looks, better prices, and free shipping all over Pakistan.
         </p>
         <Link href="/shop" className="btn-primary">
           Shop the Sale
         </Link>
+        </div>
       </section>
 
       {/* Why Us */}
