@@ -28,6 +28,7 @@ export default function ReviewsAdminClient({ products }: { products: ProductOpti
   const [newAuthor, setNewAuthor] = useState("");
   const [newRating, setNewRating] = useState(5);
   const [newBody, setNewBody] = useState("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editAuthor, setEditAuthor] = useState("");
@@ -128,6 +129,7 @@ export default function ReviewsAdminClient({ products }: { products: ProductOpti
       setNewAuthor("");
       setNewBody("");
       setNewRating(5);
+      setShowCreateModal(false);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Create failed");
@@ -178,82 +180,20 @@ export default function ReviewsAdminClient({ products }: { products: ProductOpti
       )}
 
       <section className="bg-slate-800 rounded-xl border border-slate-700 p-6">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4">Add review</h2>
-        <form onSubmit={submitCreate} className="space-y-4 max-w-3xl">
+        <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="mb-1 flex items-center justify-between gap-3">
-              <label className="block text-slate-400 text-xs font-semibold uppercase">Product</label>
-              <button
-                type="button"
-                onClick={() => void loadProducts()}
-                disabled={productsLoading}
-                className="text-[11px] font-semibold uppercase tracking-widest text-indigo-400 hover:text-indigo-300 disabled:opacity-50"
-              >
-                {productsLoading ? "Refreshing..." : "Refresh list"}
-              </button>
-            </div>
-            <select
-              value={newProductId}
-              onChange={(e) => setNewProductId(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-600 text-slate-100 rounded-lg px-3 py-2.5 text-sm"
-              required
-            >
-              {productOptions.length === 0 ? (
-                <option value="">No products</option>
-              ) : (
-                productOptions.map((p) => (
-                  <option key={p._id} value={p._id}>
-                    {p.name}
-                  </option>
-                ))
-              )}
-            </select>
-          </div>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-slate-400 text-xs font-semibold uppercase mb-1">Author name</label>
-              <input
-                value={newAuthor}
-                onChange={(e) => setNewAuthor(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-600 text-slate-100 rounded-lg px-3 py-2.5 text-sm"
-                required
-                maxLength={80}
-              />
-            </div>
-            <div>
-              <label className="block text-slate-400 text-xs font-semibold uppercase mb-1">Rating</label>
-              <select
-                value={newRating}
-                onChange={(e) => setNewRating(Number(e.target.value))}
-                className="w-full bg-slate-900 border border-slate-600 text-slate-100 rounded-lg px-3 py-2.5 text-sm"
-              >
-                {[5, 4, 3, 2, 1].map((n) => (
-                  <option key={n} value={n}>
-                    {n} stars
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div>
-            <label className="block text-slate-400 text-xs font-semibold uppercase mb-1">Review</label>
-            <textarea
-              value={newBody}
-              onChange={(e) => setNewBody(e.target.value)}
-              rows={4}
-              maxLength={2000}
-              required
-              className="w-full bg-slate-900 border border-slate-600 text-slate-100 rounded-lg px-3 py-2.5 text-sm resize-y"
-            />
+            <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400">Add review</h2>
+            <p className="text-slate-500 text-xs mt-1">Create a new customer review entry.</p>
           </div>
           <button
-            type="submit"
-            disabled={creating || productOptions.length === 0}
-            className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold px-5 py-2.5 rounded-lg text-sm"
+            type="button"
+            onClick={() => setShowCreateModal(true)}
+            disabled={productOptions.length === 0}
+            className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-lg text-xs uppercase tracking-widest"
           >
-            {creating ? "Saving…" : "Create review"}
+            Add Review
           </button>
-        </form>
+        </div>
       </section>
 
       <section>
@@ -291,88 +231,33 @@ export default function ReviewsAdminClient({ products }: { products: ProductOpti
                 <tbody className="divide-y divide-slate-700 bg-slate-900/40">
                   {visibleReviews.map((r) => (
                   <tr key={r._id} className="align-top">
-                    {editingId === r._id ? (
-                      <td colSpan={6} className="px-4 py-4 space-y-3">
-                        <p className="text-xs text-slate-500">
-                          Product:{" "}
-                          <Link href={`/admin/products/${r.productId}/edit`} className="text-indigo-400 hover:underline">
-                            {r.productName || r.productId}
-                          </Link>
-                        </p>
-                        <div className="grid md:grid-cols-2 gap-3">
-                          <input
-                            value={editAuthor}
-                            onChange={(e) => setEditAuthor(e.target.value)}
-                            className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-slate-100"
-                            maxLength={80}
-                          />
-                          <select
-                            value={editRating}
-                            onChange={(e) => setEditRating(Number(e.target.value))}
-                            className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-slate-100"
-                          >
-                            {[5, 4, 3, 2, 1].map((n) => (
-                              <option key={n} value={n}>
-                                {n} stars
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <textarea
-                          value={editBody}
-                          onChange={(e) => setEditBody(e.target.value)}
-                          rows={3}
-                          maxLength={2000}
-                          className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-slate-100"
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => saveEdit(r._id)}
-                            className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase"
-                          >
-                            Save
-                          </button>
-                          <button
-                            type="button"
-                            onClick={cancelEdit}
-                            className="border border-slate-600 text-slate-300 px-4 py-2 rounded-lg text-xs font-bold uppercase"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </td>
-                    ) : (
-                      <>
-                        <td className="px-4 py-3">
-                          <span className="text-slate-400 line-clamp-2">{r.productName || "—"}</span>
-                        </td>
-                        <td className="px-4 py-3 font-medium text-white">{r.authorName}</td>
-                        <td className="px-4 py-3">{r.rating}★</td>
-                        <td className="px-4 py-3 text-slate-400 max-w-xs whitespace-pre-wrap line-clamp-4">
-                          {r.body}
-                        </td>
-                        <td className="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">
-                          {new Date(r.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
-                          <button
-                            type="button"
-                            onClick={() => startEdit(r)}
-                            className="text-indigo-400 text-xs font-semibold uppercase"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => remove(r._id)}
-                            className="text-red-400 text-xs font-semibold uppercase"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </>
-                    )}
+                    <td className="px-4 py-3">
+                      <span className="text-slate-400 line-clamp-2">{r.productName || "—"}</span>
+                    </td>
+                    <td className="px-4 py-3 font-medium text-white">{r.authorName}</td>
+                    <td className="px-4 py-3">{r.rating}★</td>
+                    <td className="px-4 py-3 text-slate-400 max-w-xs whitespace-pre-wrap line-clamp-4">
+                      {r.body}
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">
+                      {new Date(r.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(r)}
+                        className="text-indigo-400 text-xs font-semibold uppercase"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => remove(r._id)}
+                        className="text-red-400 text-xs font-semibold uppercase"
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                   ))}
                 </tbody>
@@ -408,6 +293,174 @@ export default function ReviewsAdminClient({ products }: { products: ProductOpti
           </div>
         )}
       </section>
+
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-2xl rounded-xl border border-slate-700 bg-slate-900 p-6">
+            <div className="mb-5 flex items-center justify-between">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-slate-300">Add review</h3>
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(false)}
+                className="text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-slate-200"
+              >
+                Close
+              </button>
+            </div>
+            <form onSubmit={submitCreate} className="space-y-4">
+              <div>
+                <div className="mb-1 flex items-center justify-between gap-3">
+                  <label className="block text-slate-400 text-xs font-semibold uppercase">Product</label>
+                  <button
+                    type="button"
+                    onClick={() => void loadProducts()}
+                    disabled={productsLoading}
+                    className="text-[11px] font-semibold uppercase tracking-widest text-indigo-400 hover:text-indigo-300 disabled:opacity-50"
+                  >
+                    {productsLoading ? "Refreshing..." : "Refresh list"}
+                  </button>
+                </div>
+                <select
+                  value={newProductId}
+                  onChange={(e) => setNewProductId(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-600 text-slate-100 rounded-lg px-3 py-2.5 text-sm"
+                  required
+                >
+                  {productOptions.length === 0 ? (
+                    <option value="">No products</option>
+                  ) : (
+                    productOptions.map((p) => (
+                      <option key={p._id} value={p._id}>
+                        {p.name}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-slate-400 text-xs font-semibold uppercase mb-1">Author name</label>
+                  <input
+                    value={newAuthor}
+                    onChange={(e) => setNewAuthor(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-600 text-slate-100 rounded-lg px-3 py-2.5 text-sm"
+                    required
+                    maxLength={80}
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-400 text-xs font-semibold uppercase mb-1">Rating</label>
+                  <select
+                    value={newRating}
+                    onChange={(e) => setNewRating(Number(e.target.value))}
+                    className="w-full bg-slate-800 border border-slate-600 text-slate-100 rounded-lg px-3 py-2.5 text-sm"
+                  >
+                    {[5, 4, 3, 2, 1].map((n) => (
+                      <option key={n} value={n}>
+                        {n} stars
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-slate-400 text-xs font-semibold uppercase mb-1">Review</label>
+                <textarea
+                  value={newBody}
+                  onChange={(e) => setNewBody(e.target.value)}
+                  rows={4}
+                  maxLength={2000}
+                  required
+                  className="w-full bg-slate-800 border border-slate-600 text-slate-100 rounded-lg px-3 py-2.5 text-sm resize-y"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="border border-slate-600 text-slate-300 px-4 py-2 rounded-lg text-xs font-bold uppercase"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creating || productOptions.length === 0}
+                  className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold px-5 py-2 rounded-lg text-xs uppercase tracking-widest"
+                >
+                  {creating ? "Saving..." : "Create review"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {editingId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-2xl rounded-xl border border-slate-700 bg-slate-900 p-6">
+            <div className="mb-5 flex items-center justify-between">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-slate-300">Edit review</h3>
+              <button
+                type="button"
+                onClick={cancelEdit}
+                className="text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-slate-200"
+              >
+                Close
+              </button>
+            </div>
+            <div className="space-y-4">
+              <p className="text-xs text-slate-500">
+                Product:{" "}
+                <Link href={`/admin/products/${reviews.find((r) => r._id === editingId)?.productId || ""}/edit`} className="text-indigo-400 hover:underline">
+                  {reviews.find((r) => r._id === editingId)?.productName || "—"}
+                </Link>
+              </p>
+              <div className="grid md:grid-cols-2 gap-3">
+                <input
+                  value={editAuthor}
+                  onChange={(e) => setEditAuthor(e.target.value)}
+                  className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-slate-100"
+                  maxLength={80}
+                />
+                <select
+                  value={editRating}
+                  onChange={(e) => setEditRating(Number(e.target.value))}
+                  className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-slate-100"
+                >
+                  {[5, 4, 3, 2, 1].map((n) => (
+                    <option key={n} value={n}>
+                      {n} stars
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <textarea
+                value={editBody}
+                onChange={(e) => setEditBody(e.target.value)}
+                rows={4}
+                maxLength={2000}
+                className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-slate-100"
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={cancelEdit}
+                  className="border border-slate-600 text-slate-300 px-4 py-2 rounded-lg text-xs font-bold uppercase"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => saveEdit(editingId)}
+                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
