@@ -173,11 +173,11 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
       <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white py-14">
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-xs font-bold uppercase tracking-widest text-slate-300 mb-2">
-            Curated For You
+          Up to 30% Off
           </p>
           <div className="flex items-end justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-black uppercase tracking-tight">Featured Drops</h1>
+              <h1 className="text-4xl font-black uppercase tracking-tight">Shop now</h1>
               <p className="text-slate-300 mt-2 text-sm">{filtered.length} products available</p>
             </div>
             <p className="text-xs font-bold uppercase tracking-widest text-slate-300 hidden sm:block">
