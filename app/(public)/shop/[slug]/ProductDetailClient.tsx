@@ -67,6 +67,8 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
     return 99;
   }, [product.stockQuantity]);
   const [quantity, setQuantity] = useState(1);
+  const hasDiscount = Number(product.discount || 0) > 0;
+  const finalPrice = hasDiscount ? product.price * (1 - product.discount / 100) : product.price;
 
   const bumpQty = (delta: number) => {
     setQuantity((q) => {
@@ -104,7 +106,12 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="grid lg:grid-cols-2 gap-10">
         <div>
-          <div className="bg-gray-100 border border-gray-200 h-[460px]">
+          <div className="relative bg-gray-100 border border-gray-200 h-[460px]">
+            {hasDiscount && (
+              <div className="absolute top-3 right-3 rounded-full bg-red-600 px-3 py-1.5 text-xs font-black uppercase tracking-widest text-white shadow">
+                -{Math.round(product.discount)}% OFF
+              </div>
+            )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={mainImage} alt={product.name} className="h-full w-full object-cover" />
           </div>
@@ -128,7 +135,27 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
         <div>
           <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">{product.brand}</p>
           <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight">{product.name}</h1>
-          <p className="text-2xl font-black mt-4">{formatPkr(product.price)}</p>
+          <div className="mt-4 space-y-1">
+            {hasDiscount ? (
+              <>
+                <p className="text-sm text-gray-500">
+                  Original Price:{" "}
+                  <span className="line-through font-medium text-gray-400">
+                    {formatPkr(product.price)}
+                  </span>
+                </p>
+                <p className="text-sm text-red-600 font-semibold">
+                  Discount: -{Math.round(product.discount)}% OFF
+                </p>
+                <p className="text-2xl font-black">
+                  Final Price:{" "}
+                  <span className="text-red-600">{formatPkr(finalPrice)}</span>
+                </p>
+              </>
+            ) : (
+              <p className="text-2xl font-black">{formatPkr(product.price)}</p>
+            )}
+          </div>
           <p className="text-gray-600 mt-4 leading-relaxed">
             {product.description || "Premium product with authentic quality and comfort."}
           </p>

@@ -14,7 +14,7 @@ export default function ProductTable({ products }: ProductTableProps) {
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [publishingAll, setPublishingAll] = useState(false);
-  const [filter, setFilter] = useState<"all" | "active" | "outOfStock" | "draft">("all");
+  const [filter, setFilter] = useState<"all" | "active" | "outOfStock" | "draft" | "sale">("all");
   const [page, setPage] = useState(1);
   const perPage = 10;
 
@@ -57,6 +57,7 @@ export default function ProductTable({ products }: ProductTableProps) {
     if (filter === "active") return products.filter((product) => product.status === "Published");
     if (filter === "outOfStock") return products.filter((product) => product.stockQuantity <= 0);
     if (filter === "draft") return products.filter((product) => product.status !== "Published");
+    if (filter === "sale") return products.filter((product) => Number(product.discount || 0) > 0);
     return products;
   }, [products, filter]);
 
@@ -89,12 +90,13 @@ export default function ProductTable({ products }: ProductTableProps) {
             { key: "active", label: "Active" },
             { key: "outOfStock", label: "Out of Stock" },
             { key: "draft", label: "Draft" },
+            { key: "sale", label: "Sale" },
           ].map((item) => (
             <button
               key={item.key}
               type="button"
               onClick={() => {
-                setFilter(item.key as "all" | "active" | "outOfStock" | "draft");
+                setFilter(item.key as "all" | "active" | "outOfStock" | "draft" | "sale");
                 setPage(1);
               }}
               className={`rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-widest transition-colors ${
@@ -209,6 +211,13 @@ export default function ProductTable({ products }: ProductTableProps) {
                       className="text-indigo-400 hover:text-indigo-300 text-xs font-medium transition-colors"
                     >
                       Edit
+                    </Link>
+                    <Link
+                      href={`/shop/${product.slug}`}
+                      target="_blank"
+                      className="text-slate-300 hover:text-slate-100 text-xs font-medium transition-colors"
+                    >
+                      View
                     </Link>
                     <button
                       onClick={() => handleDelete(product._id, product.name)}

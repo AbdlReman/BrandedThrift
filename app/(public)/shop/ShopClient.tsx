@@ -44,13 +44,21 @@ function addToCart(product: IProduct, selectedColor?: string, selectedImage?: st
 
 function ProductCard({ product }: { product: IProduct }) {
   const [selectedColor] = useState(product.colorVariants[0]?.color || product.colors[0] || "");
-  const activeVariant = product.colorVariants.find((variant) => variant.color === selectedColor) || product.colorVariants[0];
+  const activeVariant =
+    product.colorVariants.find((variant) => variant.color === selectedColor) || product.colorVariants[0];
   const mainImage = activeVariant?.images?.[0] || product.images[0] || "";
+  const hasDiscount = Number(product.discount || 0) > 0;
+  const finalPrice = hasDiscount ? product.price * (1 - product.discount / 100) : product.price;
 
   return (
     <div className="product-card border border-gray-100 p-3">
       <Link href={`/shop/${product.slug}`}>
-        <div className="h-56 bg-gray-100 flex items-center justify-center mb-3">
+        <div className="relative h-56 bg-gray-100 flex items-center justify-center mb-3">
+          {hasDiscount && (
+            <div className="absolute top-2 right-2 rounded-full bg-red-600 px-2.5 py-1 text-[11px] font-black uppercase tracking-widest text-white shadow">
+              -{Math.round(product.discount)}% OFF
+            </div>
+          )}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={mainImage} alt={product.name} className="h-full w-full object-cover" />
         </div>
@@ -60,7 +68,16 @@ function ProductCard({ product }: { product: IProduct }) {
       </Link>
 
       <div className="flex items-center justify-between mt-3">
-        <span className="font-black text-lg">{formatPkr(product.price)}</span>
+        <div className="flex flex-col">
+          {hasDiscount ? (
+            <>
+              <span className="text-xs line-through text-gray-400">{formatPkr(product.price)}</span>
+              <span className="font-black text-lg text-red-600">{formatPkr(finalPrice)}</span>
+            </>
+          ) : (
+            <span className="font-black text-lg">{formatPkr(product.price)}</span>
+          )}
+        </div>
       </div>
       <button
         onClick={() => addToCart(product, selectedColor, mainImage)}
