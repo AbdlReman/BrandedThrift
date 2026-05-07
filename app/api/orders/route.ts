@@ -120,34 +120,79 @@ export async function POST(req: NextRequest) {
     }
 
     const totalAmount = Math.round((serverSubtotal - discountAmount) * 100) / 100;
+    const reservedProducts: { productId: string; quantity: number }[] = [];
 
-    const order = await Order.create({
-      orderNumber: makeOrderNumber(),
-      customer: customerDoc,
-      items,
-      subtotal: serverSubtotal,
-      discountAmount,
-      totalAmount,
-      couponCode: couponCodeSaved,
-      paymentMethod,
-      paymentTransactionId,
-      paymentScreenshotUrl,
-      paymentStatus: "pending",
-      orderStatus: "pending",
-    });
+    for (const rawItem of items) {
+      const productId = String(rawItem?.productId || "").trim();
+      const qty = Math.max(1, Number(rawItem?.quantity || 1));
+      if (!productId) {
+        return NextResponse.json({ error: "Invalid product in cart." }, { status: 400 });
+      }
+
+      const updatedProduct = await Product.findOneAndUpdate(
+        { _id: productId, stockQuantity: { $gte: qty }, isActive: true },
+        {
+          $inc: {
+            stockQuantity: -qty,
+            soldCount: qty,
+            popularityScore: qty,
+          },
+        },
+        { new: true }
+      ).lean();
+
+      if (!updatedProduct) {
+        for (const reserved of reservedProducts) {
+          await Product.findByIdAndUpdate(reserved.productId, {
+            $inc: {
+              stockQuantity: reserved.quantity,
+              soldCount: -reserved.quantity,
+              popularityScore: -reserved.quantity,
+            },
+          });
+        }
+        return NextResponse.json(
+          { error: "One or more items are now out of stock. Please refresh cart and try again." },
+          { status: 409 }
+        );
+      }
+
+      reservedProducts.push({ productId, quantity: qty });
+      const nextStock = Number((updatedProduct as Record<string, unknown>).stockQuantity || 0);
+      await Product.findByIdAndUpdate(productId, { $set: { inStock: nextStock > 0 } });
+    }
+
+    let order;
+    try {
+      order = await Order.create({
+        orderNumber: makeOrderNumber(),
+        customer: customerDoc,
+        items,
+        subtotal: serverSubtotal,
+        discountAmount,
+        totalAmount,
+        couponCode: couponCodeSaved,
+        paymentMethod,
+        paymentTransactionId,
+        paymentScreenshotUrl,
+        paymentStatus: "pending",
+        orderStatus: "pending",
+      });
+    } catch (createErr) {
+      for (const reserved of reservedProducts) {
+        await Product.findByIdAndUpdate(reserved.productId, {
+          $inc: {
+            stockQuantity: reserved.quantity,
+            soldCount: -reserved.quantity,
+            popularityScore: -reserved.quantity,
+          },
+        });
+      }
+      throw createErr;
+    }
 
     if (couponIdToIncrement) {
       await Coupon.findByIdAndUpdate(couponIdToIncrement, { $inc: { usedCount: 1 } });
-    }
-
-    for (const item of items) {
-      await Product.findByIdAndUpdate(item.productId, {
-        $inc: {
-          stockQuantity: -Number(item.quantity || 1),
-          soldCount: Number(item.quantity || 1),
-          popularityScore: Number(item.quantity || 1),
-        },
-      });
     }
 
     const notifyEmail = getOrderNotificationEmail();

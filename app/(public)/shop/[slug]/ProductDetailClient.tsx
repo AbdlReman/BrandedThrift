@@ -47,6 +47,8 @@ function setCartToSingleItem(item: CartItem) {
 
 export default function ProductDetailClient({ product }: { product: IProduct }) {
   const router = useRouter();
+  const availableStock = Math.max(0, Number(product.stockQuantity || 0));
+  const isOutOfStock = availableStock <= 0;
   const variants = useMemo(() => {
     if (product.colorVariants.length > 0) return product.colorVariants;
     if (product.colors.length > 0) {
@@ -62,10 +64,9 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
   );
   const [selectedSize, setSelectedSize] = useState(() => sizes[0] || "");
   const maxSelectableQty = useMemo(() => {
-    const stock = Number(product.stockQuantity || 0);
-    if (stock > 0) return Math.min(99, stock);
-    return 99;
-  }, [product.stockQuantity]);
+    if (availableStock > 0) return Math.min(99, availableStock);
+    return 1;
+  }, [availableStock]);
   const [quantity, setQuantity] = useState(1);
   const hasDiscount = Number(product.discount || 0) > 0;
   const finalPrice = hasDiscount ? product.price * (1 - product.discount / 100) : product.price;
@@ -210,15 +211,18 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
                 type="button"
                 aria-label="Increase quantity"
                 onClick={() => bumpQty(1)}
-                disabled={quantity >= maxSelectableQty}
+                disabled={isOutOfStock || quantity >= maxSelectableQty}
                 className="h-10 w-10 border border-gray-300 text-lg font-bold leading-none hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 +
               </button>
-              {product.stockQuantity > 0 && (
+              {availableStock > 0 && (
                 <span className="text-xs text-gray-500">
-                  {product.stockQuantity} in stock
+                  {availableStock} in stock
                 </span>
+              )}
+              {isOutOfStock && (
+                <span className="text-xs font-semibold uppercase tracking-wide text-red-600">Out of stock</span>
               )}
             </div>
           </div>
@@ -226,7 +230,9 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
           <div className="mt-8 flex flex-col sm:flex-row flex-wrap gap-3">
             <button
               type="button"
+              disabled={isOutOfStock}
               onClick={() => {
+                if (isOutOfStock) return;
                 const qty = Math.max(1, Math.floor(quantity || 1));
                 addToCart(product, selectedColor || "Default", mainImage, selectedSize, quantity);
                 setQuantity(1);
@@ -234,13 +240,15 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
                   description: `${product.name} · Qty ${qty}${selectedSize ? ` · Size ${selectedSize}` : ""}`,
                 });
               }}
-              className="w-full sm:w-auto bg-black text-white px-8 py-3 text-sm font-bold uppercase tracking-widest hover:bg-gray-900 transition-colors"
+              className="w-full sm:w-auto bg-black text-white px-8 py-3 text-sm font-bold uppercase tracking-widest hover:bg-gray-900 transition-colors disabled:cursor-not-allowed disabled:bg-gray-400"
             >
-              Add to Cart
+              {isOutOfStock ? "Out of Stock" : "Add to Cart"}
             </button>
             <button
               type="button"
+              disabled={isOutOfStock}
               onClick={() => {
+                if (isOutOfStock) return;
                 const qty = Math.max(1, Math.floor(quantity || 1));
                 const line: CartItem = {
                   productId: product._id,
@@ -257,9 +265,9 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
                 });
                 router.push("/checkout");
               }}
-              className="w-full sm:w-auto border-2 border-black text-black px-8 py-3 text-sm font-bold uppercase tracking-widest hover:bg-gray-50 transition-colors"
+              className="w-full sm:w-auto border-2 border-black text-black px-8 py-3 text-sm font-bold uppercase tracking-widest hover:bg-gray-50 transition-colors disabled:cursor-not-allowed disabled:border-gray-400 disabled:text-gray-400"
             >
-              Buy Now
+              {isOutOfStock ? "Out of Stock" : "Buy Now"}
             </button>
           </div>
         </div>
