@@ -31,9 +31,9 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur border-b border-slate-700">
+    <header className="sticky top-0 z-50 bg-zinc-950/95 backdrop-blur border-b border-zinc-800">
       {/* Top promo bar */}
-      <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 text-slate-100 text-center py-2 text-xs font-bold tracking-widest uppercase">
+      <div className="bg-zinc-900 text-zinc-100 text-center py-2 text-xs font-bold tracking-widest uppercase border-b border-zinc-800">
         We Deliver Free All Over Pakistan
       </div>
 
@@ -41,11 +41,11 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-slate-100 rounded-sm flex items-center justify-center">
-              <span className="text-slate-900 font-black text-sm">BT</span>
+            <div className="w-8 h-8 bg-zinc-100 rounded-sm flex items-center justify-center">
+              <span className="text-zinc-900 font-black text-sm">BT</span>
             </div>
-            <span className="font-black text-lg uppercase tracking-widest text-slate-100">
-              Branded<span className="text-slate-300">Thrift</span>
+            <span className="font-black text-lg uppercase tracking-widest text-zinc-100">
+              Branded<span className="text-zinc-300">Thrift</span>
             </span>
           </Link>
 
@@ -55,8 +55,8 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`nav-link text-slate-100 hover:text-white transition-colors ${
-                  pathname === link.href ? "border-b-2 border-slate-200" : ""
+                className={`nav-link text-zinc-100 hover:text-white transition-colors ${
+                  pathname === link.href ? "border-b-2 border-zinc-200" : ""
                 }`}
               >
                 {link.label}
@@ -67,7 +67,7 @@ export default function Navbar() {
           {/* Icons */}
           <div className="flex items-center gap-5">
             {/* Search */}
-            <button aria-label="Search" className="hover:opacity-70 transition-opacity text-slate-100">
+            <button aria-label="Search" className="hover:opacity-70 transition-opacity text-zinc-100">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <circle cx="11" cy="11" r="8" />
                 <path d="m21 21-4.35-4.35" />
@@ -75,14 +75,14 @@ export default function Navbar() {
             </button>
 
             {/* Cart */}
-            <Link href="/cart" aria-label="Cart" className="relative hover:opacity-70 transition-opacity text-slate-100">
+            <Link href="/cart" aria-label="Cart" className="relative hover:opacity-70 transition-opacity text-zinc-100">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
                 <line x1="3" y1="6" x2="21" y2="6" />
                 <path d="M16 10a4 4 0 0 1-8 0" />
               </svg>
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-slate-100 text-slate-900 text-xs w-4 h-4 rounded-full flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 bg-zinc-100 text-zinc-900 text-xs w-4 h-4 rounded-full flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
@@ -90,7 +90,7 @@ export default function Navbar() {
 
             {/* Mobile menu button */}
             <button
-              className="md:hidden hover:opacity-70 transition-opacity text-slate-100"
+              className="md:hidden hover:opacity-70 transition-opacity text-zinc-100"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label="Toggle menu"
             >
@@ -112,15 +112,15 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-slate-700 bg-slate-900">
+        <div className="md:hidden border-t border-zinc-800 bg-zinc-950">
           <nav className="flex flex-col px-4 py-4 gap-4">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className={`nav-link text-sm py-1 text-slate-100 hover:text-white transition-colors ${
-                  pathname === link.href ? "border-b-2 border-slate-200 w-fit" : ""
+                className={`nav-link text-sm py-1 text-zinc-100 hover:text-white transition-colors ${
+                  pathname === link.href ? "border-b-2 border-zinc-200 w-fit" : ""
                 }`}
               >
                 {link.label}
