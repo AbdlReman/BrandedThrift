@@ -223,3 +223,44 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to place order" }, { status: 500 });
   }
 }
+
+export async function PATCH(req: NextRequest) {
+  try {
+    await connectDB();
+    const body = await req.json();
+    const orderId = String(body.orderId || "").trim();
+    const nextStatus = String(body.status || "").toLowerCase();
+
+    if (!orderId) {
+      return NextResponse.json({ error: "Missing orderId" }, { status: 400 });
+    }
+
+    const allowedStatuses = ["pending", "completed", "cancelled"] as const;
+    if (!allowedStatuses.includes(nextStatus as (typeof allowedStatuses)[number])) {
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      orderId,
+      { $set: { orderStatus: nextStatus } },
+      { new: true }
+    ).lean();
+
+    if (!order) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    const o = order as Record<string, unknown>;
+    return NextResponse.json({
+      order: {
+        ...o,
+        _id: String(o._id),
+        createdAt: String(o.createdAt),
+        updatedAt: String(o.updatedAt),
+      },
+    });
+  } catch (error) {
+    console.error("PATCH /api/orders error:", error);
+    return NextResponse.json({ error: "Failed to update order" }, { status: 500 });
+  }
+}

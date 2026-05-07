@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatPkr } from "@/lib/formatCurrency";
 import { paymentMethodLabel } from "@/lib/paymentLabels";
 
@@ -42,6 +42,11 @@ export type AdminOrderRow = {
 
 export default function OrdersAdminClient({ orders }: { orders: AdminOrderRow[] }) {
   const [openId, setOpenId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"pending" | "completed" | "cancelled">("pending");
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [updatingTo, setUpdatingTo] = useState<"completed" | "cancelled" | null>(null);
+  const [page, setPage] = useState(1);
+  const perPage = 10;
   const selected = openId ? orders.find((o) => o._id === openId) : null;
 
   const onKeyDown = useCallback(
@@ -57,8 +62,75 @@ export default function OrdersAdminClient({ orders }: { orders: AdminOrderRow[] 
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [openId, onKeyDown]);
 
+  const filteredOrders = useMemo(() => {
+    return orders.filter((o) => o.orderStatus === statusFilter);
+  }, [orders, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / perPage));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
+  );
+
+  const changeStatus = async (orderId: string, nextStatus: "completed" | "cancelled") => {
+    if (!orderId) return;
+    setUpdatingId(orderId);
+    setUpdatingTo(nextStatus);
+    try {
+      const res = await fetch("/api/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, status: nextStatus }),
+      });
+      if (!res.ok) {
+        // eslint-disable-next-line no-alert
+        alert("Failed to update order status.");
+        return;
+      }
+      window.location.reload();
+    } catch (e) {
+      console.error(e);
+      // eslint-disable-next-line no-alert
+      alert("Failed to update order status.");
+    } finally {
+      setUpdatingId(null);
+      setUpdatingTo(null);
+    }
+  };
+
   return (
     <>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="inline-flex rounded-lg border border-slate-700 bg-slate-900/60 p-1">
+          {[
+            { key: "pending", label: "Pending" },
+            { key: "completed", label: "Completed" },
+            { key: "cancelled", label: "Cancelled" },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => {
+                setStatusFilter(tab.key as "pending" | "completed" | "cancelled");
+                setPage(1);
+              }}
+              className={`px-3 py-1.5 text-xs font-semibold uppercase tracking-widest rounded-md ${
+                statusFilter === tab.key
+                  ? "bg-slate-100 text-slate-900"
+                  : "text-slate-300 hover:text-white"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-slate-400">
+          Showing {filteredOrders.length} {statusFilter} order
+          {filteredOrders.length === 1 ? "" : "s"}
+        </p>
+      </div>
+
       <div className="overflow-x-auto rounded-xl border border-slate-700 bg-slate-800/50">
         <table className="w-full text-sm text-left text-slate-300 min-w-[720px]">
           <thead className="bg-slate-900/80 text-[10px] uppercase tracking-widest text-slate-500">
@@ -72,7 +144,7 @@ export default function OrdersAdminClient({ orders }: { orders: AdminOrderRow[] 
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-700">
-            {orders.map((order) => (
+            {paginatedOrders.map((order) => (
               <tr key={order._id} className="hover:bg-slate-800/80 align-middle">
                 <td className="px-4 py-2.5 whitespace-nowrap">
                   <span className="text-white font-semibold tabular-nums">{order.orderNumber}</span>
@@ -88,23 +160,99 @@ export default function OrdersAdminClient({ orders }: { orders: AdminOrderRow[] 
                   {new Date(order.createdAt).toLocaleString()}
                 </td>
                 <td className="px-4 py-2.5 text-xs">
-                  <span className="text-slate-400">{order.paymentStatus}</span>
-                  <span className="text-slate-600 mx-1">·</span>
-                  <span className="text-slate-400">{order.orderStatus}</span>
+                  <span className="inline-flex items-center rounded-full bg-slate-700/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-slate-200">
+                    {order.paymentStatus}
+                  </span>
+                  <span className="mx-1 text-slate-600">·</span>
+                  <span
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
+                      order.orderStatus === "completed"
+                        ? "bg-emerald-900/70 text-emerald-200"
+                        : order.orderStatus === "cancelled"
+                        ? "bg-red-900/70 text-red-200"
+                        : "bg-amber-900/70 text-amber-200"
+                    }`}
+                  >
+                    {order.orderStatus}
+                  </span>
                 </td>
                 <td className="px-4 py-2.5 text-right">
-                  <button
-                    type="button"
-                    onClick={() => setOpenId(order._id)}
-                    className="text-xs font-bold uppercase tracking-wide text-cyan-400 hover:text-cyan-300"
-                  >
-                    View
-                  </button>
+                  <div className="flex flex-col items-end gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setOpenId(order._id)}
+                      className="text-xs font-bold uppercase tracking-wide text-cyan-400 hover:text-cyan-300"
+                    >
+                      Details
+                    </button>
+                    <div className="flex flex-wrap justify-end gap-1">
+                      <button
+                        type="button"
+                        disabled={
+                          order.orderStatus === "completed" ||
+                          updatingId === order._id
+                        }
+                        onClick={() => changeStatus(order._id, "completed")}
+                        className="rounded-md border border-emerald-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-emerald-300 hover:bg-emerald-900/40 disabled:opacity-50"
+                      >
+                        {updatingId === order._id && updatingTo === "completed"
+                          ? "Saving..."
+                          : "Mark Completed"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={
+                          order.orderStatus === "cancelled" ||
+                          updatingId === order._id
+                        }
+                        onClick={() => changeStatus(order._id, "cancelled")}
+                        className="rounded-md border border-red-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-red-300 hover:bg-red-900/40 disabled:opacity-50"
+                      >
+                        {updatingId === order._id && updatingTo === "cancelled"
+                          ? "Saving..."
+                          : "Mark Cancelled"}
+                      </button>
+                    </div>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between rounded-lg border border-slate-700 bg-slate-900/70 px-4 py-2 text-xs text-slate-300">
+        <p>
+          Showing{" "}
+          {filteredOrders.length === 0
+            ? 0
+            : (currentPage - 1) * perPage + 1}
+          -
+          {Math.min(currentPage * perPage, filteredOrders.length)} of{" "}
+          {filteredOrders.length} {statusFilter} order
+          {filteredOrders.length === 1 ? "" : "s"}
+        </p>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage <= 1}
+            className="rounded-md border border-slate-600 px-3 py-1 text-slate-200 disabled:opacity-40"
+          >
+            Previous
+          </button>
+          <span>
+            Page {currentPage} / {totalPages}
+          </span>
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage >= totalPages}
+            className="rounded-md border border-slate-600 px-3 py-1 text-slate-200 disabled:opacity-40"
+          >
+            Next
+          </button>
+        </div>
       </div>
 
       {selected ? (
