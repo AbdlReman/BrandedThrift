@@ -177,42 +177,40 @@ export default function OrdersAdminClient({ orders }: { orders: AdminOrderRow[] 
                   </span>
                 </td>
                 <td className="px-4 py-2.5 text-right">
-                  <div className="flex flex-col items-end gap-1">
+                  <div className="flex items-center justify-end gap-1 whitespace-nowrap">
                     <button
                       type="button"
                       onClick={() => setOpenId(order._id)}
                       className="text-xs font-bold uppercase tracking-wide text-cyan-400 hover:text-cyan-300"
                     >
-                      Details
+                      View Detail
                     </button>
-                    <div className="flex flex-wrap justify-end gap-1">
-                      <button
-                        type="button"
-                        disabled={
-                          order.orderStatus === "completed" ||
-                          updatingId === order._id
-                        }
-                        onClick={() => changeStatus(order._id, "completed")}
-                        className="rounded-md border border-emerald-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-emerald-300 hover:bg-emerald-900/40 disabled:opacity-50"
-                      >
-                        {updatingId === order._id && updatingTo === "completed"
-                          ? "Saving..."
-                          : "Mark Completed"}
-                      </button>
-                      <button
-                        type="button"
-                        disabled={
-                          order.orderStatus === "cancelled" ||
-                          updatingId === order._id
-                        }
-                        onClick={() => changeStatus(order._id, "cancelled")}
-                        className="rounded-md border border-red-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-red-300 hover:bg-red-900/40 disabled:opacity-50"
-                      >
-                        {updatingId === order._id && updatingTo === "cancelled"
-                          ? "Saving..."
-                          : "Mark Cancelled"}
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      disabled={
+                        order.orderStatus === "completed" ||
+                        updatingId === order._id
+                      }
+                      onClick={() => changeStatus(order._id, "completed")}
+                      className="rounded-md border border-emerald-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-emerald-300 hover:bg-emerald-900/40 disabled:opacity-50"
+                    >
+                      {updatingId === order._id && updatingTo === "completed"
+                        ? "Saving..."
+                        : "Complete"}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={
+                        order.orderStatus === "cancelled" ||
+                        updatingId === order._id
+                      }
+                      onClick={() => changeStatus(order._id, "cancelled")}
+                      className="rounded-md border border-red-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-red-300 hover:bg-red-900/40 disabled:opacity-50"
+                    >
+                      {updatingId === order._id && updatingTo === "cancelled"
+                        ? "Saving..."
+                        : "Cancel"}
+                    </button>
                   </div>
                 </td>
               </tr>
