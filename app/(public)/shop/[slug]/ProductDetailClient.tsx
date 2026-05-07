@@ -108,8 +108,8 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
         <div>
           <div className="relative bg-gray-100 border border-gray-200 h-[460px]">
             {hasDiscount && (
-              <div className="absolute top-3 right-3 rounded-full bg-red-600 px-3 py-1.5 text-xs font-black uppercase tracking-widest text-white shadow">
-                -{Math.round(product.discount)}% OFF
+              <div className="absolute top-3 right-3 text-sm font-black tracking-widest text-red-600">
+                -{Math.round(product.discount)}%
               </div>
             )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -145,12 +145,9 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
                   </span>
                 </p>
                 <p className="text-sm text-red-600 font-semibold">
-                  Discount: -{Math.round(product.discount)}% OFF
+                  Discount: -{Math.round(product.discount)}%
                 </p>
-                <p className="text-2xl font-black">
-                  Final Price:{" "}
-                  <span className="text-red-600">{formatPkr(finalPrice)}</span>
-                </p>
+                <p className="text-2xl font-black">Final Price: {formatPkr(finalPrice)}</p>
               </>
             ) : (
               <p className="text-2xl font-black">{formatPkr(product.price)}</p>

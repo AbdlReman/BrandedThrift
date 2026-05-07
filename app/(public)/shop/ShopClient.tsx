@@ -55,7 +55,7 @@ function ProductCard({ product }: { product: IProduct }) {
       <Link href={`/shop/${product.slug}`}>
         <div className="relative h-56 bg-gray-100 flex items-center justify-center mb-3">
           {hasDiscount && (
-            <div className="absolute top-2 right-2 rounded-full bg-red-600 px-2.5 py-1 text-[11px] font-black uppercase tracking-widest text-white shadow">
+            <div className="absolute top-2 right-2 text-sm font-black tracking-widest text-red-600">
               -{Math.round(product.discount)}%
             </div>
           )}
