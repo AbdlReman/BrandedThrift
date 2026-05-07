@@ -137,18 +137,12 @@ export default function ProductDetailClient({ product }: { product: IProduct }) 
           <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight">{product.name}</h1>
           <div className="mt-4 space-y-1">
             {hasDiscount ? (
-              <>
-                <p className="text-sm text-gray-500">
-                  Original Price:{" "}
-                  <span className="line-through font-medium text-gray-400">
-                    {formatPkr(product.price)}
-                  </span>
-                </p>
-                <p className="text-sm text-red-600 font-semibold">
-                  Discount: -{Math.round(product.discount)}%
-                </p>
-                <p className="text-2xl font-black">Final Price: {formatPkr(finalPrice)}</p>
-              </>
+              <p className="text-2xl font-black flex items-baseline gap-2">
+                <span className="text-base font-semibold text-gray-400 line-through">
+                  {formatPkr(product.price)}
+                </span>
+                <span>{formatPkr(finalPrice)}</span>
+              </p>
             ) : (
               <p className="text-2xl font-black">{formatPkr(product.price)}</p>
             )}
