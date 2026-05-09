@@ -14,19 +14,16 @@ export function RelatedProductsSection({
   if (!products.length) return null;
 
   return (
-    <section className="border-t border-neutral-200/90 pt-16" aria-labelledby="related-heading">
-      <div className="mb-10 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 id="related-heading" className="text-xl font-semibold tracking-tight text-neutral-950 sm:text-2xl">
-            {title}
-          </h2>
-          <p className="mt-1 text-sm text-neutral-500">Curated picks in the same spirit.</p>
-        </div>
+    <section className="mt-16 border-t border-neutral-200 pt-12" aria-labelledby="related-heading">
+      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <h2 id="related-heading" className="text-lg font-black uppercase tracking-tight text-black sm:text-xl">
+          {title}
+        </h2>
         <Link
           href="/shop"
-          className="text-sm font-semibold text-neutral-900 underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950/25 rounded-sm"
+          className="text-xs font-bold uppercase tracking-widest text-black underline decoration-1 underline-offset-4 hover:no-underline"
         >
-          View all
+          Shop all
         </Link>
       </div>
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -53,11 +50,11 @@ export function RecentlyViewedSection({
   if (!entries.length) return null;
 
   return (
-    <section className="border-t border-neutral-200/90 pt-16 mt-16" aria-labelledby="recent-heading">
-      <h2 id="recent-heading" className="text-xl font-semibold tracking-tight text-neutral-950 sm:text-2xl mb-10">
+    <section className="mt-16 border-t border-neutral-200 pt-12" aria-labelledby="recent-heading">
+      <h2 id="recent-heading" className="mb-8 text-lg font-black uppercase tracking-tight text-black sm:text-xl">
         Recently viewed
       </h2>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {entries.map((e) => {
           const productLike = {
             _id: `recent-${e.slug}`,

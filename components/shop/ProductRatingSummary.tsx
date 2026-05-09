@@ -8,7 +8,7 @@ function Stars({ value }: { value: number }) {
   return (
     <span className="inline-flex items-center gap-0.5" role="img" aria-hidden>
       {stars.map((s) => (
-        <span key={s} className={s <= full ? "text-amber-500" : "text-neutral-200"} aria-hidden>
+        <span key={s} className={s <= full ? "text-black" : "text-neutral-200"} aria-hidden>
           ★
         </span>
       ))}
@@ -51,26 +51,22 @@ export default function ProductRatingSummary({ productId }: { productId: string 
   }, [productId]);
 
   if (loading) {
-    return (
-      <div className="h-6 w-48 animate-pulse rounded-md bg-neutral-100" aria-hidden />
-    );
+    return <div className="h-4 w-40 animate-pulse bg-neutral-200" aria-hidden />;
   }
 
   if (avg === null || count === 0) {
-    return (
-      <p className="text-sm text-neutral-500">
-        <span className="font-medium text-neutral-700">New</span>
-        <span className="mx-2 text-neutral-300">·</span>
-        No reviews yet
-      </p>
-    );
+    return <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">No reviews yet</p>;
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3" role="group" aria-label={`${avg.toFixed(1)} out of 5 stars, ${count} reviews`}>
+    <div
+      className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wider text-black"
+      role="group"
+      aria-label={`${avg.toFixed(1)} out of 5 stars, ${count} reviews`}
+    >
       <Stars value={avg} />
-      <span className="text-sm font-semibold tabular-nums text-neutral-900">{avg.toFixed(1)}</span>
-      <span className="text-sm text-neutral-500">
+      <span className="tabular-nums">{avg.toFixed(1)}</span>
+      <span className="font-normal normal-case tracking-normal text-neutral-600">
         ({count} {count === 1 ? "review" : "reviews"})
       </span>
     </div>

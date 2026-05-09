@@ -201,20 +201,20 @@ export default function ProductDetailClient({
   ];
 
   return (
-    <div className="min-h-screen bg-[#fafafa] pb-28 lg:pb-0">
+    <div className="min-h-screen bg-white pb-24 lg:pb-0">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <header className="border-b border-neutral-200/80 bg-white/90 backdrop-blur-xl">
-        <div className="mx-auto max-w-[90rem] px-4 py-6 sm:px-6 lg:px-8">
-          <Breadcrumbs items={breadcrumbItems} className="text-neutral-500" />
+      <header className="border-b border-neutral-200 bg-white">
+        <div className="mx-auto max-w-[90rem] px-4 py-4 sm:px-6 lg:px-8">
+          <Breadcrumbs items={breadcrumbItems} className="text-neutral-600 [&_a]:text-black [&_a:hover]:underline" />
         </div>
       </header>
 
-      <div className="mx-auto max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-20">
+      <div className="mx-auto max-w-[90rem] px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <div className="grid gap-10 lg:grid-cols-2 lg:gap-12">
           {/* Gallery */}
           <div className="flex flex-col gap-4 xl:flex-row xl:gap-5">
-            <div className="order-2 flex gap-2 overflow-x-auto pb-1 xl:order-1 xl:w-[5.5rem] xl:flex-col xl:overflow-y-auto xl:pb-0 xl:pr-1">
+            <div className="order-2 flex gap-1 overflow-x-auto pb-1 xl:order-1 xl:w-16 xl:flex-col xl:overflow-y-auto xl:pb-0">
               {thumbImages.map((image, idx) => {
                 const active = mainImage === image;
                 return (
@@ -222,8 +222,8 @@ export default function ProductDetailClient({
                     key={`${image}-${idx}`}
                     type="button"
                     onClick={() => setSelectedImage(image)}
-                    className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-xl ring-2 transition xl:h-[4.5rem] xl:w-full ${
-                      active ? "ring-neutral-950 shadow-lg" : "ring-transparent opacity-80 hover:opacity-100"
+                    className={`relative h-14 w-14 shrink-0 overflow-hidden border-2 xl:h-16 xl:w-full ${
+                      active ? "border-black" : "border-transparent opacity-70 hover:opacity-100"
                     }`}
                     aria-label={`View image ${idx + 1}`}
                     aria-current={active ? "true" : undefined}
@@ -241,39 +241,26 @@ export default function ProductDetailClient({
 
             <div className="relative order-1 min-w-0 flex-1 xl:order-2">
               <div
-                className="group relative aspect-square overflow-hidden rounded-3xl bg-gradient-to-br from-neutral-100 via-neutral-50 to-neutral-200 ring-1 ring-neutral-200/80 shadow-[0_24px_80px_-40px_rgba(15,23,42,0.55)]"
+                className="relative aspect-square overflow-hidden bg-neutral-100"
                 tabIndex={0}
                 role="region"
                 aria-label="Product gallery"
               >
                 {hasDiscount ? (
-                  <div className="absolute right-4 top-4 z-10 rounded-full bg-red-600 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg">
-                    −{Math.round(product.discount)}%
+                  <div className="absolute right-0 top-0 z-10 bg-[#e4002b] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+                    Sale −{Math.round(product.discount)}%
                   </div>
                 ) : null}
-                <div className="absolute left-4 top-4 z-10 flex flex-wrap gap-2">
-                  <span
-                    className={`rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide shadow-md backdrop-blur-md ${
-                      isOutOfStock
-                        ? "bg-neutral-800/90 text-white"
-                        : availableStock <= 5
-                          ? "bg-amber-500/95 text-white"
-                          : "bg-emerald-600/95 text-white"
-                    }`}
-                  >
-                    {isOutOfStock ? "Out of stock" : availableStock <= 5 ? `Only ${availableStock} left` : "In stock"}
+                <div className="absolute left-0 top-0 z-10 flex flex-wrap gap-1">
+                  <span className="bg-black px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+                    {isOutOfStock ? "Out of stock" : availableStock <= 5 ? `Low stock` : "In stock"}
                   </span>
-                  {product.soldCount > 0 ? (
-                    <span className="rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-neutral-800 shadow-md backdrop-blur-md">
-                      {product.soldCount}+ sold
-                    </span>
-                  ) : null}
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setShowImagePreview(true)}
-                  className="relative block h-full w-full cursor-zoom-in outline-none focus-visible:ring-4 focus-visible:ring-neutral-950/15"
+                  className="relative block h-full w-full cursor-zoom-in outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
                   aria-label={`Open ${product.name} fullscreen`}
                 >
                   {mainImage && isCloudinary(mainImage) ? (
@@ -282,83 +269,79 @@ export default function ProductDetailClient({
                       alt={product.name}
                       fill
                       priority
-                      className="object-cover transition duration-700 ease-out group-hover:scale-[1.03]"
+                      className="object-cover"
                       sizes="(max-width: 1024px) 100vw, 50vw"
                     />
                   ) : mainImage ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={mainImage}
-                      alt={product.name}
-                      className="absolute inset-0 h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.03]"
-                    />
+                    <img src={mainImage} alt={product.name} className="absolute inset-0 h-full w-full object-cover" />
                   ) : (
                     <div className="flex h-full items-center justify-center text-sm text-neutral-400">No image</div>
                   )}
                 </button>
 
-                <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-[11px] font-medium text-white backdrop-blur-md">
-                  {imageIndex + 1} / {thumbImages.length}
-                </div>
+                {thumbImages.length > 1 ? (
+                  <div className="pointer-events-none absolute bottom-2 right-2 bg-black px-2 py-0.5 text-[10px] font-bold text-white tabular-nums">
+                    {imageIndex + 1}/{thumbImages.length}
+                  </div>
+                ) : null}
               </div>
-              <p className="mt-3 text-center text-xs text-neutral-400 xl:text-left">
-                Use arrow keys to browse images when this area is focused.
-              </p>
             </div>
           </div>
 
           {/* Buy column */}
           <div className="flex flex-col">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500">{product.brand || "Collection"}</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-neutral-950 sm:text-5xl">{product.name}</h1>
+            {product.brand ? (
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-600">{product.brand}</p>
+            ) : null}
+            <h1 className="mt-2 text-2xl font-black uppercase leading-tight tracking-tight text-black sm:text-3xl">
+              {product.name}
+            </h1>
 
             <div className="mt-6">
               <ProductRatingSummary productId={product._id} />
             </div>
 
-            <div className="mt-8 flex flex-wrap items-end gap-3 border-b border-neutral-200/90 pb-8">
+            <div className="mt-6 flex flex-wrap items-baseline gap-3 border-b border-neutral-200 pb-6">
               {hasDiscount ? (
-                <div className="flex flex-wrap items-baseline gap-3">
-                  <span className="text-4xl font-semibold tabular-nums tracking-tight text-neutral-950">
-                    {formatPkr(finalPrice)}
-                  </span>
-                  <span className="text-lg text-neutral-400 line-through tabular-nums">{formatPkr(product.price)}</span>
-                </div>
+                <>
+                  <span className="text-2xl font-black tabular-nums text-black sm:text-3xl">{formatPkr(finalPrice)}</span>
+                  <span className="text-base text-neutral-400 line-through tabular-nums">{formatPkr(product.price)}</span>
+                </>
               ) : (
-                <span className="text-4xl font-semibold tabular-nums tracking-tight text-neutral-950">
-                  {formatPkr(product.price)}
-                </span>
+                <span className="text-2xl font-black tabular-nums text-black sm:text-3xl">{formatPkr(product.price)}</span>
               )}
-              <span className="text-sm text-neutral-500">Inclusive of duties where applicable.</span>
             </div>
 
-            <p className="mt-8 text-base leading-relaxed text-neutral-600">{product.description || "Designed with intention — premium materials, refined proportions, and everyday comfort."}</p>
+            <p className="mt-6 text-sm leading-relaxed text-neutral-700">
+              {product.description || "Quality construction and comfort for everyday wear."}
+            </p>
 
-            <div className="mt-10 grid gap-4 rounded-2xl border border-neutral-200/80 bg-white/70 p-5 shadow-[0_16px_50px_-40px_rgba(15,23,42,0.35)] backdrop-blur-md sm:grid-cols-2">
+            <div className="mt-8 grid gap-4 border border-neutral-300 bg-neutral-50 p-4 sm:grid-cols-2">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">Availability</p>
-                <p className="mt-2 text-sm font-medium text-neutral-900">
-                  {isOutOfStock ? "Currently unavailable" : `${availableStock} available`}
+                <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">Stock</p>
+                <p className="mt-1 text-sm font-bold text-black">
+                  {isOutOfStock ? "Unavailable" : `${availableStock} in stock`}
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">SKU</p>
-                <p className="mt-2 text-sm font-medium tabular-nums text-neutral-900">{product._id.slice(-8).toUpperCase()}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">Style #</p>
+                <p className="mt-1 text-sm font-bold tabular-nums text-black">{product._id.slice(-8).toUpperCase()}</p>
               </div>
             </div>
 
-            <div className="mt-10">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Color</p>
-              <div className="mt-3 flex flex-wrap gap-2">
+            <div className="mt-8">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">Color</p>
+              <div className="mt-2 flex flex-wrap gap-2">
                 {variants.map((variant) => (
                   <button
                     key={`${product._id}-${variant.color}`}
                     type="button"
                     onClick={() => handleColorChange(variant.color)}
-                    className={`min-h-11 rounded-full border px-5 py-2.5 text-sm font-semibold transition ${
+                    className={`min-h-10 border px-4 py-2 text-xs font-bold uppercase tracking-wide ${
                       selectedColor === variant.color
-                        ? "border-neutral-950 bg-neutral-950 text-white shadow-md"
-                        : "border-neutral-200 bg-white text-neutral-800 hover:border-neutral-400"
+                        ? "border-black bg-black text-white"
+                        : "border-neutral-300 bg-white text-black hover:border-black"
                     }`}
                   >
                     {variant.color}
@@ -369,17 +352,17 @@ export default function ProductDetailClient({
 
             {sizes.length > 0 ? (
               <div className="mt-8">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Size</p>
-                <div className="mt-3 flex flex-wrap gap-2">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">Size</p>
+                <div className="mt-2 flex flex-wrap gap-2">
                   {sizes.map((size) => (
                     <button
                       key={`${product._id}-size-${size}`}
                       type="button"
                       onClick={() => setSelectedSize(size)}
-                      className={`flex min-h-11 min-w-[3rem] items-center justify-center rounded-xl border text-sm font-semibold transition ${
+                      className={`flex min-h-10 min-w-[2.75rem] items-center justify-center border text-xs font-bold ${
                         selectedSize === size
-                          ? "border-neutral-950 bg-neutral-950 text-white shadow-md"
-                          : "border-neutral-200 bg-white text-neutral-800 hover:border-neutral-400"
+                          ? "border-black bg-black text-white"
+                          : "border-neutral-300 bg-white text-black hover:border-black"
                       }`}
                     >
                       {size}
@@ -389,39 +372,37 @@ export default function ProductDetailClient({
               </div>
             ) : null}
 
-            <div className="mt-10">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Quantity</p>
-              <div className="mt-3 flex flex-wrap items-center gap-4">
-                <div className="inline-flex items-center rounded-2xl border border-neutral-200 bg-white p-1 shadow-sm">
+            <div className="mt-8">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">Qty</p>
+              <div className="mt-2 flex flex-wrap items-center gap-4">
+                <div className="inline-flex items-center border border-neutral-300 bg-white">
                   <button
                     type="button"
                     aria-label="Decrease quantity"
                     onClick={() => bumpQty(-1)}
                     disabled={quantity <= 1}
-                    className="flex h-11 w-11 items-center justify-center rounded-xl text-lg font-semibold text-neutral-800 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-35"
+                    className="flex h-10 w-10 items-center justify-center text-lg font-bold text-black hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-35"
                   >
                     −
                   </button>
-                  <span className="min-w-[3rem] text-center text-base font-semibold tabular-nums">{lineQty}</span>
+                  <span className="min-w-[2.5rem] text-center text-sm font-bold tabular-nums">{lineQty}</span>
                   <button
                     type="button"
                     aria-label="Increase quantity"
                     onClick={() => bumpQty(1)}
                     disabled={isOutOfStock || quantity >= maxSelectableQty}
-                    className="flex h-11 w-11 items-center justify-center rounded-xl text-lg font-semibold text-neutral-800 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-35"
+                    className="flex h-10 w-10 items-center justify-center text-lg font-bold text-black hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-35"
                   >
                     +
                   </button>
                 </div>
                 {!isOutOfStock ? (
-                  <span className="text-sm text-neutral-500">{availableStock} in stock</span>
-                ) : (
-                  <span className="text-sm font-semibold uppercase tracking-wide text-red-600">Notify me when back</span>
-                )}
+                  <span className="text-xs text-neutral-600">{availableStock} available</span>
+                ) : null}
               </div>
             </div>
 
-            <div className="mt-10 hidden flex-col gap-3 sm:flex-row lg:flex">
+            <div className="mt-8 hidden flex-col gap-2 sm:flex-row lg:flex">
               <button
                 type="button"
                 disabled={isOutOfStock}
@@ -430,13 +411,13 @@ export default function ProductDetailClient({
                   const qty = Math.max(1, Math.floor(lineQty || 1));
                   addToCart(product, selectedColor || "Default", mainImage, selectedSize, qty);
                   setQuantity(1);
-                  toast.success("Added to bag", {
+                  toast.success("Added to cart", {
                     description: `${product.name} · Qty ${qty}${selectedSize ? ` · Size ${selectedSize}` : ""}`,
                   });
                 }}
-                className="inline-flex min-h-14 flex-1 items-center justify-center rounded-2xl bg-neutral-950 px-8 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-[0_18px_40px_-20px_rgba(0,0,0,0.65)] transition hover:bg-neutral-800 active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-neutral-300"
+                className="inline-flex min-h-12 flex-1 items-center justify-center bg-black px-6 text-xs font-bold uppercase tracking-widest text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300"
               >
-                {isOutOfStock ? "Unavailable" : "Add to bag"}
+                {isOutOfStock ? "Sold out" : "Add to cart"}
               </button>
               <button
                 type="button"
@@ -459,43 +440,26 @@ export default function ProductDetailClient({
                   });
                   router.push("/checkout");
                 }}
-                className="inline-flex min-h-14 flex-1 items-center justify-center rounded-2xl border-2 border-neutral-950 bg-white px-8 text-sm font-semibold uppercase tracking-[0.2em] text-neutral-950 transition hover:bg-neutral-950 hover:text-white disabled:cursor-not-allowed disabled:border-neutral-200 disabled:text-neutral-300"
+                className="inline-flex min-h-12 flex-1 items-center justify-center border-2 border-black bg-white px-6 text-xs font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
               >
-                {isOutOfStock ? "Unavailable" : "Buy now"}
+                {isOutOfStock ? "Sold out" : "Buy now"}
               </button>
-            </div>
-
-            <div className="mt-8 flex flex-wrap gap-6 text-sm text-neutral-500">
-              <span className="inline-flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                Secure checkout
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                Easy returns
-              </span>
             </div>
           </div>
         </div>
 
-        <section className="mt-20 grid gap-6 border-t border-neutral-200/90 pt-16 md:grid-cols-3">
-          <div className="rounded-2xl border border-neutral-200/80 bg-white/60 p-6 backdrop-blur-sm">
-            <h2 className="text-sm font-semibold text-neutral-950">Shipping</h2>
-            <p className="mt-2 text-sm leading-relaxed text-neutral-600">
-              Complimentary standard delivery on qualifying orders. Express options available at checkout.
-            </p>
+        <section className="mt-14 grid gap-4 border-t border-neutral-200 pt-10 text-sm md:grid-cols-3">
+          <div>
+            <h2 className="text-xs font-black uppercase tracking-widest text-black">Shipping</h2>
+            <p className="mt-2 leading-relaxed text-neutral-600">Standard and express options at checkout.</p>
           </div>
-          <div className="rounded-2xl border border-neutral-200/80 bg-white/60 p-6 backdrop-blur-sm">
-            <h2 className="text-sm font-semibold text-neutral-950">Returns</h2>
-            <p className="mt-2 text-sm leading-relaxed text-neutral-600">
-              30-day returns in original condition. Initiate from your account or contact support for assistance.
-            </p>
+          <div>
+            <h2 className="text-xs font-black uppercase tracking-widest text-black">Returns</h2>
+            <p className="mt-2 leading-relaxed text-neutral-600">Easy returns within policy. See terms at checkout.</p>
           </div>
-          <div className="rounded-2xl border border-neutral-200/80 bg-white/60 p-6 backdrop-blur-sm">
-            <h2 className="text-sm font-semibold text-neutral-950">Authenticity</h2>
-            <p className="mt-2 text-sm leading-relaxed text-neutral-600">
-              Every piece is sourced and fulfilled with the same quality standards we stand behind in-store.
-            </p>
+          <div>
+            <h2 className="text-xs font-black uppercase tracking-widest text-black">Authentic</h2>
+            <p className="mt-2 leading-relaxed text-neutral-600">Products sourced with quality you can trust.</p>
           </div>
         </section>
 
@@ -509,8 +473,8 @@ export default function ProductDetailClient({
       </div>
 
       {/* Mobile sticky purchase bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200/90 bg-white/90 p-4 shadow-[0_-12px_40px_-20px_rgba(15,23,42,0.35)] backdrop-blur-xl lg:hidden">
-        <div className="mx-auto flex max-w-[90rem] gap-3">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white p-3 lg:hidden">
+        <div className="mx-auto flex max-w-[90rem] gap-2">
           <button
             type="button"
             disabled={isOutOfStock}
@@ -519,11 +483,11 @@ export default function ProductDetailClient({
               const qty = Math.max(1, Math.floor(lineQty || 1));
               addToCart(product, selectedColor || "Default", mainImage, selectedSize, qty);
               setQuantity(1);
-              toast.success("Added to bag", { description: `${product.name} · Qty ${qty}` });
+              toast.success("Added to cart", { description: `${product.name} · Qty ${qty}` });
             }}
-            className="flex min-h-14 flex-1 items-center justify-center rounded-2xl bg-neutral-950 text-sm font-semibold uppercase tracking-[0.18em] text-white shadow-lg transition active:scale-[0.99] disabled:bg-neutral-300"
+            className="flex min-h-11 flex-1 items-center justify-center bg-black text-xs font-bold uppercase tracking-widest text-white disabled:bg-neutral-300"
           >
-            {isOutOfStock ? "Unavailable" : "Add to bag"}
+            {isOutOfStock ? "Sold out" : "Add to cart"}
           </button>
           <button
             type="button"
@@ -542,7 +506,7 @@ export default function ProductDetailClient({
               });
               router.push("/checkout");
             }}
-            className="flex min-h-14 flex-1 items-center justify-center rounded-2xl border-2 border-neutral-950 bg-white text-sm font-semibold uppercase tracking-[0.18em] text-neutral-950 disabled:border-neutral-200 disabled:text-neutral-300"
+            className="flex min-h-11 flex-1 items-center justify-center border-2 border-black bg-white text-xs font-bold uppercase tracking-widest text-black disabled:border-neutral-300 disabled:text-neutral-400"
           >
             Buy now
           </button>
@@ -552,18 +516,18 @@ export default function ProductDetailClient({
       {showImagePreview ? (
         <button
           type="button"
-          className="fixed inset-0 z-[90] flex cursor-zoom-out items-center justify-center bg-neutral-950/90 p-4 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 z-[90] flex cursor-zoom-out items-center justify-center bg-black/90 p-4"
           onClick={() => setShowImagePreview(false)}
           aria-label="Close fullscreen image"
         >
-          <span className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-2xl text-white backdrop-blur-md">
-            ×
+          <span className="absolute right-4 top-4 border border-white px-3 py-1 text-xs font-bold uppercase tracking-widest text-white">
+            Close
           </span>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={mainImage}
             alt={product.name}
-            className="max-h-[90vh] max-w-[92vw] rounded-xl object-contain shadow-2xl ring-1 ring-white/10"
+            className="max-h-[90vh] max-w-[92vw] bg-white object-contain"
             onClick={(e) => e.stopPropagation()}
           />
         </button>
@@ -582,26 +546,26 @@ function TabbedProductSections({
   productName: string;
 }) {
   const [tab, setTab] = useState<"details" | "reviews">("details");
+  const tabBtn = (active: boolean) =>
+    `border-b-2 pb-3 text-xs font-black uppercase tracking-widest ${
+      active ? "border-black text-black" : "border-transparent text-neutral-500 hover:text-black"
+    }`;
   return (
-    <div className="rounded-3xl border border-neutral-200/80 bg-white/70 p-6 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.45)] backdrop-blur-xl sm:p-10">
-      <div className="flex flex-wrap gap-2 border-b border-neutral-200/90 pb-4">
+    <div className="border border-neutral-300 bg-white p-5 sm:p-8">
+      <div className="flex gap-8 border-b border-neutral-200">
         <button
           type="button"
           onClick={() => setTab("details")}
-          className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
-            tab === "details" ? "bg-neutral-950 text-white shadow-md" : "text-neutral-600 hover:bg-neutral-100"
-          }`}
+          className={tabBtn(tab === "details")}
           aria-selected={tab === "details"}
           role="tab"
         >
-          Details
+          Description
         </button>
         <button
           type="button"
           onClick={() => setTab("reviews")}
-          className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
-            tab === "reviews" ? "bg-neutral-950 text-white shadow-md" : "text-neutral-600 hover:bg-neutral-100"
-          }`}
+          className={tabBtn(tab === "reviews")}
           aria-selected={tab === "reviews"}
           role="tab"
         >
@@ -609,7 +573,7 @@ function TabbedProductSections({
         </button>
       </div>
 
-      <div className="mt-8" role="tabpanel">
+      <div className="mt-6" role="tabpanel">
         {tab === "details" ? (
           detailHtml ? (
             <div
