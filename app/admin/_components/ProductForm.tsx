@@ -250,11 +250,14 @@ export default function ProductForm({
                   </span>
                 ))}
               </div>
-              <div className="relative">
+              <div
+                className="relative"
+                onMouseEnter={() => setShowCategoryDropdown(true)}
+                onMouseLeave={() => setShowCategoryDropdown(false)}
+              >
                 <input
                   value={categoryInput}
                   onFocus={() => setShowCategoryDropdown(true)}
-                  onBlur={() => setTimeout(() => setShowCategoryDropdown(false), 120)}
                   onChange={(e) => {
                     setCategoryInput(e.target.value);
                     setShowCategoryDropdown(true);
