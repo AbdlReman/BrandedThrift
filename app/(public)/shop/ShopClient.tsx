@@ -169,100 +169,74 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-[90rem] px-4 py-8 sm:px-6 lg:flex lg:gap-8 lg:px-8 lg:py-10">
-        {/* Mobile / tablet filters */}
-        <details className="group mb-6 border border-neutral-300 bg-white lg:hidden">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-xs font-bold uppercase tracking-widest [&::-webkit-details-marker]:hidden">
-            <span className="flex items-center gap-2">
-              Filter
-              {activeFilters > 0 ? (
-                <span className="bg-black px-1.5 py-0.5 text-[10px] text-white">{activeFilters}</span>
-              ) : null}
-            </span>
-            <span className="text-neutral-500 transition group-open:rotate-180" aria-hidden>
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </span>
-          </summary>
-          <div className="border-t border-neutral-200 px-4 pb-4 pt-3">
-            <FilterFields
-              labelClass={labelClass}
-              selectClass={selectClass}
-              filterInputClass={filterInputClass}
-              colors={colors}
-              color={color}
-              setColor={setColorFilter}
-              brands={brands}
-              brand={brand}
-              setBrand={setBrandFilter}
-              sizes={sizes}
-              size={size}
-              setSize={setSizeFilter}
-              categories={categories}
-              category={category}
-              setCategory={setCategory}
-              sort={sort}
-              setSort={setSortFilter}
-              search={search}
-              setSearch={setSearchFilter}
-            />
-            <button
-              type="button"
-              onClick={resetFilters}
-              className="mt-4 w-full border border-neutral-300 py-2.5 text-xs font-bold uppercase tracking-widest text-black hover:bg-neutral-100"
-            >
-              Clear all
-            </button>
+      <div className="mx-auto max-w-[90rem] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+        <div className="mb-8 border border-neutral-200 bg-white p-4 sm:p-5">
+          <div className="mb-4 flex items-center justify-between gap-3 border-b border-neutral-200 pb-3">
+            <h2 className="text-sm font-black uppercase tracking-wide">Filters</h2>
+            {activeFilters > 0 ? (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="text-[10px] font-bold uppercase tracking-widest text-neutral-600 underline"
+              >
+                Clear all
+              </button>
+            ) : null}
           </div>
-        </details>
 
-        {/* Desktop sticky sidebar */}
-        <aside className="hidden lg:block lg:w-64 lg:shrink-0">
-          <div className="sticky top-24 space-y-5 border border-neutral-300 bg-white p-5">
-            <div className="flex items-center justify-between gap-2 border-b border-neutral-200 pb-3">
-              <h2 className="text-xs font-black uppercase tracking-widest text-black">Filter</h2>
-              {activeFilters > 0 ? (
-                <button
-                  type="button"
-                  onClick={resetFilters}
-                  className="text-[10px] font-bold uppercase tracking-wider text-neutral-600 underline hover:text-black"
-                >
-                  Reset
-                </button>
-              ) : null}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+            <div className="lg:col-span-2">
+              <label htmlFor="filter-search" className={labelClass}>Search</label>
+              <input
+                id="filter-search"
+                value={search}
+                onChange={(e) => setSearchFilter(e.target.value)}
+                placeholder="Search"
+                className={filterInputClass}
+              />
             </div>
-            <FilterFields
-              labelClass={labelClass}
-              selectClass={selectClass}
-              filterInputClass={filterInputClass}
-              colors={colors}
-              color={color}
-              setColor={setColorFilter}
-              brands={brands}
-              brand={brand}
-              setBrand={setBrandFilter}
-              sizes={sizes}
-              size={size}
-              setSize={setSizeFilter}
-              categories={categories}
-              category={category}
-              setCategory={setCategory}
-              sort={sort}
-              setSort={setSortFilter}
-              search={search}
-              setSearch={setSearchFilter}
-            />
+            <div>
+              <label htmlFor="filter-category" className={labelClass}>Style</label>
+              <select id="filter-category" value={category} onChange={(e) => setCategory(e.target.value)} className={selectClass}>
+                {categories.map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="filter-brand" className={labelClass}>Brand</label>
+              <select id="filter-brand" value={brand} onChange={(e) => setBrandFilter(e.target.value)} className={selectClass}>
+                {brands.map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="filter-size" className={labelClass}>Size</label>
+              <select id="filter-size" value={size} onChange={(e) => setSizeFilter(e.target.value)} className={selectClass}>
+                {sizes.map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="filter-color" className={labelClass}>Color</label>
+              <select id="filter-color" value={color} onChange={(e) => setColorFilter(e.target.value)} className={selectClass}>
+                {colors.map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+              </select>
+            </div>
           </div>
-        </aside>
+        </div>
 
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0">
           <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs font-bold uppercase tracking-wider text-neutral-600" aria-live="polite">
-              {filtered.length} results
+              {filtered.length} products
               {category !== "All" ? ` · ${category}` : ""}
             </p>
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center lg:hidden">
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
               <label className="sr-only" htmlFor="shop-sort-main">
                 Sort
               </label>
@@ -284,7 +258,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
               </select>
               <Link
                 href="/cart"
-                className="inline-flex items-center justify-center border border-black bg-black px-4 py-2.5 text-center text-xs font-bold uppercase tracking-widest text-white hover:bg-neutral-800"
+                className="inline-flex items-center justify-center border border-black bg-black px-4 py-2.5 text-center text-xs font-bold uppercase tracking-widest text-white hover:bg-neutral-800 sm:min-w-[7rem]"
               >
                 Cart
               </Link>
@@ -305,7 +279,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
                 {paginated.map((product, idx) => (
                   <ProductCard
                     key={product._id}
@@ -354,131 +328,6 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
           />
         </button>
       ) : null}
-    </div>
-  );
-}
-
-function FilterFields({
-  labelClass,
-  selectClass,
-  filterInputClass,
-  colors,
-  color,
-  setColor,
-  brands,
-  brand,
-  setBrand,
-  sizes,
-  size,
-  setSize,
-  categories,
-  category,
-  setCategory,
-  sort,
-  setSort,
-  search,
-  setSearch,
-}: {
-  labelClass: string;
-  selectClass: string;
-  filterInputClass: string;
-  colors: string[];
-  color: string;
-  setColor: (v: string) => void;
-  brands: string[];
-  brand: string;
-  setBrand: (v: string) => void;
-  sizes: string[];
-  size: string;
-  setSize: (v: string) => void;
-  categories: string[];
-  category: string;
-  setCategory: (v: string) => void;
-  sort: string;
-  setSort: (v: string) => void;
-  search: string;
-  setSearch: (v: string) => void;
-}) {
-  return (
-    <div className="space-y-4">
-      <div>
-        <label htmlFor="filter-search" className={labelClass}>
-          Search
-        </label>
-        <input
-          id="filter-search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search"
-          className={filterInputClass}
-          autoComplete="off"
-        />
-      </div>
-      <div>
-        <label htmlFor="filter-category" className={labelClass}>
-          Category
-        </label>
-        <select
-          id="filter-category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className={selectClass}
-        >
-          {categories.map((v) => (
-            <option key={v} value={v}>
-              {v}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label htmlFor="filter-brand" className={labelClass}>
-          Brand
-        </label>
-        <select id="filter-brand" value={brand} onChange={(e) => setBrand(e.target.value)} className={selectClass}>
-          {brands.map((v) => (
-            <option key={v} value={v}>
-              {v}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label htmlFor="filter-color" className={labelClass}>
-          Color
-        </label>
-        <select id="filter-color" value={color} onChange={(e) => setColor(e.target.value)} className={selectClass}>
-          {colors.map((v) => (
-            <option key={v} value={v}>
-              {v}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label htmlFor="filter-size" className={labelClass}>
-          Size
-        </label>
-        <select id="filter-size" value={size} onChange={(e) => setSize(e.target.value)} className={selectClass}>
-          {sizes.map((v) => (
-            <option key={v} value={v}>
-              {v}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="hidden lg:block">
-        <label htmlFor="filter-sort" className={labelClass}>
-          Sort
-        </label>
-        <select id="filter-sort" value={sort} onChange={(e) => setSort(e.target.value)} className={selectClass}>
-          {SORTS.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-      </div>
     </div>
   );
 }
