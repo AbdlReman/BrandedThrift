@@ -317,19 +317,6 @@ export default function ProductDetailClient({
               {product.description || "Quality construction and comfort for everyday wear."}
             </p>
 
-            <div className="mt-8 grid gap-4 border border-neutral-300 bg-neutral-50 p-4 sm:grid-cols-2">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">Stock</p>
-                <p className="mt-1 text-sm font-bold text-black">
-                  {isOutOfStock ? "Unavailable" : `${availableStock} in stock`}
-                </p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">Style #</p>
-                <p className="mt-1 text-sm font-bold tabular-nums text-black">{product._id.slice(-8).toUpperCase()}</p>
-              </div>
-            </div>
-
             <div className="mt-8">
               <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">Color</p>
               <div className="mt-2 flex flex-wrap gap-2">
