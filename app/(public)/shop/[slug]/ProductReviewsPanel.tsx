@@ -64,6 +64,7 @@ export default function ProductReviewsPanel({ productId }: { productId: string }
   }, [productId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch reviews on mount
     load();
   }, [load]);
 
@@ -114,7 +115,23 @@ export default function ProductReviewsPanel({ productId }: { productId: string }
   };
 
   if (loading) {
-    return <p className="text-gray-500 text-sm py-6">Loading reviews…</p>;
+    return (
+      <div className="space-y-6 py-4" aria-busy="true" aria-label="Loading reviews">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="animate-pulse border-b border-neutral-100 pb-6 last:border-0">
+            <div className="flex justify-between gap-4">
+              <div className="h-4 w-28 rounded-md bg-neutral-200" />
+              <div className="h-3 w-20 rounded-md bg-neutral-100" />
+            </div>
+            <div className="mt-3 h-3 w-24 rounded-md bg-neutral-100" />
+            <div className="mt-4 space-y-2">
+              <div className="h-3 w-full rounded-md bg-neutral-100" />
+              <div className="h-3 w-[90%] rounded-md bg-neutral-50" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   return (

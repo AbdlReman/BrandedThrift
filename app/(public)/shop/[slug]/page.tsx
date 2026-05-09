@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { connectDB } from "@/lib/mongodb";
+import { serializeProductFromLean } from "@/lib/serializeProduct";
 import Product from "@/models/Product";
 import type { IProduct } from "@/types/product";
 import ProductDetailClient from "./ProductDetailClient";
@@ -20,66 +22,40 @@ export default async function ProductDetailPage({
   }).lean();
   if (!raw) notFound();
 
-  const p = raw as Record<string, unknown>;
-  const images = Array.isArray(p.images) ? (p.images as string[]) : [];
-  const colors = Array.isArray(p.colors) ? (p.colors as string[]) : [];
-  const rawVariants = Array.isArray(p.colorVariants)
-    ? (p.colorVariants as { color: string; images: string[] }[])
-    : [];
-  const variantMap = new Map<string, string[]>();
+  const product = serializeProductFromLean(raw as Record<string, unknown>);
 
-  for (const variant of rawVariants) {
-    const key = String(variant.color || "").trim();
-    if (!key) continue;
-    const variantImages = Array.isArray(variant.images) && variant.images.length > 0 ? variant.images : images;
-    variantMap.set(key, variantImages);
-  }
-
-  for (const color of colors) {
-    const key = String(color || "").trim();
-    if (!key || variantMap.has(key)) continue;
-    const idx = colors.findIndex((c) => String(c).trim() === key);
-    const matchedImage = idx >= 0 ? images[idx] : undefined;
-    variantMap.set(key, matchedImage ? [matchedImage] : images);
-  }
-
-  if (variantMap.size === 0) {
-    variantMap.set("Default", images);
-  }
-
-  const normalizedVariants = Array.from(variantMap.entries()).map(([color, variantImages]) => ({
-    color,
-    images: variantImages,
-  }));
-
-  const product: IProduct = {
-    _id: String(p._id),
-    name: String(p.name || ""),
-    brand: String(p.brand || ""),
-    category: String(p.category || ""),
-    price: Number(p.price || 0),
-    description: String(p.description || p.longDescription || p.shortDescription || ""),
-    detail: String(p.detail || ""),
-    sizes: Array.isArray(p.sizes) ? (p.sizes as string[]) : [],
-    colors: normalizedVariants.map((variant) => variant.color),
-    colorVariants: normalizedVariants,
-    stockQuantity: Number(p.stockQuantity || 0),
-    images,
-    discount: Number(p.discount || 0),
-    inStock: Boolean(p.inStock),
-    isActive: p.isActive !== false,
-    status:
-      p.status === "Published" || (p.status == null && p.isActive !== false)
-        ? "Published"
-        : "Draft",
-    popularityScore: Number(p.popularityScore || 0),
-    soldCount: Number(p.soldCount || 0),
-    slug: String(p.slug || ""),
-    metaTitle: String(p.metaTitle || ""),
-    metaDescription: String(p.metaDescription || ""),
-    createdAt: String(p.createdAt),
-    updatedAt: String(p.updatedAt),
+  const statusClause = [{ status: "Published" }, { status: { $exists: false } }];
+  const baseFilter: Record<string, unknown> = {
+    slug: { $ne: slug },
+    isActive: true,
+    $or: statusClause,
   };
 
-  return <ProductDetailClient product={product} />;
+  const categoryFilter: Record<string, unknown> =
+    product.category?.trim() !== ""
+      ? { ...baseFilter, category: product.category }
+      : baseFilter;
+
+  let relatedLean = await Product.find(categoryFilter).sort({ popularityScore: -1, soldCount: -1 }).limit(8).lean();
+
+  if (relatedLean.length < 4 && product.category?.trim() !== "") {
+    relatedLean = await Product.find(baseFilter).sort({ popularityScore: -1, soldCount: -1 }).limit(8).lean();
+  }
+
+  const seen = new Set<string>();
+  const relatedProducts: IProduct[] = [];
+  for (const doc of relatedLean) {
+    const rp = serializeProductFromLean(doc as Record<string, unknown>);
+    if (seen.has(rp._id)) continue;
+    seen.add(rp._id);
+    relatedProducts.push(rp);
+    if (relatedProducts.length >= 4) break;
+  }
+
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "";
+  const proto = h.get("x-forwarded-proto") ?? "https";
+  const siteUrl = host ? `${proto}://${host}` : "";
+
+  return <ProductDetailClient product={product} relatedProducts={relatedProducts} siteUrl={siteUrl} />;
 }
