@@ -127,7 +127,7 @@ export default function Navbar() {
               </button>
 
               {collectionsOpen && (
-                <div className="absolute left-0 top-full mt-2 min-w-[13rem] rounded-md border border-zinc-700 bg-zinc-900 p-2 shadow-xl">
+                <div className="absolute left-0 top-[calc(100%-1px)] min-w-[13rem] rounded-md border border-zinc-700 bg-zinc-900 p-2 shadow-xl">
                   {loadingCollections ? (
                     <p className="px-3 py-2 text-xs text-zinc-400">Loading...</p>
                   ) : collectionLinks.length === 0 ? (
