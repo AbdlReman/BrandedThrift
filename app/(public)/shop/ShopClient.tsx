@@ -28,6 +28,13 @@ const selectClass =
 
 const labelClass = "mb-1 block text-[10px] font-bold uppercase tracking-widest text-neutral-600";
 
+function categoriesOf(product: IProduct): string[] {
+  if (Array.isArray(product.categories) && product.categories.length > 0) {
+    return product.categories.map(String).map((v) => v.trim()).filter(Boolean);
+  }
+  return product.category ? [product.category] : [];
+}
+
 export default function ShopClient({ products }: { products: IProduct[] }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -35,7 +42,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
   const requestedCategory = searchParams.get("category");
 
   const categories = useMemo(() => {
-    const rest = Array.from(new Set(products.map((p) => p.category).filter(Boolean))).sort((a, b) =>
+    const rest = Array.from(new Set(products.flatMap((p) => categoriesOf(p)).filter(Boolean))).sort((a, b) =>
       a.localeCompare(b)
     );
     return ["All", ...rest];
@@ -106,7 +113,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
 
   const filtered = useMemo(() => {
     return products
-      .filter((p) => category === "All" || p.category === category)
+      .filter((p) => category === "All" || categoriesOf(p).includes(category))
       .filter((p) => brand === "All" || p.brand === brand)
       .filter((p) => size === "All" || p.sizes.includes(size))
       .filter((p) => color === "All" || p.colors.includes(color))

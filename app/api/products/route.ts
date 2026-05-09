@@ -10,6 +10,15 @@ function parseCsv(value: string | null) {
     .filter(Boolean);
 }
 
+function normalizeCategories(input: unknown, fallbackCategory: unknown): string[] {
+  if (Array.isArray(input)) {
+    const fromArray = input.map(String).map((v) => v.trim()).filter(Boolean);
+    if (fromArray.length > 0) return Array.from(new Set(fromArray));
+  }
+  const one = String(fallbackCategory || "").trim();
+  return one ? [one] : [];
+}
+
 function normalizeColorVariants(input: unknown) {
   if (!Array.isArray(input)) return [];
   return input
@@ -42,7 +51,16 @@ export async function GET(req: NextRequest) {
       isActive: true,
       $or: [{ status: "Published" }, { status: { $exists: false } }],
     };
-    if (category) query.category = category;
+    if (category) {
+      query.$and = [
+        {
+          $or: [
+            { category },
+            { categories: category },
+          ],
+        },
+      ];
+    }
     if (brand) query.brand = brand;
     if (size) query.sizes = size;
     if (color) query.colors = color;
@@ -88,12 +106,15 @@ export async function POST(req: NextRequest) {
 
     const publish = body.publish === true || body.status === "Published" || body.isActive === true;
     const nextStatus = publish ? "Published" : "Draft";
+    const categories = normalizeCategories(body.categories, body.category);
+    const primaryCategory = categories[0] || "";
     const product = new Product({
       name: body.name,
       price: Number(body.price || 0),
       description: body.description || "",
       detail: body.detail || "",
-      category: body.category || "",
+      category: primaryCategory,
+      categories,
       sizes: Array.isArray(body.sizes) ? body.sizes : parseCsv(body.sizes),
       colors,
       colorVariants,

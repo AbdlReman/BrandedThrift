@@ -19,6 +19,15 @@ function normalizeColorVariants(input: unknown) {
     .filter((v) => v.color);
 }
 
+function normalizeCategories(input: unknown, fallbackCategory: unknown): string[] {
+  if (Array.isArray(input)) {
+    const fromArray = input.map(String).map((v) => v.trim()).filter(Boolean);
+    if (fromArray.length > 0) return Array.from(new Set(fromArray));
+  }
+  const one = String(fallbackCategory || "").trim();
+  return one ? [one] : [];
+}
+
 export async function GET(_req: NextRequest, { params }: Params) {
   try {
     await connectDB();
@@ -55,12 +64,15 @@ export async function PUT(req: NextRequest, { params }: Params) {
         : [];
     const publish = body.publish === true || body.status === "Published" || body.isActive === true;
     const nextStatus = publish ? "Published" : "Draft";
+    const categories = normalizeCategories(body.categories, body.category);
+    const primaryCategory = categories[0] || "";
     const payload = {
       name: body.name,
       price: Number(body.price || 0),
       description: body.description || "",
       detail: body.detail || "",
-      category: body.category || "",
+      category: primaryCategory,
+      categories,
       sizes: Array.isArray(body.sizes) ? body.sizes : [],
       colors,
       colorVariants,

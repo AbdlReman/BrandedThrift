@@ -63,7 +63,7 @@ export default function ProductForm({
   const emptyForm = {
     name: "",
     brand: fallbackBrand,
-    category: fallbackCategory,
+    categories: [fallbackCategory],
     price: "" as unknown as number,
     description: "",
     detail: "",
@@ -79,7 +79,10 @@ export default function ProductForm({
       ? {
           name: initialData.name,
           brand: initialData.brand,
-          category: initialData.category,
+          categories:
+            Array.isArray(initialData.categories) && initialData.categories.length > 0
+              ? initialData.categories
+              : [initialData.category || fallbackCategory],
           price: initialData.price,
           description: initialData.description,
           detail: initialData.detail,
@@ -103,6 +106,16 @@ export default function ProductForm({
   const set = (key: keyof typeof form, value: unknown) =>
     setForm((f) => ({ ...f, [key]: value }));
 
+  const toggleCategory = (category: string) => {
+    setForm((prev) => {
+      const exists = prev.categories.includes(category);
+      if (exists) {
+        return { ...prev, categories: prev.categories.filter((c) => c !== category) };
+      }
+      return { ...prev, categories: [...prev.categories, category] };
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = colorVariants.map(({ color, images }) => ({
@@ -120,6 +133,10 @@ export default function ProductForm({
       setError("Please add at least one color with images.");
       return;
     }
+    if (form.categories.length === 0) {
+      setError("Please select at least one category.");
+      return;
+    }
     setLoading(true);
     setError("");
 
@@ -129,6 +146,7 @@ export default function ProductForm({
       const method = mode === "create" ? "POST" : "PUT";
       const payload = {
         ...form,
+        category: form.categories[0] || fallbackCategory,
         status: form.publish ? "Published" : "Draft",
         isActive: form.publish,
         sizes: form.sizesInput.split(",").map((s) => s.trim()).filter(Boolean),
@@ -197,15 +215,28 @@ export default function ProductForm({
           </div>
 
           <div>
-            <label className={labelClass}>Category *</label>
-            <select
-              value={form.category}
-              onChange={(e) => set("category", e.target.value)}
-              className={inputClass}
-              required
-            >
-              {categoryOptions.map((c) => <option key={c}>{c}</option>)}
-            </select>
+            <label className={labelClass}>Categories * (select multiple)</label>
+            <div className="max-h-48 overflow-auto rounded-lg border border-slate-600 bg-slate-900/40 p-3">
+              <div className="space-y-2">
+                {categoryOptions.map((c) => {
+                  const checked = form.categories.includes(c);
+                  return (
+                    <label key={c} className="flex items-center gap-2 text-sm text-slate-200">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleCategory(c)}
+                        className="h-4 w-4 rounded border-slate-500 bg-slate-700 text-indigo-500 focus:ring-indigo-500"
+                      />
+                      <span>{c}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+            <p className="mt-2 text-xs text-slate-400">
+              Selected: {form.categories.join(", ")}
+            </p>
           </div>
 
           <div>

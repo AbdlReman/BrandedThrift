@@ -27,11 +27,18 @@ export function serializeProductFromLean(p: Record<string, unknown>): IProduct {
     images: variantImages,
   }));
 
+  const normalizedCategories = Array.isArray(p.categories)
+    ? (p.categories as unknown[]).map(String).map((v) => v.trim()).filter(Boolean)
+    : [];
+  const fallbackCategory = String(p.category || "").trim();
+  const categories = normalizedCategories.length > 0 ? normalizedCategories : fallbackCategory ? [fallbackCategory] : [];
+
   return {
     _id: String(p._id),
     name: String(p.name),
     brand: String(p.brand || ""),
-    category: String(p.category || ""),
+    category: fallbackCategory,
+    categories,
     price: Number(p.price || 0),
     description: String(
       p.description ||

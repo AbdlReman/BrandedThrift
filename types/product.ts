@@ -8,6 +8,7 @@ export interface IProduct {
   name: string;
   brand: string;
   category: string;
+  categories?: string[];
   price: number;
   description: string;
   detail: string;
