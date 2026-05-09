@@ -44,7 +44,7 @@ export default function ProductCard({
         <div className="relative aspect-[4/5]">
           {hasDiscount ? (
             <span
-              className="absolute left-0 top-0 z-10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white"
+              className="absolute right-2 top-2 z-10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white"
               style={{ backgroundColor: SALE_RED }}
             >
               −{discountPercent}%
