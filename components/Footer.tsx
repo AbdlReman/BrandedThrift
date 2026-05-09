@@ -1,12 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Footer() {
   const [email, setEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
   const [subscribeMsg, setSubscribeMsg] = useState("");
+
+  useEffect(() => {
+    if (!subscribeMsg) return;
+    const t = window.setTimeout(() => setSubscribeMsg(""), 3000);
+    return () => window.clearTimeout(t);
+  }, [subscribeMsg]);
 
   const onSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
