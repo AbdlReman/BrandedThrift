@@ -36,7 +36,7 @@ export default function ProductCard({
   const cloudinary = mainImage.startsWith("https://res.cloudinary.com");
 
   return (
-    <article className="group flex flex-col">
+    <article className="group flex h-full flex-col">
       <Link
         href={`/shop/${product.slug}`}
         className="relative block overflow-hidden bg-neutral-100 outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
@@ -85,18 +85,18 @@ export default function ProductCard({
         </div>
       </Link>
 
-      <div className="mt-3 flex flex-1 flex-col">
+      <div className="mt-2.5 flex flex-1 flex-col">
         {product.brand ? (
           <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-neutral-500">{product.brand}</p>
         ) : null}
         <Link href={`/shop/${product.slug}`} className="mt-1 block">
-          <h3 className="text-sm font-bold uppercase leading-snug tracking-wide text-black line-clamp-2">
+          <h3 className="text-[12px] font-bold uppercase leading-snug tracking-wide text-black line-clamp-2">
             {product.name}
           </h3>
         </Link>
-        {displayColor ? <p className="mt-1 text-xs text-neutral-600">{displayColor}</p> : null}
-        <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="text-sm font-bold tabular-nums text-black">{formatPkr(finalPrice)}</span>
+        {displayColor ? <p className="mt-0.5 text-[11px] text-neutral-600">{displayColor}</p> : null}
+        <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          <span className="text-[13px] font-bold tabular-nums text-black">{formatPkr(finalPrice)}</span>
           {hasDiscount ? (
             <span className="text-xs text-neutral-400 line-through tabular-nums">{formatPkr(product.price)}</span>
           ) : null}

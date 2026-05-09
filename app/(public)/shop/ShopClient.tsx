@@ -18,15 +18,15 @@ const SORTS = [
 const PAGE_SIZE = 12;
 
 const filterInputClass =
-  "w-full border border-neutral-300 bg-white px-3 py-2.5 text-sm text-black outline-none " +
-  "placeholder:text-neutral-400 focus:border-black";
+  "w-full border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-black outline-none " +
+  "placeholder:text-neutral-400 focus:border-neutral-500";
 
 const selectClass =
   filterInputClass +
-  " cursor-pointer appearance-none bg-[length:1rem] bg-[right_0.5rem_center] bg-no-repeat pr-9 " +
+  " cursor-pointer appearance-none bg-[length:0.9rem] bg-[right_0.5rem_center] bg-no-repeat pr-8 " +
   "[background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000000'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E\")]";
 
-const labelClass = "mb-1 block text-[10px] font-bold uppercase tracking-widest text-neutral-600";
+const labelClass = "mb-1 block text-[10px] font-semibold uppercase tracking-wide text-neutral-500";
 
 function categoriesOf(product: IProduct): string[] {
   if (Array.isArray(product.categories) && product.categories.length > 0) {
@@ -170,22 +170,22 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
       </header>
 
       <div className="mx-auto max-w-[90rem] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-        <div className="mb-8 border border-neutral-200 bg-white p-4 sm:p-5">
-          <div className="mb-4 flex items-center justify-between gap-3 border-b border-neutral-200 pb-3">
+        <div className="mb-8 border border-neutral-200 bg-white p-4">
+          <div className="mb-3 flex items-center justify-between gap-3 border-b border-neutral-100 pb-2.5">
             <h2 className="text-sm font-black uppercase tracking-wide">Filters</h2>
             {activeFilters > 0 ? (
               <button
                 type="button"
                 onClick={resetFilters}
-                className="text-[10px] font-bold uppercase tracking-widest text-neutral-600 underline"
+                className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500 underline"
               >
                 Clear all
               </button>
             ) : null}
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
-            <div className="lg:col-span-2">
+          <div className="flex flex-wrap items-end gap-2.5">
+            <div className="min-w-[11rem] flex-1 sm:flex-none sm:w-[14rem]">
               <label htmlFor="filter-search" className={labelClass}>Search</label>
               <input
                 id="filter-search"
@@ -195,7 +195,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
                 className={filterInputClass}
               />
             </div>
-            <div>
+            <div className="min-w-[9rem] flex-1 sm:flex-none sm:w-[10rem]">
               <label htmlFor="filter-category" className={labelClass}>Style</label>
               <select id="filter-category" value={category} onChange={(e) => setCategory(e.target.value)} className={selectClass}>
                 {categories.map((v) => (
@@ -203,7 +203,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
                 ))}
               </select>
             </div>
-            <div>
+            <div className="min-w-[8rem] flex-1 sm:flex-none sm:w-[9rem]">
               <label htmlFor="filter-brand" className={labelClass}>Brand</label>
               <select id="filter-brand" value={brand} onChange={(e) => setBrandFilter(e.target.value)} className={selectClass}>
                 {brands.map((v) => (
@@ -211,7 +211,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
                 ))}
               </select>
             </div>
-            <div>
+            <div className="min-w-[7rem] flex-1 sm:flex-none sm:w-[8rem]">
               <label htmlFor="filter-size" className={labelClass}>Size</label>
               <select id="filter-size" value={size} onChange={(e) => setSizeFilter(e.target.value)} className={selectClass}>
                 {sizes.map((v) => (
@@ -219,7 +219,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
                 ))}
               </select>
             </div>
-            <div>
+            <div className="min-w-[8rem] flex-1 sm:flex-none sm:w-[9rem]">
               <label htmlFor="filter-color" className={labelClass}>Color</label>
               <select id="filter-color" value={color} onChange={(e) => setColorFilter(e.target.value)} className={selectClass}>
                 {colors.map((v) => (
@@ -279,7 +279,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
                 {paginated.map((product, idx) => (
                   <ProductCard
                     key={product._id}
