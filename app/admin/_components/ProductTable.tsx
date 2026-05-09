@@ -66,7 +66,13 @@ export default function ProductTable({ products }: ProductTableProps) {
     const term = search.trim().toLowerCase();
     if (!term) return filteredProducts;
     return filteredProducts.filter((product) =>
-      [product.name, product.brand, product.category, product.slug]
+      [
+        product.name,
+        product.brand,
+        product.category,
+        ...(Array.isArray(product.categories) ? product.categories : []),
+        product.slug,
+      ]
         .map((value) => String(value || "").toLowerCase())
         .some((value) => value.includes(term))
     );
@@ -205,7 +211,11 @@ export default function ProductTable({ products }: ProductTableProps) {
                 </td>
 
                 {/* Category */}
-                <td className="px-4 py-3 text-slate-400">{product.category}</td>
+                <td className="px-4 py-3 text-slate-400">
+                  {Array.isArray(product.categories) && product.categories.length > 0
+                    ? product.categories.join(", ")
+                    : product.category}
+                </td>
 
                 {/* Price */}
                 <td className="px-4 py-3">

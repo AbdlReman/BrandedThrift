@@ -17,6 +17,9 @@ export default async function ProductsPage() {
     name: String(p.name),
     brand: String(p.brand || ""),
     category: String(p.category || ""),
+    categories: Array.isArray(p.categories)
+      ? (p.categories as unknown[]).map(String).map((v) => v.trim()).filter(Boolean)
+      : [String(p.category || "").trim()].filter(Boolean),
     price: Number(p.price),
     description: String(p.description || ""),
     detail: String(p.detail || ""),

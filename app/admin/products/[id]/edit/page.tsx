@@ -46,11 +46,16 @@ export default async function EditProductPage({
   );
 
   const p = raw as Record<string, unknown>;
+  const categories = Array.isArray(p.categories)
+    ? (p.categories as unknown[]).map(String).map((v) => v.trim()).filter(Boolean)
+    : [];
+  const mergedCategories = categories.length > 0 ? categories : [String(p.category || "").trim()].filter(Boolean);
   const product: IProduct = {
     _id: String(p._id),
     name: String(p.name),
     brand: String(p.brand || ""),
     category: String(p.category || ""),
+    categories: mergedCategories,
     price: Number(p.price),
     description: String(p.description || ""),
     detail: String(p.detail || ""),
