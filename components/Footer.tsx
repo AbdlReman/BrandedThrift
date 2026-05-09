@@ -1,8 +1,34 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [subscribing, setSubscribing] = useState(false);
+  const [subscribeMsg, setSubscribeMsg] = useState("");
+
+  const onSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubscribing(true);
+    setSubscribeMsg("");
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, source: "footer" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Subscription failed");
+      setEmail("");
+      setSubscribeMsg("Subscribed successfully.");
+    } catch (err) {
+      setSubscribeMsg(err instanceof Error ? err.message : "Could not subscribe right now.");
+    } finally {
+      setSubscribing(false);
+    }
+  };
+
   return (
     <footer className="bg-black text-white">
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -102,18 +128,23 @@ export default function Footer() {
             <p className="text-gray-400 text-sm mb-4">
               Get exclusive deals, new arrivals, and style tips delivered to your inbox.
             </p>
-            <form className="flex flex-col gap-2" onSubmit={(e) => e.preventDefault()}>
+            <form className="flex flex-col gap-2" onSubmit={onSubscribe}>
               <input
                 type="email"
                 placeholder="Your email address"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="bg-gray-900 border border-gray-700 text-white text-sm px-4 py-2.5 focus:outline-none focus:border-white transition-colors placeholder-gray-500"
               />
               <button
                 type="submit"
+                disabled={subscribing}
                 className="bg-white text-black text-xs font-bold uppercase tracking-widest py-2.5 hover:bg-gray-200 transition-colors"
               >
-                Subscribe
+                {subscribing ? "Subscribing..." : "Subscribe"}
               </button>
+              {subscribeMsg && <p className="text-xs text-gray-400 mt-1">{subscribeMsg}</p>}
             </form>
           </div>
         </div>

@@ -67,6 +67,15 @@ const navLinks = [
     ),
   },
   {
+    href: "/admin/newsletter",
+    label: "Newsletter",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 7.5v9A2.25 2.25 0 0 1 19.5 18.75h-15A2.25 2.25 0 0 1 2.25 16.5v-9A2.25 2.25 0 0 1 4.5 5.25h15A2.25 2.25 0 0 1 21.75 7.5Zm-18 0 8.25 5.25L20.25 7.5" />
+      </svg>
+    ),
+  },
+  {
     href: "/admin/categories",
     label: "Categories",
     icon: (
@@ -122,6 +131,8 @@ export default function AdminSidebar() {
               ? pathname === "/admin/reviews" || pathname.startsWith("/admin/reviews/")
               : link.href === "/admin/coupons"
               ? pathname === "/admin/coupons"
+              : link.href === "/admin/newsletter"
+              ? pathname === "/admin/newsletter"
               : pathname === link.href;
           return (
             <Link
