@@ -102,19 +102,34 @@ export default function ProductForm({
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [categoryInput, setCategoryInput] = useState("");
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
   const set = (key: keyof typeof form, value: unknown) =>
     setForm((f) => ({ ...f, [key]: value }));
 
-  const toggleCategory = (category: string) => {
+  const addCategory = (category: string) => {
+    const normalized = category.trim();
+    if (!normalized) return;
     setForm((prev) => {
-      const exists = prev.categories.includes(category);
-      if (exists) {
-        return { ...prev, categories: prev.categories.filter((c) => c !== category) };
-      }
-      return { ...prev, categories: [...prev.categories, category] };
+      if (prev.categories.includes(normalized)) return prev;
+      return { ...prev, categories: [...prev.categories, normalized] };
     });
+    setCategoryInput("");
+    setShowCategoryDropdown(false);
   };
+
+  const removeCategory = (category: string) => {
+    setForm((prev) => ({
+      ...prev,
+      categories: prev.categories.filter((c) => c !== category),
+    }));
+  };
+
+  const availableCategoryOptions = categoryOptions
+    .filter((c) => !form.categories.includes(c))
+    .filter((c) => c.toLowerCase().includes(categoryInput.trim().toLowerCase()))
+    .slice(0, 8);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -215,27 +230,70 @@ export default function ProductForm({
           </div>
 
           <div>
-            <label className={labelClass}>Categories * (select multiple)</label>
-            <div className="max-h-48 overflow-auto rounded-lg border border-slate-600 bg-slate-900/40 p-3">
-              <div className="space-y-2">
-                {categoryOptions.map((c) => {
-                  const checked = form.categories.includes(c);
-                  return (
-                    <label key={c} className="flex items-center gap-2 text-sm text-slate-200">
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => toggleCategory(c)}
-                        className="h-4 w-4 rounded border-slate-500 bg-slate-700 text-indigo-500 focus:ring-indigo-500"
-                      />
-                      <span>{c}</span>
-                    </label>
-                  );
-                })}
+            <label className={labelClass}>Categories * (type and press Enter)</label>
+            <div className="rounded-lg border border-slate-600 bg-slate-900/40 p-3">
+              <div className="mb-2 flex flex-wrap gap-2">
+                {form.categories.map((cat) => (
+                  <span
+                    key={cat}
+                    className="inline-flex items-center gap-1 rounded-md bg-indigo-500/20 px-2.5 py-1 text-xs font-semibold text-indigo-200"
+                  >
+                    {cat}
+                    <button
+                      type="button"
+                      onClick={() => removeCategory(cat)}
+                      className="text-indigo-100/80 hover:text-white"
+                      aria-label={`Remove ${cat}`}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="relative">
+                <input
+                  value={categoryInput}
+                  onFocus={() => setShowCategoryDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowCategoryDropdown(false), 120)}
+                  onChange={(e) => {
+                    setCategoryInput(e.target.value);
+                    setShowCategoryDropdown(true);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key !== "Enter") return;
+                    e.preventDefault();
+                    const exact = availableCategoryOptions.find(
+                      (c) => c.toLowerCase() === categoryInput.trim().toLowerCase()
+                    );
+                    if (exact) {
+                      addCategory(exact);
+                      return;
+                    }
+                    if (availableCategoryOptions[0]) {
+                      addCategory(availableCategoryOptions[0]);
+                    }
+                  }}
+                  placeholder="Type category and press Enter"
+                  className={inputClass}
+                />
+                {showCategoryDropdown && availableCategoryOptions.length > 0 ? (
+                  <div className="absolute z-20 mt-1 max-h-48 w-full overflow-auto rounded-md border border-slate-600 bg-slate-800 shadow-xl">
+                    {availableCategoryOptions.map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => addCategory(c)}
+                        className="block w-full px-3 py-2 text-left text-sm text-slate-200 hover:bg-slate-700"
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </div>
             <p className="mt-2 text-xs text-slate-400">
-              Selected: {form.categories.join(", ")}
+              You can select multiple categories.
             </p>
           </div>
 
