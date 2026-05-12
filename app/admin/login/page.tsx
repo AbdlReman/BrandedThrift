@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -39,11 +40,17 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-black text-2xl">BT</span>
+          <div className="flex justify-center mb-4">
+            <Image
+              src="/images/logo.png"
+              alt="Branded Thrift"
+              width={240}
+              height={60}
+              className="h-14 w-auto max-w-full object-contain mx-auto"
+              priority
+            />
           </div>
           <h1 className="text-2xl font-black uppercase tracking-widest text-white">Admin Panel</h1>
-          <p className="text-slate-400 text-sm mt-1">Branded Thrift</p>
         </div>
 
         <div className="bg-slate-800 rounded-2xl border border-slate-700 p-8">

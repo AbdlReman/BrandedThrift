@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -85,13 +86,15 @@ export default function Navbar() {
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-zinc-100 rounded-sm flex items-center justify-center">
-              <span className="text-zinc-900 font-black text-sm">BT</span>
-            </div>
-            <span className="font-black text-lg uppercase tracking-widest text-zinc-100">
-              Branded<span className="text-zinc-300">Thrift</span>
-            </span>
+          <Link href="/" className="flex items-center shrink-0">
+            <Image
+              src="/images/logo.png"
+              alt="Branded Thrift"
+              width={200}
+              height={48}
+              className="h-8 w-auto max-w-[min(11rem,42vw)] object-contain object-left"
+              priority
+            />
           </Link>
 
           {/* Desktop nav */}

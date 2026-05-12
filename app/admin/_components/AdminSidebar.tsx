@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -107,11 +108,15 @@ export default function AdminSidebar() {
   return (
     <aside className="w-16 lg:w-64 bg-slate-800 flex flex-col flex-shrink-0 border-r border-slate-700">
       {/* Logo */}
-      <div className="h-16 flex items-center px-4 border-b border-slate-700">
-        <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center flex-shrink-0">
-          <span className="text-white font-black text-sm">BT</span>
-        </div>
-        <span className="ml-3 font-black text-sm uppercase tracking-widest text-white hidden lg:block">
+      <div className="h-16 flex items-center px-2 lg:px-4 border-b border-slate-700 gap-2 min-w-0 overflow-hidden">
+        <Image
+          src="/images/logo.png"
+          alt="Branded Thrift"
+          width={200}
+          height={48}
+          className="h-8 w-auto max-w-[2.5rem] lg:max-w-[9rem] object-contain object-left shrink-0"
+        />
+        <span className="font-black text-sm uppercase tracking-widest text-white hidden lg:block truncate min-w-0">
           Admin Panel
         </span>
       </div>

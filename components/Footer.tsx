@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -41,13 +42,14 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center">
-                <span className="text-black font-black text-sm">BT</span>
-              </div>
-              <span className="font-black text-lg uppercase tracking-widest">
-                Branded<span className="text-gray-400">Thrift</span>
-              </span>
+            <Link href="/" className="inline-flex mb-4">
+              <Image
+                src="/images/logo.png"
+                alt="Branded Thrift"
+                width={200}
+                height={48}
+                className="h-9 w-auto max-w-[11rem] object-contain object-left"
+              />
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed">
               Premium branded footwear at unbeatable prices. Authentic. Stylish. Sustainable.
