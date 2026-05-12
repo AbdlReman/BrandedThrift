@@ -263,21 +263,15 @@ export default function ProductDetailClient({
                   className="relative block h-full w-full cursor-zoom-in outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
                   aria-label={`Open ${product.name} fullscreen`}
                 >
-                  {mainImage && isCloudinary(mainImage) ? (
-                    <Image
-                      src={mainImage}
-                      alt={product.name}
-                      fill
-                      priority
-                      className="object-cover object-bottom"
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                    />
-                  ) : mainImage ? (
+                  {mainImage ? (
+                    // Width-fitted, bottom-anchored: never crops left/right; only the top is clipped when taller.
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={mainImage}
                       alt={product.name}
-                      className="absolute inset-0 h-full w-full object-cover object-bottom"
+                      className="absolute inset-x-0 bottom-0 block w-full h-auto"
+                      fetchPriority="high"
+                      decoding="async"
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center text-sm text-neutral-400">No image</div>

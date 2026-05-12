@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { formatPkr } from "@/lib/formatCurrency";
 import { connectDB } from "@/lib/mongodb";
 import { serializeProductFromLean } from "@/lib/serializeProduct";
@@ -128,13 +127,13 @@ export default async function HomePage() {
             <Link key={product.id} href={`/shop/${product.slug}`} className="product-card group cursor-pointer">
               {/* Image placeholder */}
               <div className={`${product.bg} aspect-[1/1.15] overflow-hidden mb-4 relative`}>
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={product.image}
                   alt={product.name}
-                  fill
-                  unoptimized
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  className="object-cover object-bottom product-img"
+                  className="absolute inset-x-0 bottom-0 block w-full h-auto product-img"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <span className="absolute top-3 left-3 z-10 bg-black text-white text-xs font-bold px-2 py-1 uppercase tracking-widest">
                   {product.brand}

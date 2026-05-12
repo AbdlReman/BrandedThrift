@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import type { IProduct } from "@/types/product";
@@ -33,7 +32,6 @@ export default function ProductCard({
   const mainImage = activeVariant?.images?.[0] || product.images[0] || "";
   const displayColor = selectedColor || product.colors[0] || "";
   const { hasDiscount, finalPrice, discountPercent } = cardPrice(product);
-  const cloudinary = mainImage.startsWith("https://res.cloudinary.com");
 
   return (
     <article className="group flex h-full flex-col">
@@ -64,23 +62,16 @@ export default function ProductCard({
             </button>
           ) : null}
           {mainImage ? (
-            cloudinary ? (
-              <Image
-                src={mainImage}
-                alt={product.name}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="object-cover object-bottom"
-                priority={priority}
-              />
-            ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={mainImage}
-                alt={product.name}
-                className="absolute inset-0 h-full w-full object-cover object-bottom"
-              />
-            )
+            // Width-fitted, bottom-anchored: never crops left/right; only the top is clipped when taller.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={mainImage}
+              alt={product.name}
+              className="absolute inset-x-0 bottom-0 block w-full h-auto"
+              loading={priority ? "eager" : "lazy"}
+              fetchPriority={priority ? "high" : "auto"}
+              decoding="async"
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-xs uppercase tracking-widest text-neutral-400">
               No image
