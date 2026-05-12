@@ -66,6 +66,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
     const nextStatus = publish ? "Published" : "Draft";
     const categories = normalizeCategories(body.categories, body.category);
     const primaryCategory = categories[0] || "";
+    const isFeatured = body.isFeatured === true;
     const payload = {
       name: body.name,
       price: Number(body.price || 0),
@@ -84,6 +85,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
       metaDescription: body.metaDescription || "",
       inStock: Number(body.stockQuantity || 0) > 0,
       isActive: publish,
+      isFeatured,
       status: nextStatus,
     };
     const product = await Product.findByIdAndUpdate(

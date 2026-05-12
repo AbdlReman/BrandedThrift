@@ -108,6 +108,7 @@ export async function POST(req: NextRequest) {
     const nextStatus = publish ? "Published" : "Draft";
     const categories = normalizeCategories(body.categories, body.category);
     const primaryCategory = categories[0] || "";
+    const isFeatured = body.isFeatured === true;
     const product = new Product({
       name: body.name,
       price: Number(body.price || 0),
@@ -126,6 +127,7 @@ export async function POST(req: NextRequest) {
       metaDescription: body.metaDescription || "",
       inStock: Number(body.stockQuantity || 0) > 0,
       isActive: publish,
+      isFeatured,
       status: nextStatus,
     });
     await product.save();

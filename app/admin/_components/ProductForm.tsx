@@ -73,6 +73,7 @@ export default function ProductForm({
     metaTitle: "",
     metaDescription: "",
     publish: false,
+    isFeatured: false,
   };
   const [form, setForm] = useState(
     initialData
@@ -92,6 +93,7 @@ export default function ProductForm({
           metaTitle: initialData.metaTitle,
           metaDescription: initialData.metaDescription,
           publish: initialData.status === "Published" || initialData.isActive,
+          isFeatured: initialData.isFeatured === true,
         }
       : emptyForm
   );
@@ -164,6 +166,7 @@ export default function ProductForm({
         category: form.categories[0] || fallbackCategory,
         status: form.publish ? "Published" : "Draft",
         isActive: form.publish,
+        isFeatured: form.isFeatured,
         sizes: form.sizesInput.split(",").map((s) => s.trim()).filter(Boolean),
         colorVariants: normalizedColorVariants,
         colors: normalizedColorVariants.map((variant) => variant.color),
@@ -363,6 +366,19 @@ export default function ProductForm({
             <span className={`text-xs ${form.publish ? "text-green-300" : "text-amber-300"}`}>
               {form.publish ? "Published" : "Draft"}
             </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <label htmlFor="isFeatured" className="text-slate-300 text-xs font-semibold uppercase tracking-widest">
+              Featured Product
+            </label>
+            <input
+              id="isFeatured"
+              type="checkbox"
+              checked={form.isFeatured}
+              onChange={(e) => set("isFeatured", e.target.checked)}
+              className="h-4 w-4 rounded border-slate-500 bg-slate-700 text-indigo-500 focus:ring-indigo-500"
+            />
           </div>
         </div>
       </div>

@@ -72,6 +72,7 @@ export default async function EditProductPage({
     discount: Number(p.discount || 0),
     inStock: Boolean(p.inStock),
     isActive: p.isActive !== false,
+    isFeatured: p.isFeatured === true,
     status:
       p.status === "Published" || (p.status == null && p.isActive !== false)
         ? "Published"

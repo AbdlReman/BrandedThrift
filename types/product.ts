@@ -20,6 +20,7 @@ export interface IProduct {
   discount: number;
   inStock: boolean;
   isActive: boolean;
+  isFeatured: boolean;
   status: "Draft" | "Published";
   popularityScore: number;
   soldCount: number;

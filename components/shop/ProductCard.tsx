@@ -41,7 +41,7 @@ export default function ProductCard({
         href={`/shop/${product.slug}`}
         className="relative block overflow-hidden bg-neutral-100 outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
       >
-        <div className="relative aspect-[4/5]">
+        <div className="relative aspect-[1.28]">
           {hasDiscount ? (
             <span
               className="absolute right-2 top-2 z-10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white"
@@ -70,12 +70,12 @@ export default function ProductCard({
                 alt={product.name}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="object-cover"
+                className="object-contain p-3"
                 priority={priority}
               />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={mainImage} alt={product.name} className="absolute inset-0 h-full w-full object-cover" />
+              <img src={mainImage} alt={product.name} className="absolute inset-0 h-full w-full object-contain p-3" />
             )
           ) : (
             <div className="flex h-full w-full items-center justify-center text-xs uppercase tracking-widest text-neutral-400">
@@ -85,22 +85,26 @@ export default function ProductCard({
         </div>
       </Link>
 
-      <div className="mt-2.5 flex flex-1 flex-col">
-        {product.brand ? (
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-neutral-500">{product.brand}</p>
-        ) : null}
+      <div className="mt-2 flex flex-1 flex-col">
+        <p className="text-[10px] uppercase tracking-wide text-neutral-500">
+          {Math.max(1, product.colors?.length || 1)} color{(product.colors?.length || 1) > 1 ? "s" : ""}
+        </p>
         <Link href={`/shop/${product.slug}`} className="mt-1 block">
-          <h3 className="text-[12px] font-bold uppercase leading-snug tracking-wide text-black line-clamp-2">
-            {product.name}
-          </h3>
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-[13px] font-semibold leading-snug tracking-tight text-black line-clamp-1">
+              {product.name}
+            </h3>
+            <span className="shrink-0 text-[13px] font-semibold tabular-nums text-black">
+              {formatPkr(finalPrice)}
+            </span>
+          </div>
         </Link>
-        {displayColor ? <p className="mt-0.5 text-[11px] text-neutral-600">{displayColor}</p> : null}
-        <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="text-[13px] font-bold tabular-nums text-black">{formatPkr(finalPrice)}</span>
-          {hasDiscount ? (
-            <span className="text-xs text-neutral-400 line-through tabular-nums">{formatPkr(product.price)}</span>
-          ) : null}
-        </div>
+        <p className="mt-0.5 text-[12px] text-neutral-600 line-clamp-1">
+          {displayColor || "Sneakers"}
+        </p>
+        {hasDiscount ? (
+          <p className="mt-0.5 text-[11px] text-neutral-400 line-through tabular-nums">{formatPkr(product.price)}</p>
+        ) : null}
       </div>
     </article>
   );

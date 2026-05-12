@@ -1,49 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { formatPkr } from "@/lib/formatCurrency";
-
-const featuredProducts = [
-  {
-    id: 1,
-    name: "Velocity Runner Pro",
-    price: 12999,
-    originalPrice: 17999,
-    brand: "PUMA",
-    color: "Black / White",
-    bg: "bg-gray-100",
-    image: "/images/1.webp",
-  },
-  {
-    id: 2,
-    name: "Street Glide Elite",
-    price: 9999,
-    originalPrice: 14499,
-    brand: "NIKE",
-    color: "Red / Black",
-    bg: "bg-red-50",
-    image: "/images/2.webp",
-  },
-  {
-    id: 3,
-    name: "Classic Court Low",
-    price: 8499,
-    originalPrice: 11999,
-    brand: "ADIDAS",
-    color: "White / Navy",
-    bg: "bg-blue-50",
-    image: "/images/3.webp",
-  },
-  {
-    id: 4,
-    name: "Trail Blazer X9",
-    price: 14999,
-    originalPrice: 20999,
-    brand: "NEW BALANCE",
-    color: "Grey / Orange",
-    bg: "bg-orange-50",
-    image: "/images/01.webp",
-  },
-];
+import { connectDB } from "@/lib/mongodb";
+import { serializeProductFromLean } from "@/lib/serializeProduct";
+import Product from "@/models/Product";
+import type { IProduct } from "@/types/product";
 
 const categories = [
   { name: "Running", desc: "Performance-built for every mile", bg: "bg-black", text: "text-white" },
@@ -51,7 +12,43 @@ const categories = [
   { name: "Training", desc: "Built for the gym & beyond", bg: "bg-gray-900", text: "text-white" },
 ];
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+const cardBgClasses = ["bg-gray-100", "bg-red-50", "bg-blue-50", "bg-orange-50"];
+
+function featuredCardData(product: IProduct, index: number) {
+  const discount = Number(product.discount || 0);
+  const hasDiscount = discount > 0;
+  const salePrice = hasDiscount ? product.price * (1 - discount / 100) : product.price;
+  const originalPrice = hasDiscount ? product.price : product.price;
+  return {
+    id: product._id,
+    name: product.name,
+    price: salePrice,
+    originalPrice,
+    brand: product.brand,
+    color: product.colors?.[0] || "Sneakers",
+    bg: cardBgClasses[index % cardBgClasses.length],
+    image: product.images?.[0] || "/images/1.webp",
+    slug: product.slug,
+    hasDiscount,
+  };
+}
+
+export default async function HomePage() {
+  await connectDB();
+  const rawFeatured = await Product.find({
+    isFeatured: true,
+    isActive: true,
+    $or: [{ status: "Published" }, { status: { $exists: false } }],
+  })
+    .sort({ createdAt: -1 })
+    .limit(4)
+    .lean();
+  const featuredProducts = (rawFeatured as Record<string, unknown>[])
+    .map((p) => serializeProductFromLean(p))
+    .map((p, idx) => featuredCardData(p, idx));
+
   return (
     <div>
       {/* Hero Section */}
@@ -128,26 +125,32 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {featuredProducts.map((product) => (
-            <Link key={product.id} href="/shop" className="product-card group cursor-pointer">
+            <Link key={product.id} href={`/shop/${product.slug}`} className="product-card group cursor-pointer">
               {/* Image placeholder */}
               <div className={`${product.bg} h-64 flex items-center justify-center overflow-hidden mb-4 relative`}>
-                <Image src={product.image} alt={product.name} fill className="object-cover product-img" />
+                <Image src={product.image} alt={product.name} fill unoptimized className="object-cover product-img" />
                 <span className="absolute top-3 left-3 bg-black text-white text-xs font-bold px-2 py-1 uppercase tracking-widest">
                   {product.brand}
                 </span>
-                <span className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2 py-1">
-                  SALE
-                </span>
+                {product.hasDiscount ? (
+                  <span className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2 py-1">
+                    SALE
+                  </span>
+                ) : null}
               </div>
               <div>
                 <h3 className="font-bold text-sm uppercase tracking-wide mb-1">{product.name}</h3>
                 <p className="text-gray-500 text-xs mb-2">{product.color}</p>
                 <div className="flex items-center gap-3">
                   <span className="font-black text-lg">{formatPkr(product.price)}</span>
-                  <span className="text-gray-400 line-through text-sm">{formatPkr(product.originalPrice)}</span>
-                  <span className="text-red-600 text-xs font-bold">
-                    -{Math.round((1 - product.price / product.originalPrice) * 100)}%
-                  </span>
+                  {product.hasDiscount ? (
+                    <>
+                      <span className="text-gray-400 line-through text-sm">{formatPkr(product.originalPrice)}</span>
+                      <span className="text-red-600 text-xs font-bold">
+                        -{Math.round((1 - product.price / product.originalPrice) * 100)}%
+                      </span>
+                    </>
+                  ) : null}
                 </div>
               </div>
             </Link>

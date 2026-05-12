@@ -29,6 +29,7 @@ const ProductSchema = new Schema(
     soldCount: { type: Number, min: 0, default: 0 },
     inStock: { type: Boolean, default: true },
     isActive: { type: Boolean, default: true },
+    isFeatured: { type: Boolean, default: false },
     status: { type: String, enum: ["Draft", "Published"], default: "Draft" },
     slug: { type: String, unique: true },
   },
