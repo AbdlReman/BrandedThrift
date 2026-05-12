@@ -123,7 +123,7 @@ export default function AboutPage() {
       </section>
 
       {/* Team */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      {/* <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center mb-14">
           <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">The People</p>
           <h2 className="text-4xl font-black uppercase tracking-tight">Meet the Team</h2>
@@ -139,7 +139,7 @@ export default function AboutPage() {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* CTA */}
       <section className="bg-black text-white py-20 text-center">
