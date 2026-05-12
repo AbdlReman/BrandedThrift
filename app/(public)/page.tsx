@@ -127,7 +127,7 @@ export default async function HomePage() {
           {featuredProducts.map((product) => (
             <Link key={product.id} href={`/shop/${product.slug}`} className="product-card group cursor-pointer">
               {/* Image placeholder */}
-              <div className={`${product.bg} aspect-square overflow-hidden mb-4 relative`}>
+              <div className={`${product.bg} aspect-[1/1.15] overflow-hidden mb-4 relative`}>
                 <Image
                   src={product.image}
                   alt={product.name}

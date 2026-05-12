@@ -241,7 +241,7 @@ export default function ProductDetailClient({
 
             <div className="relative order-1 min-w-0 flex-1 xl:order-2">
               <div
-                className="relative aspect-square overflow-hidden bg-neutral-100"
+                className="relative aspect-[1/1.15] overflow-hidden bg-neutral-100"
                 tabIndex={0}
                 role="region"
                 aria-label="Product gallery"
