@@ -78,7 +78,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-zinc-950/95 backdrop-blur border-b border-zinc-800">
       {/* Top promo bar */}
-      <div className="bg-zinc-900 text-zinc-100 text-center py-2 text-xs font-bold tracking-widest uppercase border-b border-zinc-800">
+      <div className="bg-white text-zinc-900 text-center py-2 text-xs font-bold tracking-widest uppercase border-b border-zinc-200">
         We Deliver Free All Over Pakistan
       </div>
 
