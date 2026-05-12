@@ -127,13 +127,20 @@ export default async function HomePage() {
           {featuredProducts.map((product) => (
             <Link key={product.id} href={`/shop/${product.slug}`} className="product-card group cursor-pointer">
               {/* Image placeholder */}
-              <div className={`${product.bg} h-64 flex items-center justify-center overflow-hidden mb-4 relative`}>
-                <Image src={product.image} alt={product.name} fill unoptimized className="object-cover product-img" />
-                <span className="absolute top-3 left-3 bg-black text-white text-xs font-bold px-2 py-1 uppercase tracking-widest">
+              <div className={`${product.bg} aspect-square overflow-hidden mb-4 relative`}>
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  unoptimized
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  className="object-cover object-bottom product-img"
+                />
+                <span className="absolute top-3 left-3 z-10 bg-black text-white text-xs font-bold px-2 py-1 uppercase tracking-widest">
                   {product.brand}
                 </span>
                 {product.hasDiscount ? (
-                  <span className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2 py-1">
+                  <span className="absolute top-3 right-3 z-10 bg-red-600 text-white text-xs font-bold px-2 py-1">
                     SALE
                   </span>
                 ) : null}

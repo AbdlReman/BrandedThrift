@@ -229,10 +229,10 @@ export default function ProductDetailClient({
                     aria-current={active ? "true" : undefined}
                   >
                     {isCloudinary(image) ? (
-                      <Image src={image} alt="" fill className="object-cover" sizes="80px" />
+                      <Image src={image} alt="" fill className="object-cover object-bottom" sizes="80px" />
                     ) : (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                      <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover object-bottom" />
                     )}
                   </button>
                 );
@@ -269,12 +269,16 @@ export default function ProductDetailClient({
                       alt={product.name}
                       fill
                       priority
-                      className="object-cover"
+                      className="object-cover object-bottom"
                       sizes="(max-width: 1024px) 100vw, 50vw"
                     />
                   ) : mainImage ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={mainImage} alt={product.name} className="absolute inset-0 h-full w-full object-cover" />
+                    <img
+                      src={mainImage}
+                      alt={product.name}
+                      className="absolute inset-0 h-full w-full object-cover object-bottom"
+                    />
                   ) : (
                     <div className="flex h-full items-center justify-center text-sm text-neutral-400">No image</div>
                   )}

@@ -41,7 +41,7 @@ export default function ProductCard({
         href={`/shop/${product.slug}`}
         className="relative block overflow-hidden bg-neutral-100 outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
       >
-        <div className="relative aspect-[1.28]">
+        <div className="relative aspect-square">
           {hasDiscount ? (
             <span
               className="absolute right-2 top-2 z-10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white"
@@ -70,12 +70,16 @@ export default function ProductCard({
                 alt={product.name}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="object-contain p-3"
+                className="object-cover object-bottom"
                 priority={priority}
               />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={mainImage} alt={product.name} className="absolute inset-0 h-full w-full object-contain p-3" />
+              <img
+                src={mainImage}
+                alt={product.name}
+                className="absolute inset-0 h-full w-full object-cover object-bottom"
+              />
             )
           ) : (
             <div className="flex h-full w-full items-center justify-center text-xs uppercase tracking-widest text-neutral-400">
