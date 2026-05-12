@@ -52,7 +52,7 @@ export default async function HomePage() {
     <div>
       {/* Hero Section */}
       <section className="relative bg-black text-white overflow-hidden min-h-[60vh] flex items-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800" style={{backgroundImage: 'url(/images/hero.webp)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.75}} />
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800" style={{backgroundImage: 'url(/images/hero.jpeg)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.75}} />
 
         {/* Decorative circle */}
         <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[420px] h-[420px] rounded-full border border-gray-800 opacity-30" />
@@ -167,7 +167,7 @@ export default async function HomePage() {
       {/* Full-width Banner */}
       <section
         className="relative text-white py-24 text-center overflow-hidden"
-        style={{ backgroundImage: "url(/images/hero.webp)", backgroundSize: "cover", backgroundPosition: "center" }}
+        style={{ backgroundImage: "url(/images/hero.jpeg)", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         <div className="absolute inset-0 bg-slate-900/75" />
         <div className="relative z-10 px-4">
