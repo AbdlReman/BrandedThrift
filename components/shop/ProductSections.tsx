@@ -72,6 +72,7 @@ export function RecentlyViewedSection({
             discount: e.discount,
             inStock: true,
             isActive: true,
+            isFeatured: false,
             status: "Published" as const,
             popularityScore: 0,
             soldCount: 0,
