@@ -210,6 +210,7 @@ export default function Navbar() {
         </div>
       </div>
 
+
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden border-t border-zinc-800 bg-zinc-950">
