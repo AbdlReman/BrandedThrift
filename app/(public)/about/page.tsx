@@ -77,7 +77,10 @@ export default function AboutPage() {
               just selling shoes — we&apos;re building a community of conscious consumers
               who value quality, style, and sustainability.
             </p>
-            <Link href="/shop" className="btn-primary">
+            <Link
+              href="/shop"
+              className="inline-flex items-center justify-center border-2 border-black bg-black px-8 py-3 text-xs font-bold uppercase tracking-widest text-white transition-colors hover:bg-white hover:text-black"
+            >
               Shop the Collection
             </Link>
           </div>
@@ -85,9 +88,18 @@ export default function AboutPage() {
           {/* Values */}
           <div className="space-y-6">
             {[
-              { title: "Authenticity First", desc: "Triple-checked authentication on every single pair. If it's not real, it doesn't ship." },
-              { title: "Sustainable Fashion", desc: "By extending the lifecycle of premium footwear, we reduce waste and carbon emissions." },
-              { title: "Community Driven", desc: "Built by sneaker lovers, for sneaker lovers. Your feedback shapes everything we do." },
+              {
+                title: "Authentic Pairs Only",
+                desc: "Every pair is carefully checked before listing. We only sell original preloved footwear.",
+              },
+              {
+                title: "No Repaired Shoes",
+                desc: "We focus on clean, wearable pairs. Product condition is always shown as clearly as possible.",
+              },
+              {
+                title: "Community Driven",
+                desc: "Built for people who love sneakers, style, and smart buying. New pairs added regularly.",
+              },
             ].map(({ title, desc }, i) => (
               <div key={title} className="flex gap-5">
                 <div className="w-10 h-10 bg-black text-white rounded-full flex-shrink-0 flex items-center justify-center font-black text-sm">
