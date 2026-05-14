@@ -41,6 +41,7 @@ export async function GET(req: NextRequest) {
     const category = searchParams.get("category");
     const brand = searchParams.get("brand");
     const search = searchParams.get("search");
+    const slugs = parseCsv(searchParams.get("slugs"));
     const size = searchParams.get("size");
     const color = searchParams.get("color");
     const minPrice = Number(searchParams.get("minPrice") || 0);
@@ -51,6 +52,7 @@ export async function GET(req: NextRequest) {
       isActive: true,
       $or: [{ status: "Published" }, { status: { $exists: false } }],
     };
+    if (slugs.length > 0) query.slug = { $in: slugs };
     if (category) {
       query.$and = [
         {

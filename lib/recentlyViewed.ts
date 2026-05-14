@@ -30,9 +30,23 @@ export function readRecentlyViewed(): RecentViewEntry[] {
   }
 }
 
+export function writeRecentlyViewed(entries: RecentViewEntry[]) {
+  if (typeof window === "undefined") return;
+  const next = entries
+    .filter(
+      (x): x is RecentViewEntry =>
+        x &&
+        typeof x.slug === "string" &&
+        typeof x.name === "string" &&
+        typeof x.image === "string"
+    )
+    .slice(0, MAX);
+  localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(next));
+}
+
 export function pushRecentlyViewed(entry: RecentViewEntry, excludeSlug?: string) {
   if (typeof window === "undefined") return;
   const prev = readRecentlyViewed().filter((e) => e.slug !== entry.slug && e.slug !== excludeSlug);
   const next = [entry, ...prev].slice(0, MAX);
-  localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(next));
+  writeRecentlyViewed(next);
 }

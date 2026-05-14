@@ -9,7 +9,7 @@ import ProductRatingSummary from "@/components/shop/ProductRatingSummary";
 import { RelatedProductsSection, RecentlyViewedSection } from "@/components/shop/ProductSections";
 import type { CartItem, IProduct } from "@/types/product";
 import { formatPkr } from "@/lib/formatCurrency";
-import { pushRecentlyViewed, readRecentlyViewed } from "@/lib/recentlyViewed";
+import { pushRecentlyViewed, readRecentlyViewed, writeRecentlyViewed } from "@/lib/recentlyViewed";
 import ProductReviewsPanel from "./ProductReviewsPanel";
 
 function addToCart(
@@ -147,6 +147,7 @@ export default function ProductDetailClient({
   };
 
   useEffect(() => {
+    let cancelled = false;
     const previewImg = variants[0]?.images?.[0] || product.images[0] || "";
     pushRecentlyViewed(
       {
@@ -159,9 +160,36 @@ export default function ProductDetailClient({
       },
       product.slug
     );
-    // Sync carousel after writing localStorage (recently viewed rail).
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only localStorage sync on visit
-    setRecentEntries(readRecentlyViewed().filter((e) => e.slug !== product.slug));
+
+    const syncRecentlyViewed = async () => {
+      const storedEntries = readRecentlyViewed();
+      const entries = storedEntries.filter((e) => e.slug !== product.slug);
+      if (entries.length === 0) {
+        if (!cancelled) setRecentEntries([]);
+        return;
+      }
+
+      try {
+        const params = new URLSearchParams({ slugs: entries.map((e) => e.slug).join(",") });
+        const res = await fetch(`/api/products?${params.toString()}`, { cache: "no-store" });
+        if (!res.ok) throw new Error("Failed to validate recently viewed products");
+        const data = (await res.json()) as { products?: { slug?: string }[] };
+        const activeSlugs = new Set((data.products || []).map((p) => String(p.slug || "")).filter(Boolean));
+        const nextStoredEntries = storedEntries.filter((e) => e.slug === product.slug || activeSlugs.has(e.slug));
+        const nextRecentEntries = nextStoredEntries.filter((e) => e.slug !== product.slug);
+
+        writeRecentlyViewed(nextStoredEntries);
+        if (!cancelled) setRecentEntries(nextRecentEntries);
+      } catch {
+        if (!cancelled) setRecentEntries(entries);
+      }
+    };
+
+    void syncRecentlyViewed();
+
+    return () => {
+      cancelled = true;
+    };
   }, [product._id, product.slug, product.name, product.brand, product.price, product.discount, product.images, variants]);
 
   useEffect(() => {
