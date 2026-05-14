@@ -164,7 +164,9 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
               { label: "Shop" },
             ]}
           />
-          <h1 className="mt-6 text-3xl font-black uppercase tracking-tight sm:text-4xl">Shop</h1>
+          <h1 className="mt-6 max-w-4xl text-4xl font-black uppercase tracking-tight sm:text-5xl lg:text-6xl">
+            THRIFTED SHOES FROM BRANDS YOU LOVE
+          </h1>
           <p className="mt-2 text-sm text-neutral-400">{filtered.length} products</p>
         </div>
       </header>
