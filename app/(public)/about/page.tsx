@@ -41,7 +41,12 @@ export default function AboutPage() {
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              {[["500+", "Styles Available"], ["50+", "Brand Partners"], ["10K+", "Customers Served"], ["40+", "Countries Shipped"]].map(([num, label]) => (
+              {[
+                ["CURATED", "PRELOVED SNEAKERS"],
+                ["ORIGINAL", "PAIRS ONLY"],
+                ["REASONABLE", "PRICING"],
+                ["NEW DROPS", "REGULARLY"],
+              ].map(([num, label]) => (
                 <div key={label} className="border border-gray-800 p-6">
                   <p className="text-4xl font-black mb-2">{num}</p>
                   <p className="text-gray-500 text-xs uppercase tracking-widest">{label}</p>
