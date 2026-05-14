@@ -253,7 +253,7 @@ export default function ProductDetailClient({
                 ) : null}
                 <div className="absolute left-0 top-0 z-10 flex flex-wrap gap-1">
                   <span className="bg-black px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
-                    {isOutOfStock ? "Out of stock" : availableStock <= 5 ? `Low stock` : "In stock"}
+                    {isOutOfStock ? "Out of stock" : "In stock"}
                   </span>
                 </div>
 
@@ -433,7 +433,7 @@ export default function ProductDetailClient({
           </div>
         </div>
 
-        <section className="mt-14 grid gap-4 border-t border-neutral-200 pt-10 text-sm md:grid-cols-3">
+        {/* <section className="mt-14 grid gap-4 border-t border-neutral-200 pt-10 text-sm md:grid-cols-3">
           <div>
             <h2 className="text-xs font-black uppercase tracking-widest text-black">Shipping</h2>
             <p className="mt-2 leading-relaxed text-neutral-600">Standard and express options at checkout.</p>
@@ -446,7 +446,7 @@ export default function ProductDetailClient({
             <h2 className="text-xs font-black uppercase tracking-widest text-black">Authentic</h2>
             <p className="mt-2 leading-relaxed text-neutral-600">Products sourced with quality you can trust.</p>
           </div>
-        </section>
+        </section> */}
 
         <div className="mt-20">
           <TabbedProductSections productId={product._id} detailHtml={product.detail} productName={product.name} />
