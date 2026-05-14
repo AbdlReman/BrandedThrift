@@ -33,12 +33,14 @@ export default function AboutPage() {
                 <br />
                 <span className="text-gray-500">Story</span>
               </h1>
-              <p className="text-gray-400 text-lg leading-relaxed max-w-lg">
-                Branded Thrift was born from a simple belief: premium footwear
-                shouldn&apos;t cost a premium. We source authentic branded shoes
-                directly from manufacturers, overstock, and carefully vetted
-                pre-loved collections.
-              </p>
+              <div className="space-y-4 text-gray-400 text-lg leading-relaxed max-w-lg">
+                <p>Branded Thrift was built on a simple idea: good sneakers shouldn&apos;t cost a fortune.</p>
+                <p>
+                  We carefully source authentic preloved footwear and give quality pairs a second life - making
+                  premium styles more accessible at reasonable prices.
+                </p>
+                <p>Every pair is selected with focus on authenticity, condition, and everyday wear.</p>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               {[
