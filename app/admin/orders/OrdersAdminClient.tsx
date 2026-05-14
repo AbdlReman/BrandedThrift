@@ -43,6 +43,7 @@ export type AdminOrderRow = {
 export default function OrdersAdminClient({ orders }: { orders: AdminOrderRow[] }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<"pending" | "completed" | "cancelled">("pending");
+  const [searchQuery, setSearchQuery] = useState("");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [updatingTo, setUpdatingTo] = useState<"completed" | "cancelled" | null>(null);
   const [page, setPage] = useState(1);
@@ -63,8 +64,35 @@ export default function OrdersAdminClient({ orders }: { orders: AdminOrderRow[] 
   }, [openId, onKeyDown]);
 
   const filteredOrders = useMemo(() => {
-    return orders.filter((o) => o.orderStatus === statusFilter);
-  }, [orders, statusFilter]);
+    const query = searchQuery.trim().toLowerCase();
+    return orders.filter((order) => {
+      if (order.orderStatus !== statusFilter) return false;
+      if (!query) return true;
+
+      const searchableText = [
+        order.orderNumber,
+        order.customer.name,
+        order.customer.phone,
+        order.customer.email,
+        order.customer.address,
+        order.customer.city,
+        order.customer.state,
+        order.customer.postalCode,
+        order.customer.notes,
+        order.couponCode,
+        order.paymentMethod,
+        order.paymentTransactionId,
+        order.paymentStatus,
+        order.orderStatus,
+        ...order.items.flatMap((item) => [item.name, item.color, item.size]),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(query);
+    });
+  }, [orders, searchQuery, statusFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredOrders.length / perPage));
   const currentPage = Math.min(page, totalPages);
@@ -84,14 +112,12 @@ export default function OrdersAdminClient({ orders }: { orders: AdminOrderRow[] 
         body: JSON.stringify({ orderId, status: nextStatus }),
       });
       if (!res.ok) {
-        // eslint-disable-next-line no-alert
         alert("Failed to update order status.");
         return;
       }
       window.location.reload();
     } catch (e) {
       console.error(e);
-      // eslint-disable-next-line no-alert
       alert("Failed to update order status.");
     } finally {
       setUpdatingId(null);
@@ -124,6 +150,22 @@ export default function OrdersAdminClient({ orders }: { orders: AdminOrderRow[] 
               {tab.label}
             </button>
           ))}
+        </div>
+        <div className="flex min-w-[220px] flex-1 justify-end">
+          <label className="sr-only" htmlFor="order-search">
+            Search orders
+          </label>
+          <input
+            id="order-search"
+            type="search"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Search orders..."
+            className="w-full max-w-sm rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-white placeholder:text-slate-500 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+          />
         </div>
         <p className="text-xs text-slate-400">
           Showing {filteredOrders.length} {statusFilter} order
@@ -215,6 +257,13 @@ export default function OrdersAdminClient({ orders }: { orders: AdminOrderRow[] 
                 </td>
               </tr>
             ))}
+            {paginatedOrders.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-500">
+                  No orders found.
+                </td>
+              </tr>
+            ) : null}
           </tbody>
         </table>
       </div>
