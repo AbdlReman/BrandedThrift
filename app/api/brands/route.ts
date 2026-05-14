@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { connectDB } from "@/lib/mongodb";
 import Brand from "@/models/Brand";
 
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
       name: String(body.name || "").trim(),
       isActive: body.isActive !== false,
     });
+    revalidatePath("/admin/products/new");
     return NextResponse.json(
       { brand: { ...brand.toObject(), _id: String(brand._id) } },
       { status: 201 }

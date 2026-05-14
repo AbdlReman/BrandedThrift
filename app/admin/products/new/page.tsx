@@ -6,6 +6,7 @@ import Category from "@/models/Category";
 import ProductForm from "../../_components/ProductForm";
 
 export const metadata: Metadata = { title: "Add Product — Admin" };
+export const dynamic = "force-dynamic";
 
 export default async function NewProductPage() {
   await connectDB();
