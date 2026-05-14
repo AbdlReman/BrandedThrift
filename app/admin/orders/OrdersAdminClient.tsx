@@ -366,8 +366,8 @@ export default function OrdersAdminClient({ orders }: { orders: AdminOrderRow[] 
                         <th className="px-3 py-2 whitespace-nowrap">Color</th>
                         <th className="px-3 py-2 whitespace-nowrap">Size</th>
                         <th className="px-3 py-2 text-center">Qty</th>
-                        <th className="px-3 py-2 text-right">Each</th>
-                        <th className="px-3 py-2 text-right">Line</th>
+                        <th className="px-3 py-2 text-right">Per Item Price</th>
+                        <th className="px-3 py-2 text-right">Total</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-700">

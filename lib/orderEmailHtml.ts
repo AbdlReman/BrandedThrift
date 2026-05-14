@@ -57,8 +57,8 @@ function itemsTable(items: OrderItemInput[]): string {
       <th align="left" style="padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;">Color</th>
       <th align="left" style="padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;">Size</th>
       <th align="center" style="padding:10px 12px;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;">Qty</th>
-      <th align="right" style="padding:10px 12px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;">Each</th>
-      <th align="right" style="padding:10px 12px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;">Line</th>
+      <th align="right" style="padding:10px 12px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;">Per Item Price</th>
+      <th align="right" style="padding:10px 12px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;">Total</th>
     </tr>
   </thead>
   <tbody>${rows}</tbody>
