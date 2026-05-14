@@ -70,14 +70,14 @@ export default async function HomePage() {
               100% original branded shoes - preloved, no repairs, affordable.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
-              <Link href="/shop" className="btn-primary">
-                Shop Now
+              <Link href="/shop?category=Men" className="btn-primary">
+                MEN&apos;S LIFESTYLE SHOES
               </Link>
               <Link
-                href="/about"
+                href="/shop?category=Women"
                 className="btn-outline border-white bg-white/10 !text-white shadow-white/10 hover:bg-white/20 !hover:text-white transition duration-200"
               >
-                Our Story
+                WOMEN&apos;S LIFESTYLE SHOES
               </Link>
             </div>
           </div>
