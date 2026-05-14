@@ -18,15 +18,15 @@ const SORTS = [
 const PAGE_SIZE = 12;
 
 const filterInputClass =
-  "h-11 w-full border border-neutral-300 bg-neutral-50 px-4 text-sm font-semibold text-black outline-none transition-colors " +
-  "placeholder:text-neutral-400 hover:border-neutral-500 focus:border-black focus:bg-white focus:ring-2 focus:ring-black/10";
+  "w-full border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-black outline-none " +
+  "placeholder:text-neutral-400 focus:border-neutral-500";
 
 const selectClass =
   filterInputClass +
-  " cursor-pointer appearance-none bg-[length:1rem] bg-[right_0.9rem_center] bg-no-repeat pr-10 shadow-sm " +
-  "[background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23171717'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.4' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E\")]";
+  " cursor-pointer appearance-none bg-[length:0.9rem] bg-[right_0.5rem_center] bg-no-repeat pr-8 " +
+  "[background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000000'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E\")]";
 
-const labelClass = "mb-2 block text-[10px] font-black uppercase tracking-[0.16em] text-neutral-500";
+const labelClass = "mb-1 block text-[10px] font-semibold uppercase tracking-wide text-neutral-500";
 
 function categoriesOf(product: IProduct): string[] {
   if (Array.isArray(product.categories) && product.categories.length > 0) {
@@ -175,8 +175,8 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
       </header>
 
       <div className="mx-auto max-w-[90rem] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-        <div className="mb-8 border border-neutral-200 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between gap-3 border-b border-neutral-100 pb-3">
+        <div className="mb-8 border border-neutral-200 bg-white p-4">
+          <div className="mb-3 flex items-center justify-between gap-3 border-b border-neutral-100 pb-2.5">
             <h2 className="text-sm font-black uppercase tracking-wide">Filters</h2>
             {activeFilters > 0 ? (
               <button
@@ -189,7 +189,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
             ) : null}
           </div>
 
-          <div className="flex flex-wrap items-end gap-3">
+          <div className="flex flex-wrap items-end gap-2.5">
             <div className="min-w-[11rem] flex-1 sm:flex-none sm:w-[14rem]">
               <label htmlFor="filter-search" className={labelClass}>Search</label>
               <input
