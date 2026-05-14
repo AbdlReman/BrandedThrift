@@ -19,17 +19,32 @@ function addToCart(
   selectedSize: string,
   quantity: number
 ) {
-  const qty = Math.max(1, Math.floor(quantity || 1));
-  const existing = JSON.parse(localStorage.getItem("cart_items") || "[]");
+  const availableStock = Math.max(0, Math.floor(Number(product.stockQuantity || 0)));
+  if (availableStock <= 0) return 0;
+
+  const requestedQty = Math.max(1, Math.floor(quantity || 1));
+  const existing = JSON.parse(localStorage.getItem("cart_items") || "[]") as CartItem[];
   const sizeKey = selectedSize || "";
-  const index = existing.findIndex(
-    (i: { productId: string; color?: string; size?: string }) =>
-      i.productId === product._id &&
-      (i.color || "") === (selectedColor || "") &&
-      (i.size || "") === sizeKey
+  const cartProductQty = existing.reduce(
+    (sum, item) => sum + (item.productId === product._id ? Math.max(1, Number(item.quantity || 1)) : 0),
+    0
   );
-  if (index >= 0) existing[index].quantity += qty;
-  else {
+  const qty = Math.min(requestedQty, Math.max(0, availableStock - cartProductQty));
+  if (qty <= 0) return 0;
+
+  const index = existing.findIndex(
+    (item) =>
+      item.productId === product._id &&
+      (item.color || "") === (selectedColor || "") &&
+      (item.size || "") === sizeKey
+  );
+  if (index >= 0) {
+    existing[index] = {
+      ...existing[index],
+      quantity: Math.max(1, Number(existing[index].quantity || 1)) + qty,
+      stockQuantity: availableStock,
+    };
+  } else {
     existing.push({
       productId: product._id,
       name: product.name,
@@ -38,10 +53,12 @@ function addToCart(
       quantity: qty,
       color: selectedColor,
       size: sizeKey,
+      stockQuantity: availableStock,
     });
   }
   localStorage.setItem("cart_items", JSON.stringify(existing));
   window.dispatchEvent(new Event("cart_updated"));
+  return qty;
 }
 
 function setCartToSingleItem(item: CartItem) {
@@ -394,10 +411,14 @@ export default function ProductDetailClient({
                 onClick={() => {
                   if (isOutOfStock) return;
                   const qty = Math.max(1, Math.floor(lineQty || 1));
-                  addToCart(product, selectedColor || "Default", mainImage, selectedSize, qty);
+                  const addedQty = addToCart(product, selectedColor || "Default", mainImage, selectedSize, qty);
+                  if (addedQty <= 0) {
+                    toast.error("Stock limit reached", { description: `${availableStock} available` });
+                    return;
+                  }
                   setQuantity(1);
                   toast.success("Added to cart", {
-                    description: `${product.name} · Qty ${qty}${selectedSize ? ` · Size ${selectedSize}` : ""}`,
+                    description: `${product.name} · Qty ${addedQty}${selectedSize ? ` · Size ${selectedSize}` : ""}`,
                   });
                 }}
                 className="inline-flex min-h-12 flex-1 items-center justify-center bg-black px-6 text-xs font-bold uppercase tracking-widest text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300"
@@ -418,6 +439,7 @@ export default function ProductDetailClient({
                     quantity: qty,
                     color: selectedColor || "Default",
                     size: selectedSize || "",
+                    stockQuantity: availableStock,
                   };
                   setCartToSingleItem(line);
                   toast.success("Checkout", {
@@ -466,9 +488,13 @@ export default function ProductDetailClient({
             onClick={() => {
               if (isOutOfStock) return;
               const qty = Math.max(1, Math.floor(lineQty || 1));
-              addToCart(product, selectedColor || "Default", mainImage, selectedSize, qty);
+              const addedQty = addToCart(product, selectedColor || "Default", mainImage, selectedSize, qty);
+              if (addedQty <= 0) {
+                toast.error("Stock limit reached", { description: `${availableStock} available` });
+                return;
+              }
               setQuantity(1);
-              toast.success("Added to cart", { description: `${product.name} · Qty ${qty}` });
+              toast.success("Added to cart", { description: `${product.name} · Qty ${addedQty}` });
             }}
             className="flex min-h-11 flex-1 items-center justify-center bg-black text-xs font-bold uppercase tracking-widest text-white disabled:bg-neutral-300"
           >
@@ -488,6 +514,7 @@ export default function ProductDetailClient({
                 quantity: qty,
                 color: selectedColor || "Default",
                 size: selectedSize || "",
+                stockQuantity: availableStock,
               });
               router.push("/checkout");
             }}
