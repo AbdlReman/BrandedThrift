@@ -40,6 +40,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
   const pathname = usePathname();
   const router = useRouter();
   const requestedCategory = searchParams.get("category");
+  const saleOnly = searchParams.get("sale") === "true";
 
   const categories = useMemo(() => {
     const rest = Array.from(new Set(products.flatMap((p) => categoriesOf(p)).filter(Boolean))).sort((a, b) =>
@@ -114,6 +115,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
   const filtered = useMemo(() => {
     return products
       .filter((p) => category === "All" || categoriesOf(p).includes(category))
+      .filter((p) => !saleOnly || Number(p.discount || 0) > 0)
       .filter((p) => brand === "All" || p.brand === brand)
       .filter((p) => size === "All" || p.sizes.includes(size))
       .filter((p) => color === "All" || p.colors.includes(color))
@@ -124,7 +126,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
         if (sort === "popular") return b.popularityScore - a.popularityScore;
         return +new Date(b.createdAt) - +new Date(a.createdAt);
       });
-  }, [products, category, brand, size, color, search, sort]);
+  }, [products, category, saleOnly, brand, size, color, search, sort]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount);
@@ -148,6 +150,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
 
   const activeFilters =
     (category !== "All" ? 1 : 0) +
+    (saleOnly ? 1 : 0) +
     (brand !== "All" ? 1 : 0) +
     (size !== "All" ? 1 : 0) +
     (color !== "All" ? 1 : 0) +
@@ -237,6 +240,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
             <p className="text-xs font-bold uppercase tracking-wider text-neutral-600" aria-live="polite">
               {filtered.length} products
               {category !== "All" ? ` · ${category}` : ""}
+              {saleOnly ? " · Sale" : ""}
             </p>
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
               <label className="sr-only" htmlFor="shop-sort-main">

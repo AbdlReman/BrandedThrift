@@ -9,6 +9,7 @@ const PRIMARY_LINKS = [
   { href: "/shop?category=Men", label: "Men" },
   { href: "/shop?category=Women", label: "Women" },
   { href: "/shop", label: "Shop" },
+  { href: "/shop?sale=true", label: "Sale" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
@@ -19,6 +20,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const activeCategory = searchParams.get("category") || "";
+  const saleActive = searchParams.get("sale") === "true";
 
   useEffect(() => {
     const sync = () => {
@@ -40,8 +42,10 @@ export default function Navbar() {
   const isWomen = pathname === "/shop" && activeCategory.toLowerCase() === "women";
   const isShop =
     pathname === "/shop" &&
+    !saleActive &&
     activeCategory.toLowerCase() !== "men" &&
     activeCategory.toLowerCase() !== "women";
+  const isSale = pathname === "/shop" && saleActive;
 
   const linkClass = (active: boolean) =>
     `nav-link text-zinc-100 hover:text-white transition-colors ${active ? "border-b-2 border-zinc-200" : ""}`;
@@ -51,6 +55,7 @@ export default function Navbar() {
     if (label === "Men") return isMen;
     if (label === "Women") return isWomen;
     if (label === "Shop") return isShop;
+    if (label === "Sale") return isSale;
     return pathname === href;
   };
 
