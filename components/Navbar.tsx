@@ -2,12 +2,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 const PRIMARY_LINKS = [
   { href: "/", label: "Home" },
   { href: "/shop?category=Men", label: "Men" },
   { href: "/shop?category=Women", label: "Women" },
+  { href: "/shop", label: "Shop" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
@@ -16,17 +17,8 @@ export default function Navbar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [collectionsOpen, setCollectionsOpen] = useState(false);
-  const [mobileCollectionsOpen, setMobileCollectionsOpen] = useState(false);
-  const [collections, setCollections] = useState<string[]>([]);
-  const [loadingCollections, setLoadingCollections] = useState(true);
   const [cartCount, setCartCount] = useState(0);
   const activeCategory = searchParams.get("category") || "";
-
-  const collectionLinks = useMemo(
-    () => collections.map((category) => ({ href: `/shop?category=${encodeURIComponent(category)}`, label: category })),
-    [collections]
-  );
 
   useEffect(() => {
     const sync = () => {
@@ -43,38 +35,24 @@ export default function Navbar() {
     };
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoadingCollections(true);
-      try {
-        const res = await fetch("/api/navigation/collections");
-        const data = await res.json();
-        if (!cancelled) {
-          setCollections(Array.isArray(data.categories) ? data.categories : []);
-        }
-      } catch {
-        if (!cancelled) setCollections([]);
-      } finally {
-        if (!cancelled) setLoadingCollections(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   const isHome = pathname === "/";
   const isMen = pathname === "/shop" && activeCategory.toLowerCase() === "men";
   const isWomen = pathname === "/shop" && activeCategory.toLowerCase() === "women";
-  const isCollectionsActive =
+  const isShop =
     pathname === "/shop" &&
-    activeCategory !== "" &&
     activeCategory.toLowerCase() !== "men" &&
     activeCategory.toLowerCase() !== "women";
 
   const linkClass = (active: boolean) =>
     `nav-link text-zinc-100 hover:text-white transition-colors ${active ? "border-b-2 border-zinc-200" : ""}`;
+
+  const isActiveLink = (label: string, href: string) => {
+    if (label === "Home") return isHome;
+    if (label === "Men") return isMen;
+    if (label === "Women") return isWomen;
+    if (label === "Shop") return isShop;
+    return pathname === href;
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-zinc-950/95 backdrop-blur border-b border-zinc-800">
@@ -99,65 +77,11 @@ export default function Navbar() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-8">
-            {PRIMARY_LINKS.slice(0, 3).map((link) => {
-              const active =
-                link.label === "Home" ? isHome : link.label === "Men" ? isMen : isWomen;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={linkClass(active)}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-
-            <div
-              className="relative"
-              onMouseEnter={() => setCollectionsOpen(true)}
-              onMouseLeave={() => setCollectionsOpen(false)}
-            >
-              <button
-                type="button"
-                className={`${linkClass(isCollectionsActive)} inline-flex items-center gap-1`}
-                onClick={() => setCollectionsOpen((prev) => !prev)}
-                aria-expanded={collectionsOpen}
-                aria-haspopup="menu"
-              >
-                Collections
-                <span className="text-xs">▼</span>
-              </button>
-
-              {collectionsOpen && (
-                <div className="absolute left-0 top-full mt-2 min-w-[13rem] rounded-md border border-zinc-700 bg-zinc-900 p-2 shadow-xl before:absolute before:-top-2 before:left-0 before:right-0 before:h-2 before:content-['']">
-                  {loadingCollections ? (
-                    <p className="px-3 py-2 text-xs text-zinc-400">Loading...</p>
-                  ) : collectionLinks.length === 0 ? (
-                    <p className="px-3 py-2 text-xs text-zinc-400">No collections</p>
-                  ) : (
-                    collectionLinks.map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        className={`block rounded px-3 py-2 text-sm text-zinc-100 hover:bg-zinc-800 ${
-                          activeCategory.toLowerCase() === link.label.toLowerCase() ? "bg-zinc-800" : ""
-                        }`}
-                        onClick={() => setCollectionsOpen(false)}
-                      >
-                        {link.label}
-                      </Link>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-
-            {PRIMARY_LINKS.slice(3).map((link) => (
+            {PRIMARY_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={linkClass(pathname === link.href)}
+                className={linkClass(isActiveLink(link.label, link.href))}
               >
                 {link.label}
               </Link>
@@ -215,71 +139,13 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden border-t border-zinc-800 bg-zinc-950">
           <nav className="flex flex-col px-4 py-4 gap-4">
-            <Link
-              href="/"
-              onClick={() => setMenuOpen(false)}
-              className={`nav-link text-sm py-1 text-zinc-100 hover:text-white transition-colors ${
-                isHome ? "border-b-2 border-zinc-200 w-fit" : ""
-              }`}
-            >
-              Home
-            </Link>
-            <Link
-              href="/shop?category=Men"
-              onClick={() => setMenuOpen(false)}
-              className={`nav-link text-sm py-1 text-zinc-100 hover:text-white transition-colors ${
-                isMen ? "border-b-2 border-zinc-200 w-fit" : ""
-              }`}
-            >
-              Men
-            </Link>
-            <Link
-              href="/shop?category=Women"
-              onClick={() => setMenuOpen(false)}
-              className={`nav-link text-sm py-1 text-zinc-100 hover:text-white transition-colors ${
-                isWomen ? "border-b-2 border-zinc-200 w-fit" : ""
-              }`}
-            >
-              Women
-            </Link>
-
-            <button
-              type="button"
-              onClick={() => setMobileCollectionsOpen((prev) => !prev)}
-              className={`nav-link text-left text-sm py-1 text-zinc-100 hover:text-white transition-colors ${
-                isCollectionsActive ? "border-b-2 border-zinc-200 w-fit" : ""
-              }`}
-            >
-              Collections ▼
-            </button>
-            {mobileCollectionsOpen && (
-              <div className="ml-3 flex flex-col gap-2 border-l border-zinc-800 pl-3">
-                {loadingCollections ? (
-                  <p className="text-xs text-zinc-400">Loading...</p>
-                ) : collectionLinks.length === 0 ? (
-                  <p className="text-xs text-zinc-400">No collections</p>
-                ) : (
-                  collectionLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setMenuOpen(false)}
-                      className="text-sm text-zinc-200 hover:text-white"
-                    >
-                      {link.label}
-                    </Link>
-                  ))
-                )}
-              </div>
-            )}
-
-            {PRIMARY_LINKS.slice(3).map((link) => (
+            {PRIMARY_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
                 className={`nav-link text-sm py-1 text-zinc-100 hover:text-white transition-colors ${
-                  pathname === link.href ? "border-b-2 border-zinc-200 w-fit" : ""
+                  isActiveLink(link.label, link.href) ? "border-b-2 border-zinc-200 w-fit" : ""
                 }`}
               >
                 {link.label}
