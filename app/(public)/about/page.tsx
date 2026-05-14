@@ -50,7 +50,7 @@ export default function AboutPage() {
                 ["NEW DROPS", "REGULARLY"],
               ].map(([num, label]) => (
                 <div key={label} className="border border-gray-800 p-6">
-                  <p className="text-4xl font-black mb-2">{num}</p>
+                  <p className="text-2xl md:text-3xl font-black mb-2">{num}</p>
                   <p className="text-gray-500 text-xs uppercase tracking-widest">{label}</p>
                 </div>
               ))}
