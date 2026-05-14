@@ -4,6 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+const legalLinks = [
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Exchange Policy", href: "/exchange-policy" },
+  { label: "Terms & Conditions", href: "/terms-and-conditions" },
+];
+
 export default function Footer() {
   const [email, setEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
@@ -161,10 +167,10 @@ export default function Footer() {
           <p className="text-gray-500 text-xs">
             © {new Date().getFullYear()} Branded Thrift. All rights reserved.
           </p>
-          <div className="flex gap-6">
-            {["Privacy Policy", "Terms of Service", "Cookie Policy"].map((item) => (
-              <Link key={item} href="#" className="text-gray-500 text-xs hover:text-white transition-colors">
-                {item}
+          <div className="flex flex-wrap justify-center gap-6">
+            {legalLinks.map((item) => (
+              <Link key={item.href} href={item.href} className="text-gray-500 text-xs hover:text-white transition-colors">
+                {item.label}
               </Link>
             ))}
           </div>
