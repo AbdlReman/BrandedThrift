@@ -248,8 +248,8 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
 
       <div className="mx-auto max-w-[90rem] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
 
-        {/* ── Mobile: filter button + sort chips in one row ── */}
-        <div className="mb-4 flex items-center gap-2 overflow-x-auto sm:hidden no-scrollbar">
+        {/* ── Mobile: filter button + sort dropdown in one row ── */}
+        <div className="mb-4 flex items-center gap-2 sm:hidden">
           <button
             type="button"
             onClick={() => setMobileFiltersOpen(true)}
@@ -267,23 +267,15 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
               </span>
             )}
           </button>
-
-          <div className="h-5 w-px shrink-0 bg-neutral-200" />
-
-          {SORTS.map((s) => (
-            <button
-              key={s.value}
-              type="button"
-              onClick={() => startTransition(() => setSortFilter(s.value))}
-              className={`shrink-0 border px-3 py-2 text-xs font-bold uppercase tracking-wide whitespace-nowrap transition-colors ${
-                sort === s.value
-                  ? "border-black bg-black text-white"
-                  : "border-neutral-300 bg-white text-black"
-              }`}
-            >
-              {s.label}
-            </button>
-          ))}
+          <FilterDropdown
+            id="mob-sort"
+            label="Sort"
+            value={sort}
+            options={SORTS}
+            onChange={(v) => startTransition(() => setSortFilter(v))}
+            className="flex-1"
+            labelClassName="sr-only"
+          />
         </div>
 
         {/* ── Mobile filter popup ── */}
@@ -423,7 +415,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
                     setSortFilter(value);
                   })
                 }
-                className="sm:min-w-[12rem]"
+                className="hidden sm:block sm:min-w-[12rem]"
                 labelClassName="sr-only"
               />
               <Link
