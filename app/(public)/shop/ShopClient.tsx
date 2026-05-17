@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Breadcrumbs from "@/components/shop/Breadcrumbs";
 import ProductCard from "@/components/shop/ProductCard";
-import ShopPagination from "@/components/shop/ShopPagination";
 import type { IProduct } from "@/types/product";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -15,7 +14,6 @@ const SORTS = [
   { value: "popular", label: "Popular" },
 ];
 
-const PAGE_SIZE = 12;
 
 const filterInputClass =
   "w-full border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-black outline-none " +
@@ -177,13 +175,11 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
   const [color, setColor] = useState("All");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("latest");
-  const [page, setPage] = useState(1);
   const [previewImage, setPreviewImage] = useState<{ src: string; alt: string } | null>(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [, startTransition] = useTransition();
 
   const setCategory = (next: string) => {
-    setPage(1);
     const params = new URLSearchParams(searchParams.toString());
     if (next === "All") params.delete("category");
     else params.set("category", next);
@@ -191,26 +187,11 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   };
 
-  const setBrandFilter = (v: string) => {
-    setPage(1);
-    setBrand(v);
-  };
-  const setSizeFilter = (v: string) => {
-    setPage(1);
-    setSize(v);
-  };
-  const setColorFilter = (v: string) => {
-    setPage(1);
-    setColor(v);
-  };
-  const setSearchFilter = (v: string) => {
-    setPage(1);
-    setSearch(v);
-  };
-  const setSortFilter = (v: string) => {
-    setPage(1);
-    setSort(v);
-  };
+  const setBrandFilter = (v: string) => { setBrand(v); };
+  const setSizeFilter = (v: string) => { setSize(v); };
+  const setColorFilter = (v: string) => { setColor(v); };
+  const setSearchFilter = (v: string) => { setSearch(v); };
+  const setSortFilter = (v: string) => { setSort(v); };
 
   const filtered = useMemo(() => {
     return products
@@ -228,14 +209,6 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
       });
   }, [products, category, saleOnly, brand, size, color, search, sort]);
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(page, pageCount);
-
-  const paginated = useMemo(() => {
-    const start = (safePage - 1) * PAGE_SIZE;
-    return filtered.slice(start, start + PAGE_SIZE);
-  }, [filtered, safePage]);
-
   const resetFilters = () => {
     startTransition(() => {
       router.replace(pathname, { scroll: false });
@@ -244,7 +217,6 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
       setColor("All");
       setSearch("");
       setSort("latest");
-      setPage(1);
     });
   };
 
@@ -456,7 +428,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
           </div>
 
           <div>
-            {paginated.length === 0 ? (
+            {filtered.length === 0 ? (
               <div className="border border-dashed border-neutral-300 px-6 py-16 text-center">
                 <p className="text-sm font-bold uppercase tracking-wide text-black">No products found</p>
                 <p className="mt-2 text-sm text-neutral-600">Try changing filters or search.</p>
@@ -470,29 +442,17 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
-                {paginated.map((product, idx) => (
+                {filtered.map((product, idx) => (
                   <ProductCard
                     key={product._id}
                     product={product}
                     onOpenImage={(src, alt) => setPreviewImage({ src, alt })}
-                    priority={safePage === 1 && idx < 4}
+                    priority={idx < 4}
                   />
                 ))}
               </div>
             )}
           </div>
-
-          <ShopPagination
-            page={safePage}
-            pageCount={pageCount}
-            totalItems={filtered.length}
-            onPageChange={(p) =>
-              startTransition(() => {
-                setPage(p);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              })
-            }
-          />
         </div>
       </div>
 
