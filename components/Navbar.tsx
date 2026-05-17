@@ -100,11 +100,11 @@ export default function Navbar() {
           {/* Icons */}
           <div className="flex items-center gap-5">
             {/* Search */}
-            <div className="relative">
+            <div className="relative flex items-center">
               <button
                 aria-label="Search"
                 className="hover:opacity-70 transition-opacity text-zinc-100"
-                onClick={() => { setSearchOpen((o) => !o); setTimeout(() => searchInputRef.current?.focus(), 50); }}
+                onClick={() => { setSearchOpen(true); setTimeout(() => searchInputRef.current?.focus(), 50); }}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <circle cx="11" cy="11" r="8" />
