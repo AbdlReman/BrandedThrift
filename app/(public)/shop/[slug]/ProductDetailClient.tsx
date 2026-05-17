@@ -132,6 +132,7 @@ export default function ProductDetailClient({
 
   const [selectedImage, setSelectedImage] = useState(colorImages[0] || allImages[0] || "");
   const [showImagePreview, setShowImagePreview] = useState(false);
+  const [showSizeChart, setShowSizeChart] = useState(false);
   const [recentEntries, setRecentEntries] = useState<
     { slug: string; name: string; image: string; brand: string; price: number; discount: number }[]
   >([]);
@@ -382,7 +383,16 @@ export default function ProductDetailClient({
 
             {sizes.length > 0 ? (
               <div className="mt-8">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">Size</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">Size</p>
+                  <button
+                    type="button"
+                    onClick={() => setShowSizeChart(true)}
+                    className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500 underline hover:text-black"
+                  >
+                    Size chart
+                  </button>
+                </div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {sizes.map((size) => (
                     <button
@@ -553,6 +563,33 @@ export default function ProductDetailClient({
         </div>
       </div>
 
+      {showSizeChart && (
+        <>
+          <div className="fixed inset-0 z-[80] bg-black/60" onClick={() => setShowSizeChart(false)} />
+          <div className="fixed inset-0 z-[81] flex items-center justify-center p-4">
+            <div className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto bg-white shadow-2xl">
+              <div className="sticky top-0 flex items-center justify-between border-b border-neutral-200 bg-white px-5 py-4">
+                <h2 className="text-sm font-black uppercase tracking-widest">Size Chart</h2>
+                <button
+                  type="button"
+                  onClick={() => setShowSizeChart(false)}
+                  className="text-neutral-500 hover:text-black"
+                  aria-label="Close size chart"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="flex flex-col gap-8 p-5 sm:flex-row sm:gap-6">
+                <SizeTable title="Men" rows={MEN_SIZES} />
+                <SizeTable title="Women" rows={WOMEN_SIZES} />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
       {showImagePreview ? (
         <button
           type="button"
@@ -572,6 +609,46 @@ export default function ProductDetailClient({
           />
         </button>
       ) : null}
+    </div>
+  );
+}
+
+const MEN_SIZES = [
+  ["38","5.5","6"],["39","6","6.5"],["40","6.5","7"],["40-41","7","7.5"],
+  ["41","7","8"],["41-42","7.5","8.5"],["42","8","9"],["42-43","8.5","9.5"],
+  ["43","9","10"],["43-44","10","10.5"],["44","10","11"],["44-45","10.5","11.5"],
+  ["45","11","12"],["46","12","13"],["47","12.5","14"],["48","13.5","15"],["49","14","16"],
+];
+
+const WOMEN_SIZES = [
+  ["35","2","4"],["35","2.5","4.5"],["35-36","3","5"],["36","3.5","5.5"],
+  ["36-37","4","6"],["37","4.5","6.5"],["37-38","5","7"],["38","5.5","7.5"],
+  ["38-39","6","8"],["39","6.5","8.5"],["39-40","7","9"],["40","7.5","9.5"],
+  ["40-41","8","10"],["41","8.5","10.5"],["41-42","9","11"],["42","9.5","11.5"],["42-43","10","12"],
+];
+
+function SizeTable({ title, rows }: { title: string; rows: string[][] }) {
+  return (
+    <div className="flex-1">
+      <p className="mb-2 text-xs font-black uppercase tracking-widest text-black">{title}</p>
+      <table className="w-full border-collapse text-xs">
+        <thead>
+          <tr className="border-b-2 border-black">
+            {["Euro Size", "UK/PAK Size", "US Size"].map((h) => (
+              <th key={h} className="py-2 px-2 text-left text-[10px] font-black uppercase tracking-wide">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, i) => (
+            <tr key={i} className="border-b border-neutral-100 even:bg-neutral-50">
+              {row.map((cell, j) => (
+                <td key={j} className="py-2 px-2 tabular-nums">{cell}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
