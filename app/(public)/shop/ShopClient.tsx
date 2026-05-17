@@ -202,8 +202,11 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
       .filter((p) => color === "All" || p.colors.includes(color))
       .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
       .sort((a, b) => {
-        if (sort === "priceLow") return a.price - b.price;
-        if (sort === "priceHigh") return b.price - a.price;
+        if (sort === "priceLow" || sort === "priceHigh") {
+          const fa = a.price * (1 - Number(a.discount || 0) / 100);
+          const fb = b.price * (1 - Number(b.discount || 0) / 100);
+          return sort === "priceLow" ? fa - fb : fb - fa;
+        }
         if (sort === "popular") return b.popularityScore - a.popularityScore;
         return +new Date(b.createdAt) - +new Date(a.createdAt);
       });
