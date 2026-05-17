@@ -17,7 +17,8 @@ function addToCart(
   selectedColor: string,
   selectedImage: string,
   selectedSize: string,
-  quantity: number
+  quantity: number,
+  effectivePrice: number
 ) {
   const availableStock = Math.max(0, Math.floor(Number(product.stockQuantity || 0)));
   if (availableStock <= 0) return 0;
@@ -48,7 +49,7 @@ function addToCart(
     existing.push({
       productId: product._id,
       name: product.name,
-      price: product.price,
+      price: effectivePrice,
       image: selectedImage,
       quantity: qty,
       color: selectedColor,
@@ -449,7 +450,7 @@ export default function ProductDetailClient({
                 onClick={() => {
                   if (isOutOfStock) return;
                   const qty = Math.max(1, Math.floor(lineQty || 1));
-                  const addedQty = addToCart(product, selectedColor || "Default", mainImage, selectedSize, qty);
+                  const addedQty = addToCart(product, selectedColor || "Default", mainImage, selectedSize, qty, finalPrice);
                   if (addedQty <= 0) {
                     toast.error("Stock limit reached", { description: `${availableStock} available` });
                     return;
@@ -472,7 +473,7 @@ export default function ProductDetailClient({
                   const line: CartItem = {
                     productId: product._id,
                     name: product.name,
-                    price: product.price,
+                    price: finalPrice,
                     image: mainImage,
                     quantity: qty,
                     color: selectedColor || "Default",
@@ -526,7 +527,7 @@ export default function ProductDetailClient({
             onClick={() => {
               if (isOutOfStock) return;
               const qty = Math.max(1, Math.floor(lineQty || 1));
-              const addedQty = addToCart(product, selectedColor || "Default", mainImage, selectedSize, qty);
+              const addedQty = addToCart(product, selectedColor || "Default", mainImage, selectedSize, qty, finalPrice);
               if (addedQty <= 0) {
                 toast.error("Stock limit reached", { description: `${availableStock} available` });
                 return;
@@ -547,7 +548,7 @@ export default function ProductDetailClient({
               setCartToSingleItem({
                 productId: product._id,
                 name: product.name,
-                price: product.price,
+                price: finalPrice,
                 image: mainImage,
                 quantity: qty,
                 color: selectedColor || "Default",

@@ -5,6 +5,9 @@ import PublicChrome from "@/components/PublicChrome";
 export const metadata: Metadata = {
   title: "Branded Thrift | Premium Shoes",
   description: "Shop the latest collection of premium branded shoes at Branded Thrift.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function PublicLayout({
