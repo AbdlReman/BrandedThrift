@@ -1,27 +1,12 @@
 import nodemailer from "nodemailer";
 
-/** Prefer SMTP_*; fall back to Gmail-style EMAIL_USER / EMAIL_PASS from .env.local */
-function smtpAuthUser() {
-  return process.env.SMTP_USER?.trim() || process.env.EMAIL_USER?.trim();
-}
-
-function smtpAuthPass() {
-  return process.env.SMTP_PASS?.trim() || process.env.EMAIL_PASS?.trim();
-}
-
-function smtpHost() {
-  const h = process.env.SMTP_HOST?.trim();
-  if (h) return h;
-  return smtpAuthUser() ? "smtp.gmail.com" : "";
-}
-
 const transporter = nodemailer.createTransport({
-  host: smtpHost() || "smtp.gmail.com",
-  port: Number(process.env.SMTP_PORT || 587),
-  secure: String(process.env.SMTP_SECURE || "false") === "true",
+  host: process.env.SMTP_HOST || "smtp.hostinger.com",
+  port: Number(process.env.SMTP_PORT || 465),
+  secure: process.env.SMTP_SECURE !== "false",
   auth: {
-    user: smtpAuthUser(),
-    pass: smtpAuthPass(),
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
 });
 
@@ -38,8 +23,7 @@ export async function sendOrderEmails({
   customerHtml: string;
   adminHtml: string;
 }) {
-  const from =
-    process.env.SMTP_FROM?.trim() || process.env.SMTP_USER?.trim() || process.env.EMAIL_USER?.trim() || "no-reply@example.com";
+  const from = process.env.SMTP_FROM || process.env.SMTP_USER || "no-reply@brandedthrift.store";
   await Promise.all([
     transporter.sendMail({
       from,
@@ -56,9 +40,9 @@ export async function sendOrderEmails({
   ]);
 }
 
-/** True when Nodemailer can authenticate (SMTP_* or EMAIL_USER + EMAIL_PASS). */
+/** True when Nodemailer can authenticate. */
 export function smtpCredentialsReady(): boolean {
-  return Boolean(smtpAuthUser() && smtpAuthPass());
+  return Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
 }
 
 /** Inbox for order notifications and default contact inbox. Set `RECIPIENT_EMAIL` in `.env.local`. */
@@ -77,8 +61,7 @@ export async function sendContactNotification(opts: {
   html: string;
   replyTo?: string;
 }) {
-  const from =
-    process.env.SMTP_FROM?.trim() || process.env.SMTP_USER?.trim() || process.env.EMAIL_USER?.trim() || "no-reply@example.com";
+  const from = process.env.SMTP_FROM || process.env.SMTP_USER || "no-reply@brandedthrift.store";
   await transporter.sendMail({
     from,
     to: opts.to,
