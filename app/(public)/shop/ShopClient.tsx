@@ -179,6 +179,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
   const [sort, setSort] = useState("latest");
   const [page, setPage] = useState(1);
   const [previewImage, setPreviewImage] = useState<{ src: string; alt: string } | null>(null);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [, startTransition] = useTransition();
 
   const setCategory = (next: string) => {
@@ -274,7 +275,97 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
       </header>
 
       <div className="mx-auto max-w-[90rem] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-        <div className="mb-8 border border-neutral-200 bg-white p-4">
+
+        {/* ── Mobile: compact filter button ── */}
+        <div className="mb-4 flex items-center gap-2 sm:hidden">
+          <button
+            type="button"
+            onClick={() => setMobileFiltersOpen(true)}
+            className="flex items-center gap-2 border border-neutral-300 bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-black"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <line x1="4" y1="6" x2="20" y2="6" />
+              <line x1="8" y1="12" x2="16" y2="12" />
+              <line x1="11" y1="18" x2="13" y2="18" />
+            </svg>
+            Filters
+            {activeFilters > 0 && (
+              <span className="flex h-4 w-4 items-center justify-center bg-black text-[10px] font-black text-white">
+                {activeFilters}
+              </span>
+            )}
+          </button>
+          {activeFilters > 0 && (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500 underline"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        {/* ── Mobile filter popup ── */}
+        {mobileFiltersOpen && (
+          <>
+            <div
+              className="fixed inset-0 z-40 bg-black/40 sm:hidden"
+              onClick={() => setMobileFiltersOpen(false)}
+            />
+            <div className="fixed bottom-0 left-0 right-0 z-50 bg-white px-4 pb-8 pt-4 shadow-2xl sm:hidden">
+              <div className="mb-4 flex items-center justify-between border-b border-neutral-100 pb-3">
+                <h2 className="text-sm font-black uppercase tracking-wide">Filters</h2>
+                <button
+                  type="button"
+                  onClick={() => setMobileFiltersOpen(false)}
+                  className="text-neutral-500"
+                  aria-label="Close filters"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+              <div className="flex flex-col gap-3">
+                <div>
+                  <label htmlFor="filter-search-mob" className={labelClass}>Search</label>
+                  <input
+                    id="filter-search-mob"
+                    value={search}
+                    onChange={(e) => setSearchFilter(e.target.value)}
+                    placeholder="Search"
+                    className={filterInputClass}
+                  />
+                </div>
+                <FilterDropdown id="filter-category-mob" label="Style" value={category} options={categories.map((v) => ({ value: v, label: v }))} onChange={setCategory} />
+                <FilterDropdown id="filter-brand-mob" label="Brand" value={brand} options={brands.map((v) => ({ value: v, label: v }))} onChange={setBrandFilter} />
+                <FilterDropdown id="filter-size-mob" label="Size" value={size} options={sizes.map((v) => ({ value: v, label: v }))} onChange={setSizeFilter} />
+                <FilterDropdown id="filter-color-mob" label="Color" value={color} options={colors.map((v) => ({ value: v, label: v }))} onChange={setColorFilter} />
+              </div>
+              <div className="mt-5 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => { resetFilters(); setMobileFiltersOpen(false); }}
+                  className="flex-1 border border-black px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-black"
+                >
+                  Clear all
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMobileFiltersOpen(false)}
+                  className="flex-1 bg-black px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-white"
+                >
+                  Show results
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ── Desktop: full inline filter bar ── */}
+        <div className="mb-8 hidden border border-neutral-200 bg-white p-4 sm:block">
           <div className="mb-3 flex items-center justify-between gap-3 border-b border-neutral-100 pb-2.5">
             <h2 className="text-sm font-black uppercase tracking-wide">Filters</h2>
             {activeFilters > 0 ? (
