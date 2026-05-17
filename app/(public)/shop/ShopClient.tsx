@@ -138,6 +138,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
   const router = useRouter();
   const requestedCategory = searchParams.get("category");
   const saleOnly = searchParams.get("sale") === "true";
+  const qParam = searchParams.get("q") || "";
 
   const categories = useMemo(() => {
     const rest = Array.from(new Set(products.flatMap((p) => categoriesOf(p)).filter(Boolean))).sort((a, b) =>
@@ -173,11 +174,13 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
   const [brand, setBrand] = useState("All");
   const [size, setSize] = useState("All");
   const [color, setColor] = useState("All");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(qParam);
   const [sort, setSort] = useState("latest");
   const [previewImage, setPreviewImage] = useState<{ src: string; alt: string } | null>(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [, startTransition] = useTransition();
+
+  useEffect(() => { setSearch(qParam); }, [qParam]);
 
   const setCategory = (next: string) => {
     const params = new URLSearchParams(searchParams.toString());

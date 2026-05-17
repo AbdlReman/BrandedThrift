@@ -1,8 +1,8 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 const PRIMARY_LINKS = [
   { href: "/", label: "Home" },
@@ -17,7 +17,11 @@ const PRIMARY_LINKS = [
 export default function Navbar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [cartCount, setCartCount] = useState(0);
   const activeCategory = searchParams.get("category") || "";
   const saleActive = searchParams.get("sale") === "true";
@@ -96,7 +100,11 @@ export default function Navbar() {
           {/* Icons */}
           <div className="flex items-center gap-5">
             {/* Search */}
-            <button aria-label="Search" className="hover:opacity-70 transition-opacity text-zinc-100">
+            <button
+              aria-label="Search"
+              className="hover:opacity-70 transition-opacity text-zinc-100"
+              onClick={() => { setSearchOpen(true); setTimeout(() => searchInputRef.current?.focus(), 50); }}
+            >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <circle cx="11" cy="11" r="8" />
                 <path d="m21 21-4.35-4.35" />
@@ -139,6 +147,48 @@ export default function Navbar() {
         </div>
       </div>
 
+
+      {/* Search overlay */}
+      {searchOpen && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/60" onClick={() => setSearchOpen(false)} />
+          <div className="fixed top-0 left-0 right-0 z-50 bg-zinc-950 px-4 py-4 shadow-2xl">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const q = searchQuery.trim();
+                setSearchOpen(false);
+                setSearchQuery("");
+                router.push(q ? `/shop?q=${encodeURIComponent(q)}` : "/shop");
+              }}
+              className="mx-auto flex max-w-2xl items-center gap-3"
+            >
+              <svg className="w-5 h-5 shrink-0 text-zinc-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search shoes..."
+                className="flex-1 bg-transparent text-white placeholder:text-zinc-500 text-sm outline-none py-2"
+              />
+              <button
+                type="button"
+                onClick={() => setSearchOpen(false)}
+                className="text-zinc-400 hover:text-white transition-colors"
+                aria-label="Close search"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </form>
+          </div>
+        </>
+      )}
 
       {/* Mobile menu */}
       {menuOpen && (
