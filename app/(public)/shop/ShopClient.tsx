@@ -248,14 +248,14 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
 
       <div className="mx-auto max-w-[90rem] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
 
-        {/* ── Mobile: compact filter button ── */}
-        <div className="mb-4 flex items-center gap-2 sm:hidden">
+        {/* ── Mobile: filter button + sort chips in one row ── */}
+        <div className="mb-4 flex items-center gap-2 overflow-x-auto sm:hidden no-scrollbar">
           <button
             type="button"
             onClick={() => setMobileFiltersOpen(true)}
-            className="flex items-center gap-2 border border-neutral-300 bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-black"
+            className="flex shrink-0 items-center gap-1.5 border border-neutral-300 bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-black"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <line x1="4" y1="6" x2="20" y2="6" />
               <line x1="8" y1="12" x2="16" y2="12" />
               <line x1="11" y1="18" x2="13" y2="18" />
@@ -267,15 +267,23 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
               </span>
             )}
           </button>
-          {activeFilters > 0 && (
+
+          <div className="h-5 w-px shrink-0 bg-neutral-200" />
+
+          {SORTS.map((s) => (
             <button
+              key={s.value}
               type="button"
-              onClick={resetFilters}
-              className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500 underline"
+              onClick={() => startTransition(() => setSortFilter(s.value))}
+              className={`shrink-0 border px-3 py-2 text-xs font-bold uppercase tracking-wide whitespace-nowrap transition-colors ${
+                sort === s.value
+                  ? "border-black bg-black text-white"
+                  : "border-neutral-300 bg-white text-black"
+              }`}
             >
-              Clear
+              {s.label}
             </button>
-          )}
+          ))}
         </div>
 
         {/* ── Mobile filter popup ── */}
