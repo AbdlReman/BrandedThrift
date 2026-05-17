@@ -75,7 +75,7 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/shop?category=Women"
-                className="btn-outline border-white bg-white/10 !text-white shadow-white/10 hover:bg-white/20 !hover:text-white transition duration-200"
+                className="btn-outline border-white bg-white/10 !text-white shadow-white/10 hover:bg-white hover:!text-black transition duration-200"
               >
                 WOMEN&apos;S LIFESTYLE SHOES
               </Link>
