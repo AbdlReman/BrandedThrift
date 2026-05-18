@@ -37,7 +37,7 @@ export async function GET() {
   }
 }
 
-const VALID_PAYMENT_METHODS = ["easypaisa", "sadapay", "meezan"] as const;
+const VALID_PAYMENT_METHODS = ["easypaisa", "jazzcash", "mcbislamic"] as const;
 
 export async function POST(req: NextRequest) {
   try {
