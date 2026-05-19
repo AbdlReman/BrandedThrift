@@ -1,4 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "About Us | Authentic Branded Shoes in Pakistan",
+  description:
+    "Branded Thrift — Pakistan's trusted store for 100% original preloved branded shoes. We source authentic Nike, Adidas, Puma & more for buyers in Rawalpindi, Islamabad & across Pakistan.",
+  alternates: { canonical: "https://www.brandedthrift.store/about" },
+  openGraph: {
+    title: "About Branded Thrift | Authentic Branded Shoes in Pakistan",
+    description:
+      "Learn about Branded Thrift — Pakistan's trusted source for authentic preloved branded shoes in Rawalpindi, Islamabad & nationwide.",
+    url: "https://www.brandedthrift.store/about",
+  },
+};
 
 const team = [
   { name: "Jordan Lee",    role: "Founder & CEO",         emoji: "👤" },

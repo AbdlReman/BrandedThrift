@@ -1,9 +1,36 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { formatPkr } from "@/lib/formatCurrency";
 import { connectDB } from "@/lib/mongodb";
 import { serializeProductFromLean } from "@/lib/serializeProduct";
 import Product from "@/models/Product";
 import type { IProduct } from "@/types/product";
+
+export const metadata: Metadata = {
+  title: "Buy Branded Shoes in Pakistan | Rawalpindi & Islamabad | Branded Thrift",
+  description:
+    "Branded Thrift — shop 100% original preloved Nike, Adidas, Puma & more in Rawalpindi, Islamabad & all over Pakistan. Authentic branded shoes at affordable prices. Free delivery.",
+  keywords: [
+    "branded shoes in Rawalpindi",
+    "branded shoes in Islamabad",
+    "branded shoes Pakistan",
+    "buy branded shoes online",
+    "preloved Nike Pakistan",
+    "preloved Adidas Pakistan",
+    "thrifted branded shoes",
+    "original branded shoes",
+    "cheap branded shoes",
+    "shoes online Pakistan",
+  ],
+  alternates: { canonical: "https://www.brandedthrift.store" },
+  openGraph: {
+    title: "Buy Branded Shoes in Pakistan | Rawalpindi & Islamabad | Branded Thrift",
+    description:
+      "100% original preloved Nike, Adidas, Puma & more in Rawalpindi, Islamabad & all over Pakistan. Free delivery.",
+    url: "https://www.brandedthrift.store",
+    images: [{ url: "/images/hero.jpeg", width: 1200, height: 630, alt: "Branded Thrift — Original Branded Shoes" }],
+  },
+};
 
 const categories = [
   { name: "Running", desc: "Performance-built for every mile", bg: "bg-black", text: "text-white" },

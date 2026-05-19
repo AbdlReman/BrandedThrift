@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { connectDB } from "@/lib/mongodb";
@@ -7,6 +8,62 @@ import type { IProduct } from "@/types/product";
 import ProductDetailClient from "./ProductDetailClient";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  await connectDB();
+  const raw = await Product.findOne({ slug, isActive: true }).lean();
+  if (!raw) return {};
+
+  const product = serializeProductFromLean(raw as Record<string, unknown>);
+  const hasDiscount = Number(product.discount || 0) > 0;
+  const finalPrice = hasDiscount
+    ? Math.round(product.price * (1 - product.discount / 100))
+    : product.price;
+
+  const title = product.metaTitle?.trim()
+    ? product.metaTitle.trim()
+    : `${product.name} | ${product.brand} Shoes in Pakistan | Branded Thrift`;
+
+  const description = product.metaDescription?.trim()
+    ? product.metaDescription.trim()
+    : `Buy authentic ${product.brand} ${product.name} in Pakistan for Rs ${finalPrice.toLocaleString()}. 100% original${hasDiscount ? `, ${Math.round(product.discount)}% off` : ""}. Free delivery to Rawalpindi, Islamabad & all over Pakistan.`;
+  const image = product.images?.[0] || "/images/hero.jpeg";
+  const url = `https://www.brandedthrift.store/shop/${slug}`;
+
+  return {
+    title,
+    description,
+    keywords: [
+      `${product.brand} shoes Pakistan`,
+      `${product.name} Pakistan`,
+      `${product.brand} ${product.name}`,
+      `buy ${product.brand} Pakistan`,
+      `original ${product.brand} shoes`,
+      "branded shoes Pakistan",
+      "branded shoes Rawalpindi",
+      "branded shoes Islamabad",
+    ],
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "website",
+      images: [{ url: image, width: 800, height: 800, alt: product.name }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+  };
+}
 
 export default async function ProductDetailPage({
   params,
