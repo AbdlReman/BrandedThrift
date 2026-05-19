@@ -40,6 +40,11 @@ export default function ProductCard({
         className="relative block overflow-hidden bg-neutral-100 outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
       >
         <div className="relative aspect-[1/1.15]">
+          {!product.inStock || Number(product.stockQuantity) <= 0 ? (
+            <span className="absolute left-2 top-2 z-10 bg-black px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+              Out of stock
+            </span>
+          ) : null}
           {hasDiscount ? (
             <span
               className="absolute right-2 top-2 z-10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white"
