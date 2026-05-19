@@ -98,7 +98,7 @@ export default function ContactPage() {
                       </svg>
                     ),
                     label: "Email",
-                    value: "hello@brandedthrift.com",
+                    value: "support@brandedthrift.store",
                   },
                 ].map(({ icon, label, value, href }) => (
                   <div key={label} className="flex gap-4">

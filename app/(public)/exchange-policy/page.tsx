@@ -63,7 +63,7 @@ const sections: PolicySection[] = [
   {
     title: "7. Contact Us",
     paragraphs: [
-      "For exchange-related inquiries, contact us at hello@brandedthrift.com or WhatsApp +92 314 0151948.",
+      "For exchange-related inquiries, contact us at support@brandedthrift.store or WhatsApp +92 314 0151948.",
     ],
   },
 ];
