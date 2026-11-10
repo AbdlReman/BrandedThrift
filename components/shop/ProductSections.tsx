@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { IProduct } from "@/types/product";
+import type { RecentViewEntry } from "@/lib/recentlyViewed";
 import ProductCard from "./ProductCard";
 
 export function RelatedProductsSection({
@@ -38,16 +39,7 @@ export function RelatedProductsSection({
 export function RecentlyViewedSection({
   entries,
 }: {
-  entries: {
-    slug: string;
-    name: string;
-    image: string;
-    brand: string;
-    price: number;
-    discount: number;
-    inStock: boolean;
-    stockQuantity: number;
-  }[];
+  entries: RecentViewEntry[];
 }) {
   if (!entries.length) return null;
 

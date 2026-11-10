@@ -9,7 +9,12 @@ import ProductRatingSummary from "@/components/shop/ProductRatingSummary";
 import { RelatedProductsSection, RecentlyViewedSection } from "@/components/shop/ProductSections";
 import type { CartItem, IProduct } from "@/types/product";
 import { formatPkr } from "@/lib/formatCurrency";
-import { pushRecentlyViewed, readRecentlyViewed, writeRecentlyViewed } from "@/lib/recentlyViewed";
+import {
+  pushRecentlyViewed,
+  readRecentlyViewed,
+  writeRecentlyViewed,
+  type RecentViewEntry,
+} from "@/lib/recentlyViewed";
 import ProductReviewsPanel from "./ProductReviewsPanel";
 
 function addToCart(
@@ -134,18 +139,7 @@ export default function ProductDetailClient({
   const [selectedImage, setSelectedImage] = useState(colorImages[0] || allImages[0] || "");
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [showSizeChart, setShowSizeChart] = useState(false);
-  const [recentEntries, setRecentEntries] = useState<
-    {
-      slug: string;
-      name: string;
-      image: string;
-      brand: string;
-      price: number;
-      discount: number;
-      inStock: boolean;
-      stockQuantity: number;
-    }[]
-  >([]);
+  const [recentEntries, setRecentEntries] = useState<RecentViewEntry[]>([]);
 
   const mainImage = selectedImage || colorImages[0] || allImages[0] || "";
   const imageIndex = Math.max(0, thumbImages.indexOf(mainImage));
@@ -222,6 +216,7 @@ export default function ProductDetailClient({
               discount: Number(live.discount ?? e.discount) || 0,
               inStock: Boolean(live.inStock) && stockQuantity > 0,
               stockQuantity,
+              viewedAt: e.viewedAt,
             };
           });
         const nextRecentEntries = nextStoredEntries.filter((e) => e.slug !== product.slug);
