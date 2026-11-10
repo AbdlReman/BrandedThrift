@@ -135,7 +135,16 @@ export default function ProductDetailClient({
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [showSizeChart, setShowSizeChart] = useState(false);
   const [recentEntries, setRecentEntries] = useState<
-    { slug: string; name: string; image: string; brand: string; price: number; discount: number }[]
+    {
+      slug: string;
+      name: string;
+      image: string;
+      brand: string;
+      price: number;
+      discount: number;
+      inStock: boolean;
+      stockQuantity: number;
+    }[]
   >([]);
 
   const mainImage = selectedImage || colorImages[0] || allImages[0] || "";
@@ -159,6 +168,8 @@ export default function ProductDetailClient({
         brand: product.brand,
         price: product.price,
         discount: product.discount,
+        inStock: Boolean(product.inStock) && Number(product.stockQuantity) > 0,
+        stockQuantity: Number(product.stockQuantity) || 0,
       },
       product.slug
     );
@@ -175,9 +186,44 @@ export default function ProductDetailClient({
         const params = new URLSearchParams({ slugs: entries.map((e) => e.slug).join(",") });
         const res = await fetch(`/api/products?${params.toString()}`, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to validate recently viewed products");
-        const data = (await res.json()) as { products?: { slug?: string }[] };
-        const activeSlugs = new Set((data.products || []).map((p) => String(p.slug || "")).filter(Boolean));
-        const nextStoredEntries = storedEntries.filter((e) => e.slug === product.slug || activeSlugs.has(e.slug));
+        const data = (await res.json()) as {
+          products?: {
+            slug?: string;
+            name?: string;
+            brand?: string;
+            price?: number;
+            discount?: number;
+            inStock?: boolean;
+            stockQuantity?: number;
+            images?: string[];
+            colorVariants?: { images?: string[] }[];
+          }[];
+        };
+        const bySlug = new Map(
+          (data.products || [])
+            .filter((p) => p?.slug)
+            .map((p) => [String(p.slug), p] as const)
+        );
+        const nextStoredEntries = storedEntries
+          .filter((e) => e.slug === product.slug || bySlug.has(e.slug))
+          .map((e) => {
+            if (e.slug === product.slug) return e;
+            const live = bySlug.get(e.slug);
+            if (!live) return e;
+            const stockQuantity = Number(live.stockQuantity) || 0;
+            const image =
+              live.colorVariants?.[0]?.images?.[0] || live.images?.[0] || e.image;
+            return {
+              slug: e.slug,
+              name: String(live.name || e.name),
+              image,
+              brand: String(live.brand || e.brand),
+              price: Number(live.price ?? e.price) || 0,
+              discount: Number(live.discount ?? e.discount) || 0,
+              inStock: Boolean(live.inStock) && stockQuantity > 0,
+              stockQuantity,
+            };
+          });
         const nextRecentEntries = nextStoredEntries.filter((e) => e.slug !== product.slug);
 
         writeRecentlyViewed(nextStoredEntries);
@@ -192,7 +238,18 @@ export default function ProductDetailClient({
     return () => {
       cancelled = true;
     };
-  }, [product._id, product.slug, product.name, product.brand, product.price, product.discount, product.images, variants]);
+  }, [
+    product._id,
+    product.slug,
+    product.name,
+    product.brand,
+    product.price,
+    product.discount,
+    product.images,
+    product.inStock,
+    product.stockQuantity,
+    variants,
+  ]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

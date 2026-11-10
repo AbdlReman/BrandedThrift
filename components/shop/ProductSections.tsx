@@ -45,6 +45,8 @@ export function RecentlyViewedSection({
     brand: string;
     price: number;
     discount: number;
+    inStock: boolean;
+    stockQuantity: number;
   }[];
 }) {
   if (!entries.length) return null;
@@ -56,6 +58,8 @@ export function RecentlyViewedSection({
       </h2>
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {entries.map((e) => {
+          const stockQuantity = Number(e.stockQuantity) || 0;
+          const inStock = Boolean(e.inStock) && stockQuantity > 0;
           const productLike = {
             _id: `recent-${e.slug}`,
             name: e.name,
@@ -67,10 +71,10 @@ export function RecentlyViewedSection({
             sizes: [],
             colors: [],
             colorVariants: [{ color: "Classic", images: e.image ? [e.image] : [] }],
-            stockQuantity: 0,
+            stockQuantity,
             images: e.image ? [e.image] : [],
             discount: e.discount,
-            inStock: true,
+            inStock,
             isActive: true,
             isFeatured: false,
             status: "Published" as const,
