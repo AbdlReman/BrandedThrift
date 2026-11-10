@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { Toaster } from "sonner";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 
 const Navbar = dynamic(() => import("@/components/Navbar"), {
   ssr: false,
@@ -25,6 +26,7 @@ export default function PublicChrome({ children }: { children: React.ReactNode }
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
+      <WhatsAppFloat />
     </>
   );
 }
