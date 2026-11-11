@@ -7,7 +7,7 @@ import type { CartItem } from "@/types/product";
 import { discountFromPercent } from "@/lib/couponValidation";
 import { formatPkr } from "@/lib/formatCurrency";
 
-type PaymentMethod = "easypaisa" | "jazzcash" | "mcbislamic" | "";
+type PaymentMethod = "easypaisa" | "jazzcash" | "mcbislamic" | "cod" | "";
 
 async function validateCouponCode(code: string) {
   const res = await fetch("/api/coupons/validate", {
@@ -135,12 +135,15 @@ export default function CheckoutPage() {
       return;
     }
     if (!paymentMethod) {
-      toast.error("Payment method required", { description: "Choose EasyPaisa, JazzCash, or MCB Islamic Bank." });
+      toast.error("Payment method required", {
+        description: "Choose EasyPaisa, JazzCash, MCB Islamic Bank, or Cash on Delivery.",
+      });
       return;
     }
-    const trx = paymentTransactionId.trim();
-    const shot = paymentScreenshotUrl.trim();
-    if (!trx && !shot) {
+    const isCod = paymentMethod === "cod";
+    const trx = isCod ? "" : paymentTransactionId.trim();
+    const shot = isCod ? "" : paymentScreenshotUrl.trim();
+    if (!isCod && !trx && !shot) {
       toast.error("Payment proof required", {
         description: "Enter your Transaction ID / TRX ID or upload a payment screenshot (at least one).",
       });
@@ -376,6 +379,7 @@ export default function CheckoutPage() {
                   { value: "easypaisa" as const, label: "EasyPaisa" },
                   { value: "jazzcash" as const, label: "JazzCash" },
                   { value: "mcbislamic" as const, label: "MCB Islamic Bank" },
+                  { value: "cod" as const, label: "Cash on Delivery" },
                 ] as const
               ).map((opt) => (
                 <label
@@ -452,36 +456,50 @@ export default function CheckoutPage() {
               </div>
             ) : null}
 
-            <div>
-              <label className={labelClass}>Transaction ID / TRX ID</label>
-              <input
-                placeholder="Enter your transaction ID"
-                value={paymentTransactionId}
-                onChange={(e) => setPaymentTransactionId(e.target.value)}
-                className={inputClass}
-                autoComplete="off"
-              />
-            </div>
+            {paymentMethod === "cod" ? (
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
+                <p className="font-bold mb-1">Cash on Delivery</p>
+                <p>
+                  Pay <strong>{formatPkr(totalAmount)}</strong> in cash when your order is delivered. No advance
+                  transfer or screenshot needed.
+                </p>
+              </div>
+            ) : null}
 
-            <div>
-              <label className={labelClass}>Payment screenshot</label>
-              <input
-                type="file"
-                accept="image/*"
-                disabled={uploadingShot}
-                onChange={(e) => void onScreenshotChange(e)}
-                className="text-sm w-full"
-              />
-              {uploadingShot ? <p className="text-xs text-gray-500 mt-1">Uploading…</p> : null}
-              {paymentScreenshotUrl ? (
-                <p className="text-xs text-green-700 mt-2">Screenshot attached — ready to submit.</p>
-              ) : null}
-            </div>
+            {paymentMethod && paymentMethod !== "cod" ? (
+              <>
+                <div>
+                  <label className={labelClass}>Transaction ID / TRX ID</label>
+                  <input
+                    placeholder="Enter your transaction ID"
+                    value={paymentTransactionId}
+                    onChange={(e) => setPaymentTransactionId(e.target.value)}
+                    className={inputClass}
+                    autoComplete="off"
+                  />
+                </div>
 
-            <p className="text-xs text-gray-600 bg-amber-50 border border-amber-200 rounded px-3 py-2">
-              <strong>Note:</strong> Please provide either your Transaction ID <strong>or</strong> a payment screenshot (at
-              least one is required).
-            </p>
+                <div>
+                  <label className={labelClass}>Payment screenshot</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={uploadingShot}
+                    onChange={(e) => void onScreenshotChange(e)}
+                    className="text-sm w-full"
+                  />
+                  {uploadingShot ? <p className="text-xs text-gray-500 mt-1">Uploading…</p> : null}
+                  {paymentScreenshotUrl ? (
+                    <p className="text-xs text-green-700 mt-2">Screenshot attached — ready to submit.</p>
+                  ) : null}
+                </div>
+
+                <p className="text-xs text-gray-600 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+                  <strong>Note:</strong> Please provide either your Transaction ID <strong>or</strong> a payment
+                  screenshot (at least one is required).
+                </p>
+              </>
+            ) : null}
 
             <button disabled={loading} className="w-full bg-black text-white px-5 py-2.5 text-sm font-bold uppercase">
               {loading ? "Placing..." : "Place Order"}

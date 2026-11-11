@@ -30,7 +30,7 @@ const OrderSchema = new Schema(
     couponCode: { type: String, default: "" },
     paymentMethod: {
       type: String,
-      enum: ["", "easypaisa", "jazzcash", "mcbislamic"],
+      enum: ["", "easypaisa", "jazzcash", "mcbislamic", "cod"],
       default: "",
     },
     paymentTransactionId: { type: String, default: "", trim: true },

@@ -13,7 +13,7 @@ export interface CustomerInfo {
   notes?: string;
 }
 
-export type PaymentMethodCode = "" | "easypaisa" | "sadapay" | "meezan";
+export type PaymentMethodCode = "" | "easypaisa" | "jazzcash" | "mcbislamic" | "cod" | "sadapay" | "meezan";
 
 export interface IOrder {
   _id: string;

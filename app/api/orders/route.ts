@@ -37,7 +37,7 @@ export async function GET() {
   }
 }
 
-const VALID_PAYMENT_METHODS = ["easypaisa", "jazzcash", "mcbislamic"] as const;
+const VALID_PAYMENT_METHODS = ["easypaisa", "jazzcash", "mcbislamic", "cod"] as const;
 
 export async function POST(req: NextRequest) {
   try {
@@ -69,7 +69,8 @@ export async function POST(req: NextRequest) {
     if (!VALID_PAYMENT_METHODS.includes(paymentMethod as (typeof VALID_PAYMENT_METHODS)[number])) {
       return NextResponse.json({ error: "Select a payment method." }, { status: 400 });
     }
-    if (!paymentTransactionId && !paymentScreenshotUrl) {
+    const isCod = paymentMethod === "cod";
+    if (!isCod && !paymentTransactionId && !paymentScreenshotUrl) {
       return NextResponse.json(
         {
           error:

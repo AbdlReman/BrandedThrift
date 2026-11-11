@@ -3,6 +3,12 @@ export function paymentMethodLabel(code: string): string {
   switch ((code || "").toLowerCase()) {
     case "easypaisa":
       return "EasyPaisa";
+    case "jazzcash":
+      return "JazzCash";
+    case "mcbislamic":
+      return "MCB Islamic Bank";
+    case "cod":
+      return "Cash on Delivery";
     case "sadapay":
       return "Sada Pay";
     case "meezan":
