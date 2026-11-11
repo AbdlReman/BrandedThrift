@@ -376,10 +376,10 @@ export default function CheckoutPage() {
               <legend className="sr-only">Choose how you paid</legend>
               {(
                 [
+                  { value: "cod" as const, label: "Cash on Delivery" },
                   { value: "easypaisa" as const, label: "EasyPaisa" },
                   { value: "jazzcash" as const, label: "JazzCash" },
                   { value: "mcbislamic" as const, label: "MCB Islamic Bank" },
-                  { value: "cod" as const, label: "Cash on Delivery" },
                 ] as const
               ).map((opt) => (
                 <label
@@ -460,8 +460,7 @@ export default function CheckoutPage() {
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
                 <p className="font-bold mb-1">Cash on Delivery</p>
                 <p>
-                  Pay <strong>{formatPkr(totalAmount)}</strong> in cash when your order is delivered. No advance
-                  transfer or screenshot needed.
+                  Pay <strong>{formatPkr(totalAmount)}</strong> in cash when your order is delivered.
                 </p>
               </div>
             ) : null}
