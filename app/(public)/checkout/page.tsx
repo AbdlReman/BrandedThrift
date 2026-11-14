@@ -54,6 +54,7 @@ export default function CheckoutPage() {
   const [paymentTransactionId, setPaymentTransactionId] = useState("");
   const [paymentScreenshotUrl, setPaymentScreenshotUrl] = useState("");
   const [uploadingShot, setUploadingShot] = useState(false);
+  const [confirmedOrderNumber, setConfirmedOrderNumber] = useState<string | null>(null);
 
   const applyCoupon = useCallback(async (code: string) => {
     const raw = code.trim().toUpperCase();
@@ -183,12 +184,12 @@ export default function CheckoutPage() {
     }
     localStorage.removeItem("cart_items");
     window.dispatchEvent(new Event("cart_updated"));
-    const orderNo = data.order?.orderNumber ?? "confirmed";
-    toast.success("Order placed", {
-      description: `Order ${orderNo}. Thank you for your purchase.`,
-      duration: 3000,
+    const orderNo = String(data.order?.orderNumber ?? "confirmed");
+    setConfirmedOrderNumber(orderNo);
+    toast.success("Order confirmed", {
+      description: "Check your email for order details.",
+      duration: 8000,
     });
-    router.push("/shop");
   };
 
   const labelClass = "block text-xs font-bold uppercase text-gray-600 mb-1";
@@ -506,6 +507,36 @@ export default function CheckoutPage() {
           </div>
         </div>
       </form>
+
+      {confirmedOrderNumber ? (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/55 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="order-confirm-title"
+        >
+          <div className="w-full max-w-md border border-gray-200 bg-white p-6 shadow-xl">
+            <p className="text-xs font-bold uppercase tracking-widest text-green-700">Success</p>
+            <h2 id="order-confirm-title" className="mt-2 text-2xl font-black uppercase tracking-tight text-black">
+              Order confirmed
+            </h2>
+            <p className="mt-3 text-sm text-gray-700 leading-relaxed">
+              Your order <span className="font-bold text-black">{confirmedOrderNumber}</span> has been placed
+              successfully. Please check your email for the confirmation and order details.
+            </p>
+            <p className="mt-2 text-sm text-gray-600">
+              Agar email na dikhe to spam / promotions folder bhi check karein.
+            </p>
+            <button
+              type="button"
+              onClick={() => router.push("/shop")}
+              className="mt-6 w-full bg-black px-5 py-2.5 text-sm font-bold uppercase text-white hover:bg-gray-900"
+            >
+              Continue shopping
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
