@@ -16,12 +16,12 @@ const SORTS = [
 
 
 const filterInputClass =
-  "w-full border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-black outline-none " +
-  "placeholder:text-neutral-400 focus:border-neutral-500";
+  "w-full border border-neutral-300 bg-white px-3.5 py-2.5 text-sm font-medium text-black outline-none " +
+  "placeholder:text-neutral-400 transition-colors focus:border-black";
 
-const labelClass = "mb-1 block text-[10px] font-semibold uppercase tracking-wide text-neutral-500";
+const labelClass = "mb-1.5 block text-[10px] font-bold uppercase tracking-[0.14em] text-neutral-500";
 const dropdownButtonClass =
-  "flex w-full items-center justify-between gap-2 border border-neutral-200 bg-white px-3 py-2 text-left text-xs font-medium text-black outline-none transition-colors hover:border-neutral-400 focus:border-black";
+  "flex w-full items-center justify-between gap-2 border bg-white px-3.5 py-2.5 text-left text-sm font-medium text-black outline-none transition-colors hover:border-neutral-500";
 
 function categoriesOf(product: IProduct): string[] {
   if (Array.isArray(product.categories) && product.categories.length > 0) {
@@ -65,8 +65,16 @@ function FilterDropdown({
       }
     };
 
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
     window.addEventListener("pointerdown", onPointerDown);
-    return () => window.removeEventListener("pointerdown", onPointerDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   return (
@@ -80,15 +88,16 @@ function FilterDropdown({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-labelledby={`${id}-label ${id}`}
-        className={dropdownButtonClass}
+        className={`${dropdownButtonClass} ${
+          open ? "border-black ring-1 ring-black" : "border-neutral-300"
+        }`}
         onClick={() => setOpen((current) => !current)}
-        onKeyDown={(event) => {
-          if (event.key === "Escape") setOpen(false);
-        }}
       >
         <span className="truncate">{selected?.label || "Select"}</span>
         <svg
-          className={`h-3.5 w-3.5 flex-shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`h-3.5 w-3.5 flex-shrink-0 text-neutral-500 transition-transform duration-200 ${
+            open ? "rotate-180 text-black" : ""
+          }`}
           fill="none"
           stroke="currentColor"
           strokeWidth={2}
@@ -103,7 +112,7 @@ function FilterDropdown({
         <div
           role="listbox"
           aria-labelledby={`${id}-label`}
-          className="absolute left-0 right-0 top-full z-40 mt-1 max-h-64 overflow-y-auto border border-neutral-300 bg-white py-1 shadow-xl"
+          className="absolute left-0 right-0 top-full z-50 mt-1.5 max-h-52 overflow-y-auto border border-black bg-white py-1 shadow-[0_12px_40px_rgba(0,0,0,0.18)]"
         >
           {options.map((option) => {
             const active = option.value === value;
@@ -113,8 +122,10 @@ function FilterDropdown({
                 type="button"
                 role="option"
                 aria-selected={active}
-                className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-xs font-semibold transition-colors ${
-                  active ? "bg-black text-white" : "text-neutral-800 hover:bg-neutral-100"
+                className={`flex w-full items-center justify-between gap-3 px-3.5 py-2.5 text-left text-sm transition-colors ${
+                  active
+                    ? "bg-black font-semibold text-white"
+                    : "font-medium text-neutral-800 hover:bg-neutral-100"
                 }`}
                 onClick={() => {
                   onChange(option.value);
@@ -122,7 +133,11 @@ function FilterDropdown({
                 }}
               >
                 <span className="truncate">{option.label}</span>
-                {active ? <span className="text-[10px]">Selected</span> : null}
+                {active ? (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                ) : null}
               </button>
             );
           })}
@@ -284,62 +299,80 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
           />
         </div>
 
-        {/* ── Mobile filter popup ── */}
+        {/* ── Mobile filter popup (centered) ── */}
         {mobileFiltersOpen && (
-          <>
-            <div
-              className="fixed inset-0 z-[70] bg-black/40 sm:hidden"
+          <div
+            className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mobile-filters-title"
+          >
+            <button
+              type="button"
+              className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
               onClick={() => setMobileFiltersOpen(false)}
+              aria-label="Close filters"
             />
-            <div className="fixed top-0 left-0 right-0 z-[80] bg-white px-4 pb-6 pt-[max(1rem,env(safe-area-inset-top))] shadow-2xl sm:hidden">
-              <div className="mb-4 flex items-center justify-between border-b border-neutral-100 pb-3">
-                <h2 className="text-sm font-black uppercase tracking-wide">Filters</h2>
+            <div className="relative z-10 w-full max-w-sm border border-neutral-200 bg-white shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
+              <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-4">
+                <div>
+                  <h2 id="mobile-filters-title" className="text-sm font-black uppercase tracking-[0.16em]">
+                    Filters
+                  </h2>
+                  <p className="mt-0.5 text-[11px] text-neutral-500">
+                    {filtered.length} result{filtered.length === 1 ? "" : "s"}
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(false)}
-                  className="text-neutral-500"
+                  className="flex h-8 w-8 items-center justify-center border border-neutral-200 text-neutral-600 transition-colors hover:border-black hover:text-black"
                   aria-label="Close filters"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
                     <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
                 </button>
               </div>
-              <div className="flex flex-col gap-3">
+
+              <div className="flex flex-col gap-4 px-5 py-5">
                 <div>
                   <label htmlFor="filter-search-mob" className={labelClass}>Search</label>
                   <input
                     id="filter-search-mob"
                     value={search}
                     onChange={(e) => setSearchFilter(e.target.value)}
-                    placeholder="Search"
+                    placeholder="Search products…"
                     className={filterInputClass}
                   />
                 </div>
-                <FilterDropdown id="filter-category-mob" label="Style" value={category} options={categories.map((v) => ({ value: v, label: v }))} onChange={setCategory} />
-                <FilterDropdown id="filter-brand-mob" label="Brand" value={brand} options={brands.map((v) => ({ value: v, label: v }))} onChange={setBrandFilter} />
-                <FilterDropdown id="filter-size-mob" label="Size" value={size} options={sizes.map((v) => ({ value: v, label: v }))} onChange={setSizeFilter} />
-                <FilterDropdown id="filter-color-mob" label="Color" value={color} options={colors.map((v) => ({ value: v, label: v }))} onChange={setColorFilter} />
+                <div className="grid grid-cols-2 gap-3">
+                  <FilterDropdown id="filter-category-mob" label="Style" value={category} options={categories.map((v) => ({ value: v, label: v }))} onChange={setCategory} />
+                  <FilterDropdown id="filter-brand-mob" label="Brand" value={brand} options={brands.map((v) => ({ value: v, label: v }))} onChange={setBrandFilter} />
+                  <FilterDropdown id="filter-size-mob" label="Size" value={size} options={sizes.map((v) => ({ value: v, label: v }))} onChange={setSizeFilter} />
+                  <FilterDropdown id="filter-color-mob" label="Color" value={color} options={colors.map((v) => ({ value: v, label: v }))} onChange={setColorFilter} />
+                </div>
               </div>
-              <div className="mt-5 flex gap-2">
+
+              <div className="flex gap-2 border-t border-neutral-200 bg-neutral-50 px-5 py-4">
                 <button
                   type="button"
                   onClick={() => { resetFilters(); setMobileFiltersOpen(false); }}
-                  className="flex-1 border border-black px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-black"
+                  className="flex-1 border border-neutral-300 bg-white px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-black transition-colors hover:border-black"
                 >
                   Clear all
                 </button>
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(false)}
-                  className="flex-1 bg-black px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-white"
+                  className="flex-[1.4] bg-black px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-white transition-colors hover:bg-neutral-900"
                 >
                   Show results
                 </button>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {/* ── Desktop: full inline filter bar ── */}
