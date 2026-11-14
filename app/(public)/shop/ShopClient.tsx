@@ -288,10 +288,10 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
         {mobileFiltersOpen && (
           <>
             <div
-              className="fixed inset-0 z-40 bg-black/40 sm:hidden"
+              className="fixed inset-0 z-[70] bg-black/40 sm:hidden"
               onClick={() => setMobileFiltersOpen(false)}
             />
-            <div className="fixed bottom-0 left-0 right-0 z-50 bg-white px-4 pb-8 pt-4 shadow-2xl sm:hidden">
+            <div className="fixed top-0 left-0 right-0 z-[80] bg-white px-4 pb-6 pt-[max(1rem,env(safe-area-inset-top))] shadow-2xl sm:hidden">
               <div className="mb-4 flex items-center justify-between border-b border-neutral-100 pb-3">
                 <h2 className="text-sm font-black uppercase tracking-wide">Filters</h2>
                 <button
