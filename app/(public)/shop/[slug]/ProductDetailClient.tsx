@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type TouchEvent } from "react";
 import { toast } from "sonner";
 import Breadcrumbs from "@/components/shop/Breadcrumbs";
 import ProductRatingSummary from "@/components/shop/ProductRatingSummary";
@@ -138,6 +138,9 @@ export default function ProductDetailClient({
 
   const [selectedImage, setSelectedImage] = useState(colorImages[0] || allImages[0] || "");
   const [showImagePreview, setShowImagePreview] = useState(false);
+  const swipeStartX = useRef<number | null>(null);
+  const swipeStartY = useRef<number | null>(null);
+  const didSwipeGallery = useRef(false);
   const [showSizeChart, setShowSizeChart] = useState(false);
   const [recentEntries, setRecentEntries] = useState<RecentViewEntry[]>([]);
 
@@ -246,23 +249,41 @@ export default function ProductDetailClient({
     variants,
   ]);
 
+  const goToAdjacentImage = (direction: -1 | 1) => {
+    if (thumbImages.length <= 1) return;
+    setSelectedImage((cur) => {
+      const i = thumbImages.indexOf(cur);
+      const from = i < 0 ? 0 : i;
+      const next = (from + direction + thumbImages.length) % thumbImages.length;
+      return thumbImages[next] || cur;
+    });
+  };
+
+  const onGalleryTouchStart = (e: TouchEvent) => {
+    if (thumbImages.length <= 1) return;
+    swipeStartX.current = e.touches[0]?.clientX ?? null;
+    swipeStartY.current = e.touches[0]?.clientY ?? null;
+    didSwipeGallery.current = false;
+  };
+
+  const onGalleryTouchEnd = (e: TouchEvent) => {
+    if (swipeStartX.current == null || swipeStartY.current == null) return;
+    const endX = e.changedTouches[0]?.clientX ?? swipeStartX.current;
+    const endY = e.changedTouches[0]?.clientY ?? swipeStartY.current;
+    const dx = endX - swipeStartX.current;
+    const dy = endY - swipeStartY.current;
+    swipeStartX.current = null;
+    swipeStartY.current = null;
+    if (Math.abs(dx) < 40 || Math.abs(dx) <= Math.abs(dy)) return;
+    didSwipeGallery.current = true;
+    goToAdjacentImage(dx < 0 ? 1 : -1);
+  };
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (showImagePreview) return;
-      if (e.key === "ArrowLeft") {
-        setSelectedImage((cur) => {
-          const i = thumbImages.indexOf(cur);
-          const next = i <= 0 ? thumbImages.length - 1 : i - 1;
-          return thumbImages[next] || cur;
-        });
-      }
-      if (e.key === "ArrowRight") {
-        setSelectedImage((cur) => {
-          const i = thumbImages.indexOf(cur);
-          const next = i < 0 || i >= thumbImages.length - 1 ? 0 : i + 1;
-          return thumbImages[next] || cur;
-        });
-      }
+      if (e.key === "ArrowLeft") goToAdjacentImage(-1);
+      if (e.key === "ArrowRight") goToAdjacentImage(1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -340,10 +361,12 @@ export default function ProductDetailClient({
 
             <div className="relative order-1 min-w-0 flex-1 xl:order-2">
               <div
-                className="relative aspect-[1/1.15] overflow-hidden bg-neutral-100"
+                className="relative aspect-[1/1.15] touch-pan-y overflow-hidden bg-neutral-100"
                 tabIndex={0}
                 role="region"
                 aria-label="Product gallery"
+                onTouchStart={onGalleryTouchStart}
+                onTouchEnd={onGalleryTouchEnd}
               >
                 {hasDiscount ? (
                   <div className="absolute right-0 top-0 z-10 bg-[#e4002b] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
@@ -358,7 +381,13 @@ export default function ProductDetailClient({
 
                 <button
                   type="button"
-                  onClick={() => setShowImagePreview(true)}
+                  onClick={() => {
+                    if (didSwipeGallery.current) {
+                      didSwipeGallery.current = false;
+                      return;
+                    }
+                    setShowImagePreview(true);
+                  }}
                   className="relative block h-full w-full cursor-zoom-in outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
                   aria-label={`Open ${product.name} fullscreen`}
                 >
