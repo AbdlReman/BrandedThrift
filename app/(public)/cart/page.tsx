@@ -208,7 +208,7 @@ export default function CartPage() {
                     <p className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                       <span className="font-semibold tabular-nums">{formatPkr(item.price)}</span>
                       {Number(item.originalPrice) > Number(item.price) ? (
-                        <span className="hidden text-sm text-gray-400 line-through tabular-nums sm:inline">
+                        <span className="text-sm text-gray-400 line-through tabular-nums">
                           {formatPkr(item.originalPrice!)}
                         </span>
                       ) : null}

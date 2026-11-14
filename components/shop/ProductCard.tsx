@@ -107,7 +107,7 @@ export default function ProductCard({
             <div className="shrink-0 text-right">
               <p className="text-[13px] font-semibold tabular-nums text-black">{formatPkr(finalPrice)}</p>
               {hasDiscount ? (
-                <p className="mt-0.5 text-[11px] text-neutral-400 line-through tabular-nums">
+                <p className="mt-0.5 hidden text-[11px] text-neutral-400 line-through tabular-nums sm:block">
                   {formatPkr(product.price)}
                 </p>
               ) : null}
