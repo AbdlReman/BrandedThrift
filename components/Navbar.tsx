@@ -6,9 +6,9 @@ import { useEffect, useRef, useState } from "react";
 
 const PRIMARY_LINKS = [
   { href: "/", label: "Home" },
+  { href: "/shop", label: "All Products" },
   { href: "/shop?category=Men", label: "Men" },
   { href: "/shop?category=Women", label: "Women" },
-  { href: "/shop", label: "Shop" },
   { href: "/shop?sale=true", label: "Sale" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
@@ -44,7 +44,7 @@ export default function Navbar() {
   const isHome = pathname === "/";
   const isMen = pathname === "/shop" && activeCategory.toLowerCase() === "men";
   const isWomen = pathname === "/shop" && activeCategory.toLowerCase() === "women";
-  const isShop =
+  const isAllProducts =
     pathname === "/shop" &&
     !saleActive &&
     activeCategory.toLowerCase() !== "men" &&
@@ -56,9 +56,9 @@ export default function Navbar() {
 
   const isActiveLink = (label: string, href: string) => {
     if (label === "Home") return isHome;
+    if (label === "All Products") return isAllProducts;
     if (label === "Men") return isMen;
     if (label === "Women") return isWomen;
-    if (label === "Shop") return isShop;
     if (label === "Sale") return isSale;
     return pathname === href;
   };
