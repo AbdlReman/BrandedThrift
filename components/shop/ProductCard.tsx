@@ -32,6 +32,16 @@ export default function ProductCard({
   const mainImage = activeVariant?.images?.[0] || product.images[0] || "";
   const displayColor = selectedColor || product.colors[0] || "";
   const { hasDiscount, finalPrice, discountPercent } = cardPrice(product);
+  const sizes = (Array.isArray(product.sizes) ? product.sizes : [])
+    .map((s) => String(s).trim())
+    .filter(Boolean);
+  // Keep cards tidy: show up to 3 sizes, then "+N" for the rest.
+  const sizesText =
+    sizes.length === 0
+      ? ""
+      : sizes.length <= 3
+        ? sizes.join(", ")
+        : `${sizes.slice(0, 3).join(", ")} +${sizes.length - 3}`;
 
   return (
     <article className="group flex h-full flex-col">
@@ -91,20 +101,30 @@ export default function ProductCard({
         </p>
         <Link href={`/shop/${product.slug}`} className="mt-1 block">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-[13px] font-semibold leading-snug tracking-tight text-black line-clamp-1">
+            <h3 className="min-w-0 text-[13px] font-semibold leading-snug tracking-tight text-black line-clamp-1">
               {product.name}
             </h3>
-            <span className="shrink-0 text-[13px] font-semibold tabular-nums text-black">
-              {formatPkr(finalPrice)}
-            </span>
+            <div className="shrink-0 text-right">
+              <p className="text-[13px] font-semibold tabular-nums text-black">{formatPkr(finalPrice)}</p>
+              {hasDiscount ? (
+                <p className="mt-0.5 text-[11px] text-neutral-400 line-through tabular-nums">
+                  {formatPkr(product.price)}
+                </p>
+              ) : null}
+            </div>
+          </div>
+          <div className="mt-0.5 flex items-start justify-between gap-2">
+            <p className="min-w-0 text-[12px] text-neutral-600 line-clamp-1">
+              {displayColor || "Sneakers"}
+            </p>
+            {sizesText ? (
+              <p className="max-w-[55%] shrink-0 text-right text-[11px] leading-snug text-neutral-500">
+                <span className="font-semibold uppercase tracking-wide text-neutral-600">Size:</span>{" "}
+                <span className="tabular-nums text-neutral-700">{sizesText}</span>
+              </p>
+            ) : null}
           </div>
         </Link>
-        <p className="mt-0.5 text-[12px] text-neutral-600 line-clamp-1">
-          {displayColor || "Sneakers"}
-        </p>
-        {hasDiscount ? (
-          <p className="mt-0.5 text-[11px] text-neutral-400 line-through tabular-nums">{formatPkr(product.price)}</p>
-        ) : null}
       </div>
     </article>
   );
