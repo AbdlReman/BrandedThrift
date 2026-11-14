@@ -184,12 +184,7 @@ export default function CheckoutPage() {
     }
     localStorage.removeItem("cart_items");
     window.dispatchEvent(new Event("cart_updated"));
-    const orderNo = String(data.order?.orderNumber ?? "confirmed");
-    setConfirmedOrderNumber(orderNo);
-    toast.success("Order confirmed", {
-      description: "Check your email for order details.",
-      duration: 8000,
-    });
+    setConfirmedOrderNumber(String(data.order?.orderNumber ?? "confirmed"));
   };
 
   const labelClass = "block text-xs font-bold uppercase text-gray-600 mb-1";
@@ -515,17 +510,25 @@ export default function CheckoutPage() {
           aria-modal="true"
           aria-labelledby="order-confirm-title"
         >
-          <div className="w-full max-w-md border border-gray-200 bg-white p-6 shadow-xl">
+          <div className="relative w-full max-w-md border border-gray-200 bg-white p-6 shadow-xl">
+            <button
+              type="button"
+              onClick={() => router.push("/shop")}
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center border border-gray-200 text-gray-500 transition-colors hover:border-black hover:text-black"
+              aria-label="Close"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
             <p className="text-xs font-bold uppercase tracking-widest text-green-700">Success</p>
-            <h2 id="order-confirm-title" className="mt-2 text-2xl font-black uppercase tracking-tight text-black">
+            <h2 id="order-confirm-title" className="mt-2 pr-10 text-2xl font-black uppercase tracking-tight text-black">
               Order confirmed
             </h2>
             <p className="mt-3 text-sm text-gray-700 leading-relaxed">
               Your order <span className="font-bold text-black">{confirmedOrderNumber}</span> has been placed
               successfully. Please check your email for the confirmation and order details.
-            </p>
-            <p className="mt-2 text-sm text-gray-600">
-              Agar email na dikhe to spam / promotions folder bhi check karein.
             </p>
             <button
               type="button"
