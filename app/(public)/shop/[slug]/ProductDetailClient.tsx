@@ -147,6 +147,16 @@ export default function ProductDetailClient({
   const mainImage = selectedImage || colorImages[0] || allImages[0] || "";
   const imageIndex = Math.max(0, thumbImages.indexOf(mainImage));
 
+  // Prefetch all gallery images so swipe / thumbnail changes feel instant.
+  useEffect(() => {
+    thumbImages.forEach((src) => {
+      if (!src) return;
+      const img = new window.Image();
+      img.decoding = "async";
+      img.src = src;
+    });
+  }, [thumbImages]);
+
   const handleColorChange = (color: string) => {
     setSelectedColor(color);
     const nextVariant = variants.find((variant) => variant.color === color) || variants[0];
@@ -391,16 +401,27 @@ export default function ProductDetailClient({
                   className="relative block h-full w-full cursor-zoom-in outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
                   aria-label={`Open ${product.name} fullscreen`}
                 >
-                  {mainImage ? (
-                    // Width-fitted, bottom-anchored: never crops left/right; only the top is clipped when taller.
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={mainImage}
-                      alt={product.name}
-                      className="absolute inset-x-0 bottom-0 block w-full h-auto"
-                      fetchPriority="high"
-                      decoding="async"
-                    />
+                  {thumbImages.length > 0 ? (
+                    thumbImages.map((image, idx) => {
+                      const active = image === mainImage || (!mainImage && idx === 0);
+                      return (
+                        // Width-fitted, bottom-anchored: never crops left/right; only the top is clipped when taller.
+                        // Keep inactive slides mounted so swipe does not wait on network.
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          key={`${image}-${idx}`}
+                          src={image}
+                          alt={active ? product.name : ""}
+                          aria-hidden={!active}
+                          className={`absolute inset-x-0 bottom-0 block h-auto w-full ${
+                            active ? "z-[1] opacity-100" : "z-0 opacity-0"
+                          }`}
+                          fetchPriority={idx === 0 || active ? "high" : "low"}
+                          decoding="async"
+                          loading="eager"
+                        />
+                      );
+                    })
                   ) : (
                     <div className="flex h-full items-center justify-center text-sm text-neutral-400">No image</div>
                   )}
