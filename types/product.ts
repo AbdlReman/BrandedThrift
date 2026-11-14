@@ -34,7 +34,10 @@ export interface IProduct {
 export interface CartItem {
   productId: string;
   name: string;
+  /** Selling / discounted unit price */
   price: number;
+  /** List price before discount (only when higher than `price`) */
+  originalPrice?: number;
   image: string;
   size?: string;
   color?: string;

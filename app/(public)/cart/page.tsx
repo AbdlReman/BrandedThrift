@@ -205,7 +205,14 @@ export default function CartPage() {
                     <p className="text-sm text-gray-500">
                       {item.color} {item.size ? `· ${item.size}` : ""}
                     </p>
-                    <p className="font-semibold mt-1">{formatPkr(item.price)}</p>
+                    <p className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                      <span className="font-semibold tabular-nums">{formatPkr(item.price)}</span>
+                      {Number(item.originalPrice) > Number(item.price) ? (
+                        <span className="text-sm text-gray-400 line-through tabular-nums">
+                          {formatPkr(item.originalPrice!)}
+                        </span>
+                      ) : null}
+                    </p>
                     <div className="flex items-center gap-3 mt-2">
                       <input
                         type="number"

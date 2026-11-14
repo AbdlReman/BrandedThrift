@@ -44,9 +44,14 @@ function addToCart(
       (item.color || "") === (selectedColor || "") &&
       (item.size || "") === sizeKey
   );
+  const listPrice = Number(product.price) || 0;
+  const originalPrice = listPrice > effectivePrice ? listPrice : undefined;
+
   if (index >= 0) {
     existing[index] = {
       ...existing[index],
+      price: effectivePrice,
+      originalPrice,
       quantity: Math.max(1, Number(existing[index].quantity || 1)) + qty,
       stockQuantity: availableStock,
     };
@@ -55,6 +60,7 @@ function addToCart(
       productId: product._id,
       name: product.name,
       price: effectivePrice,
+      originalPrice,
       image: selectedImage,
       quantity: qty,
       color: selectedColor,
@@ -576,6 +582,7 @@ export default function ProductDetailClient({
                     productId: product._id,
                     name: product.name,
                     price: finalPrice,
+                    originalPrice: product.price > finalPrice ? product.price : undefined,
                     image: mainImage,
                     quantity: qty,
                     color: selectedColor || "Default",
@@ -651,6 +658,7 @@ export default function ProductDetailClient({
                 productId: product._id,
                 name: product.name,
                 price: finalPrice,
+                originalPrice: product.price > finalPrice ? product.price : undefined,
                 image: mainImage,
                 quantity: qty,
                 color: selectedColor || "Default",
