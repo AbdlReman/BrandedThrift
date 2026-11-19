@@ -7,12 +7,12 @@ import Product from "@/models/Product";
 import type { IProduct } from "@/types/product";
 
 export const metadata: Metadata = {
-  title: "Buy Branded Shoes in Pakistan | Rawalpindi & Islamabad | Branded Thrift",
+  title: "Buy Branded Shoes in Pakistan | original branded shoes | Branded Thrift",
   description:
-    "Branded Thrift — shop 100% original preloved Nike, Adidas, Puma & more in Rawalpindi, Islamabad & all over Pakistan. Authentic branded shoes at affordable prices. Free delivery.",
+    "Branded Thrift — shop 100% original preloved Nike, Adidas, Puma & more in Pakistan, All over Pakistan. Authentic branded shoes at affordable prices. Free delivery.",
   keywords: [
-    "branded shoes in Rawalpindi",
-    "branded shoes in Islamabad",
+    "branded shoes in Pakistan",
+    "branded shoes in Pakistan",
     "branded shoes Pakistan",
     "buy branded shoes online",
     "preloved Nike Pakistan",
@@ -24,9 +24,9 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "https://www.brandedthrift.store" },
   openGraph: {
-    title: "Buy Branded Shoes in Pakistan | Rawalpindi & Islamabad | Branded Thrift",
+    title: "Buy Branded Shoes in Pakistan | original branded shoes | Branded Thrift",
     description:
-      "100% original preloved Nike, Adidas, Puma & more in Rawalpindi, Islamabad & all over Pakistan. Free delivery.",
+      "100% original preloved Nike, Adidas, Puma & more in Pakistan, all over Pakistan. Free delivery.",
     url: "https://www.brandedthrift.store",
     images: [{ url: "/images/hero.jpeg", width: 1200, height: 630, alt: "Branded Thrift — Original Branded Shoes" }],
   },

@@ -10,11 +10,10 @@ export const metadata: Metadata = {
     template: "%s | Branded Thrift",
   },
   description:
-    "Buy 100% original branded shoes in Pakistan. Shop preloved Nike, Adidas, Puma & more in Rawalpindi, Islamabad & across Pakistan. Free delivery nationwide.",
+    "Buy 100% original branded shoes in Pakistan. Shop preloved Nike, Adidas, Puma & more in Pakistan, Across Pakistan. Free delivery nationwide.",
   keywords: [
     "branded shoes Pakistan",
-    "branded shoes in Rawalpindi",
-    "branded shoes in Islamabad",
+    "branded shoes in Pakistan",
     "buy branded shoes online Pakistan",
     "preloved branded shoes",
     "thrifted branded shoes",
@@ -44,7 +43,7 @@ export const metadata: Metadata = {
     siteName: "Branded Thrift",
     title: "Branded Thrift | Buy Branded Shoes in Pakistan",
     description:
-      "Shop 100% original branded shoes in Rawalpindi, Islamabad & all over Pakistan. Nike, Adidas, Puma & more — free delivery nationwide.",
+      "Shop 100% original branded shoes in Pakistan, All over Pakistan. Nike, Adidas, Puma & more — free delivery nationwide.",
     images: [
       {
         url: "/images/hero.jpeg",
@@ -58,7 +57,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Branded Thrift | Buy Branded Shoes in Pakistan",
     description:
-      "Shop 100% original branded shoes in Rawalpindi, Islamabad & all over Pakistan. Free delivery nationwide.",
+      "Shop 100% original branded shoes in Pakistan, All over Pakistan. Free delivery nationwide.",
     images: ["/images/hero.jpeg"],
   },
   icons: {
