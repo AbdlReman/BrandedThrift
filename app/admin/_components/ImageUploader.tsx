@@ -84,34 +84,36 @@ function WebsitePreviewCard({ previewUrl }: { previewUrl: string | null }) {
   return (
     <div className="rounded-lg border border-slate-600 bg-white p-3 text-black shadow-lg">
       <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-neutral-500">
-        Website preview
+        Shop card preview
       </p>
-      <div className="relative aspect-[1/1.15] overflow-hidden bg-neutral-100">
-        {previewUrl ? (
-          // Same framing as storefront: width-fitted, bottom-anchored
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={previewUrl}
-            alt="Website preview"
-            className="absolute inset-x-0 bottom-0 block h-auto w-full"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-[11px] text-neutral-400">
-            Adjust crop to preview
-          </div>
-        )}
-        <span className="absolute left-1.5 top-1.5 bg-black px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide text-white">
-          In stock
-        </span>
-      </div>
-      <div className="mt-2">
-        <p className="text-[10px] uppercase tracking-wide text-neutral-500">1 color</p>
-        <div className="mt-0.5 flex items-start justify-between gap-2">
-          <p className="text-[12px] font-semibold leading-snug">Your product</p>
-          <p className="shrink-0 text-[12px] font-semibold">Rs —</p>
+      {/* Mirrors ProductCard image + text layout on the storefront */}
+      <article className="flex flex-col">
+        <div className="relative aspect-[1/1.15] overflow-hidden bg-neutral-100">
+          {previewUrl ? (
+            // Same framing as storefront ProductCard: width-fitted, bottom-anchored
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={previewUrl}
+              alt="Website preview"
+              className="absolute inset-x-0 bottom-0 block h-auto w-full"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-[11px] text-neutral-400">
+              Adjust crop to preview
+            </div>
+          )}
         </div>
-        <p className="mt-0.5 text-[11px] text-neutral-600">As shown on shop</p>
-      </div>
+        <div className="mt-2 text-left">
+          <p className="text-[13px] font-semibold leading-snug tracking-tight text-black line-clamp-2">
+            Your product
+          </p>
+          <p className="mt-0.5 text-[11px] leading-snug text-neutral-500">
+            <span className="font-semibold uppercase tracking-wide text-neutral-600">Size:</span>{" "}
+            <span className="tabular-nums text-neutral-700">—</span>
+          </p>
+          <p className="mt-0.5 text-[13px] font-semibold tabular-nums text-black">Rs —</p>
+        </div>
+      </article>
     </div>
   );
 }
