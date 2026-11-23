@@ -508,7 +508,7 @@ export default function ProductDetailClient({
                       key={`${product._id}-size-${size}`}
                       type="button"
                       onClick={() => setSelectedSize(size)}
-                      className={`flex min-h-10 min-w-[2.75rem] items-center justify-center border text-xs font-bold ${
+                      className={`flex min-h-11 min-w-[2.75rem] items-center justify-center border px-4 py-2.5 text-xs font-bold leading-snug ${
                         selectedSize === size
                           ? "border-black bg-black text-white"
                           : "border-neutral-300 bg-white text-black hover:border-black"
