@@ -12,7 +12,12 @@ const SORTS = [
   { value: "priceLow", label: "Price: Low to high" },
   { value: "priceHigh", label: "Price: High to low" },
   { value: "popular", label: "Popular" },
+  { value: "inStock", label: "In stock" },
 ];
+
+function isProductInStock(product: IProduct): boolean {
+  return Boolean(product.inStock) && Number(product.stockQuantity) > 0;
+}
 
 
 const filterInputClass =
@@ -219,7 +224,11 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
       .filter((p) => size === "All" || p.sizes.includes(size))
       .filter((p) => color === "All" || p.colors.includes(color))
       .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
+      .filter((p) => sort !== "inStock" || isProductInStock(p))
       .sort((a, b) => {
+        if (sort === "inStock") {
+          return +new Date(b.createdAt) - +new Date(a.createdAt);
+        }
         if (sort === "priceLow" || sort === "priceHigh") {
           const fa = a.price * (1 - Number(a.discount || 0) / 100);
           const fb = b.price * (1 - Number(b.discount || 0) / 100);
