@@ -30,7 +30,6 @@ export default function ProductCard({
   const activeVariant =
     product.colorVariants.find((variant) => variant.color === selectedColor) || product.colorVariants[0];
   const mainImage = activeVariant?.images?.[0] || product.images[0] || "";
-  const displayColor = selectedColor || product.colors[0] || "";
   const { hasDiscount, finalPrice, discountPercent } = cardPrice(product);
   const sizes = (Array.isArray(product.sizes) ? product.sizes : [])
     .map((s) => String(s).trim())
@@ -95,32 +94,22 @@ export default function ProductCard({
         </div>
       </Link>
 
-      <div className="mt-2 flex flex-1 flex-col">
-        <p className="text-[10px] uppercase tracking-wide text-neutral-500">
-          {Math.max(1, product.colors?.length || 1)} color{(product.colors?.length || 1) > 1 ? "s" : ""}
-        </p>
-        <Link href={`/shop/${product.slug}`} className="mt-1 block">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="min-w-0 text-[13px] font-semibold leading-snug tracking-tight text-black line-clamp-1">
-              {product.name}
-            </h3>
-            <div className="shrink-0 text-right">
-              <p className="text-[13px] font-semibold tabular-nums text-black">{formatPkr(finalPrice)}</p>
-              {hasDiscount ? (
-                <p className="mt-0.5 hidden text-[11px] text-neutral-400 line-through tabular-nums sm:block">
-                  {formatPkr(product.price)}
-                </p>
-              ) : null}
-            </div>
-          </div>
-          <div className="mt-0.5 flex items-start justify-between gap-2">
-            <p className="min-w-0 text-[12px] text-neutral-600 line-clamp-1">
-              {displayColor || "Sneakers"}
+      <div className="mt-2 flex flex-1 flex-col text-left">
+        <Link href={`/shop/${product.slug}`} className="block">
+          <h3 className="text-[13px] font-semibold leading-snug tracking-tight text-black line-clamp-2">
+            {product.name}
+          </h3>
+          {sizesText ? (
+            <p className="mt-0.5 text-[11px] leading-snug text-neutral-500">
+              <span className="font-semibold uppercase tracking-wide text-neutral-600">Size:</span>{" "}
+              <span className="tabular-nums text-neutral-700">{sizesText}</span>
             </p>
-            {sizesText ? (
-              <p className="max-w-[55%] shrink-0 text-right text-[11px] leading-snug text-neutral-500">
-                <span className="font-semibold uppercase tracking-wide text-neutral-600">Size:</span>{" "}
-                <span className="tabular-nums text-neutral-700">{sizesText}</span>
+          ) : null}
+          <div className="mt-0.5">
+            <p className="text-[13px] font-semibold tabular-nums text-black">{formatPkr(finalPrice)}</p>
+            {hasDiscount ? (
+              <p className="mt-0.5 text-[11px] text-neutral-400 line-through tabular-nums">
+                {formatPkr(product.price)}
               </p>
             ) : null}
           </div>
