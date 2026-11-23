@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Breadcrumbs from "@/components/shop/Breadcrumbs";
 import ProductCard from "@/components/shop/ProductCard";
 import type { IProduct } from "@/types/product";
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const SORTS = [
@@ -459,27 +458,19 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
               {category !== "All" ? ` · ${category}` : ""}
               {saleOnly ? " · Sale" : ""}
             </p>
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-              <FilterDropdown
-                id="shop-sort-main"
-                label="Sort"
-                value={sort}
-                options={SORTS}
-                onChange={(value) =>
-                  startTransition(() => {
-                    setSortFilter(value);
-                  })
-                }
-                className="hidden sm:block sm:min-w-[12rem]"
-                labelClassName="sr-only"
-              />
-              <Link
-                href="/cart"
-                className="inline-flex items-center justify-center border border-black bg-black px-4 py-2.5 text-center text-xs font-bold uppercase tracking-widest text-white hover:bg-neutral-800 sm:min-w-[7rem]"
-              >
-                Cart
-              </Link>
-            </div>
+            <FilterDropdown
+              id="shop-sort-main"
+              label="Sort"
+              value={sort}
+              options={SORTS}
+              onChange={(value) =>
+                startTransition(() => {
+                  setSortFilter(value);
+                })
+              }
+              className="hidden sm:block sm:min-w-[12rem]"
+              labelClassName="sr-only"
+            />
           </div>
 
           <div>
