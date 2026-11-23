@@ -27,7 +27,7 @@ const labelClass = "mb-1.5 block text-[10px] font-bold uppercase tracking-[0.14e
 const dropdownButtonClass =
   "flex w-full items-center justify-between gap-2 border bg-white px-3.5 py-2.5 text-left text-sm font-medium text-black outline-none transition-colors hover:border-neutral-500";
 const mobileToolbarBtnClass =
-  "flex h-11 w-full items-center justify-between gap-2 border border-neutral-300 bg-white px-3 text-[11px] font-bold uppercase tracking-[0.12em] text-black outline-none transition-colors";
+  "flex h-9 w-full items-center justify-between gap-1.5 border border-neutral-300 bg-white px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-black outline-none transition-colors";
 
 function categoriesOf(product: IProduct): string[] {
   if (Array.isArray(product.categories) && product.categories.length > 0) {
@@ -281,22 +281,22 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
 
       <div className="mx-auto max-w-[90rem] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
 
-        {/* ── Mobile: equal-width Filters + Sort (reference-style) ── */}
-        <div className="mb-4 grid grid-cols-2 gap-2 sm:hidden">
+        {/* ── Mobile: Filters + Sort (~20% smaller, gap in center) ── */}
+        <div className="mb-4 flex items-center justify-center gap-4 sm:hidden">
           <button
             type="button"
             onClick={() => setMobileFiltersOpen(true)}
-            className={`${mobileToolbarBtnClass} hover:border-neutral-500`}
+            className={`${mobileToolbarBtnClass} w-[40%] hover:border-neutral-500`}
           >
-            <span className="flex min-w-0 items-center gap-1.5 truncate">
+            <span className="flex min-w-0 items-center gap-1 truncate">
               Filters
               {activeFilters > 0 && (
-                <span className="flex h-4 w-4 shrink-0 items-center justify-center bg-black text-[10px] font-black text-white">
+                <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center bg-black text-[9px] font-black text-white">
                   {activeFilters}
                 </span>
               )}
             </span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
               <line x1="4" y1="6" x2="20" y2="6" />
               <line x1="8" y1="12" x2="16" y2="12" />
               <line x1="11" y1="18" x2="13" y2="18" />
@@ -308,7 +308,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
             value={sort}
             options={SORTS}
             onChange={(v) => startTransition(() => setSortFilter(v))}
-            className="min-w-0"
+            className="w-[40%] min-w-0"
             labelClassName="sr-only"
             buttonClassName={`${mobileToolbarBtnClass} hover:border-neutral-500`}
           />
