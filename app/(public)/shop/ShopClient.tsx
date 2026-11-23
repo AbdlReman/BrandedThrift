@@ -27,6 +27,8 @@ const filterInputClass =
 const labelClass = "mb-1.5 block text-[10px] font-bold uppercase tracking-[0.14em] text-neutral-500";
 const dropdownButtonClass =
   "flex w-full items-center justify-between gap-2 border bg-white px-3.5 py-2.5 text-left text-sm font-medium text-black outline-none transition-colors hover:border-neutral-500";
+const mobileToolbarBtnClass =
+  "flex h-11 w-full items-center justify-between gap-2 border border-neutral-300 bg-white px-3 text-[11px] font-bold uppercase tracking-[0.12em] text-black outline-none transition-colors";
 
 function categoriesOf(product: IProduct): string[] {
   if (Array.isArray(product.categories) && product.categories.length > 0) {
@@ -48,6 +50,7 @@ function FilterDropdown({
   onChange,
   className = "",
   labelClassName = labelClass,
+  buttonClassName,
 }: {
   id: string;
   label: string;
@@ -56,6 +59,7 @@ function FilterDropdown({
   onChange: (value: string) => void;
   className?: string;
   labelClassName?: string;
+  buttonClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -93,8 +97,8 @@ function FilterDropdown({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-labelledby={`${id}-label ${id}`}
-        className={`${dropdownButtonClass} ${
-          open ? "border-black ring-1 ring-black" : "border-neutral-300"
+        className={`${buttonClassName || dropdownButtonClass} ${
+          open ? "border-black ring-1 ring-black" : buttonClassName ? "" : "border-neutral-300"
         }`}
         onClick={() => setOpen((current) => !current)}
       >
@@ -278,24 +282,26 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
 
       <div className="mx-auto max-w-[90rem] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
 
-        {/* ── Mobile: filter button + sort dropdown in one row ── */}
-        <div className="mb-4 flex items-center gap-2 sm:hidden">
+        {/* ── Mobile: equal-width Filters + Sort (reference-style) ── */}
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:hidden">
           <button
             type="button"
             onClick={() => setMobileFiltersOpen(true)}
-            className="flex shrink-0 items-center gap-1.5 border border-neutral-300 bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-black"
+            className={`${mobileToolbarBtnClass} hover:border-neutral-500`}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <span className="flex min-w-0 items-center gap-1.5 truncate">
+              Filters
+              {activeFilters > 0 && (
+                <span className="flex h-4 w-4 shrink-0 items-center justify-center bg-black text-[10px] font-black text-white">
+                  {activeFilters}
+                </span>
+              )}
+            </span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
               <line x1="4" y1="6" x2="20" y2="6" />
               <line x1="8" y1="12" x2="16" y2="12" />
               <line x1="11" y1="18" x2="13" y2="18" />
             </svg>
-            Filters
-            {activeFilters > 0 && (
-              <span className="flex h-4 w-4 items-center justify-center bg-black text-[10px] font-black text-white">
-                {activeFilters}
-              </span>
-            )}
           </button>
           <FilterDropdown
             id="mob-sort"
@@ -303,8 +309,9 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
             value={sort}
             options={SORTS}
             onChange={(v) => startTransition(() => setSortFilter(v))}
-            className="flex-1"
+            className="min-w-0"
             labelClassName="sr-only"
+            buttonClassName={`${mobileToolbarBtnClass} hover:border-neutral-500`}
           />
         </div>
 
