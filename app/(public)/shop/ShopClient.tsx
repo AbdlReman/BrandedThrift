@@ -27,7 +27,7 @@ const labelClass = "mb-1.5 block text-[10px] font-bold uppercase tracking-[0.14e
 const dropdownButtonClass =
   "flex w-full items-center justify-between gap-2 border bg-white px-3.5 py-2.5 text-left text-sm font-medium text-black outline-none transition-colors hover:border-neutral-500";
 const mobileToolbarBtnClass =
-  "flex h-9 w-full items-center justify-between gap-1.5 border border-neutral-300 bg-white px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-black outline-none transition-colors";
+  "inline-flex h-9 w-auto max-w-full items-center justify-between gap-2 border border-neutral-300 bg-white px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-black outline-none transition-colors";
 
 function categoriesOf(product: IProduct): string[] {
   if (Array.isArray(product.categories) && product.categories.length > 0) {
@@ -50,6 +50,7 @@ function FilterDropdown({
   className = "",
   labelClassName = labelClass,
   buttonClassName,
+  menuClassName = "",
 }: {
   id: string;
   label: string;
@@ -59,6 +60,7 @@ function FilterDropdown({
   className?: string;
   labelClassName?: string;
   buttonClassName?: string;
+  menuClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -120,7 +122,7 @@ function FilterDropdown({
         <div
           role="listbox"
           aria-labelledby={`${id}-label`}
-          className="absolute left-0 right-0 top-full z-50 mt-1.5 max-h-52 overflow-y-auto border border-black bg-white py-1 shadow-[0_12px_40px_rgba(0,0,0,0.18)]"
+          className={`absolute left-0 top-full z-50 mt-1.5 min-w-[15rem] max-h-52 overflow-y-auto border border-black bg-white py-1 shadow-[0_12px_40px_rgba(0,0,0,0.18)] ${menuClassName}`}
         >
           {options.map((option) => {
             const active = option.value === value;
@@ -130,7 +132,7 @@ function FilterDropdown({
                 type="button"
                 role="option"
                 aria-selected={active}
-                className={`flex w-full items-center justify-between gap-3 px-3.5 py-2.5 text-left text-sm transition-colors ${
+                className={`flex w-full items-center justify-between gap-3 px-3.5 py-2.5 text-left text-sm whitespace-nowrap transition-colors ${
                   active
                     ? "bg-black font-semibold text-white"
                     : "font-medium text-neutral-800 hover:bg-neutral-100"
@@ -140,9 +142,9 @@ function FilterDropdown({
                   setOpen(false);
                 }}
               >
-                <span className="truncate">{option.label}</span>
+                <span>{option.label}</span>
                 {active ? (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 ) : null}
@@ -281,14 +283,14 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
 
       <div className="mx-auto max-w-[90rem] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
 
-        {/* ── Mobile: Filters + Sort (~20% smaller, gap in center) ── */}
-        <div className="mb-4 flex items-center justify-center gap-4 sm:hidden">
+        {/* ── Mobile: Filters + Sort (content-width, like reference) ── */}
+        <div className="mb-4 flex items-center justify-between gap-3 sm:hidden">
           <button
             type="button"
             onClick={() => setMobileFiltersOpen(true)}
-            className={`${mobileToolbarBtnClass} w-[40%] hover:border-neutral-500`}
+            className={`${mobileToolbarBtnClass} hover:border-neutral-500`}
           >
-            <span className="flex min-w-0 items-center gap-1 truncate">
+            <span className="flex items-center gap-1.5">
               Filters
               {activeFilters > 0 && (
                 <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center bg-black text-[9px] font-black text-white">
@@ -296,7 +298,7 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
                 </span>
               )}
             </span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
               <line x1="4" y1="6" x2="20" y2="6" />
               <line x1="8" y1="12" x2="16" y2="12" />
               <line x1="11" y1="18" x2="13" y2="18" />
@@ -308,9 +310,10 @@ export default function ShopClient({ products }: { products: IProduct[] }) {
             value={sort}
             options={SORTS}
             onChange={(v) => startTransition(() => setSortFilter(v))}
-            className="w-[40%] min-w-0"
+            className="relative shrink-0"
             labelClassName="sr-only"
             buttonClassName={`${mobileToolbarBtnClass} hover:border-neutral-500`}
+            menuClassName="left-auto right-0"
           />
         </div>
 
