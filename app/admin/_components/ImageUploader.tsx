@@ -30,11 +30,28 @@ type CropSession = {
 async function loadImage(imageSrc: string) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = "anonymous";
+    // Only needed for remote URLs; blob/data URLs break if crossOrigin is set.
+    if (imageSrc.startsWith("http://") || imageSrc.startsWith("https://")) {
+      img.crossOrigin = "anonymous";
+    }
     img.onload = () => resolve(img);
     img.onerror = () => reject(new Error("Could not load image for crop"));
     img.src = imageSrc;
   });
+}
+
+/** Fetch remote image via same-origin proxy so crop/canvas is not blocked by CORS. */
+async function remoteUrlToBlobSrc(url: string): Promise<string> {
+  const res = await fetch(`/api/admin/image-proxy?url=${encodeURIComponent(url)}`, {
+    credentials: "include",
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    const data = (await res.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(data?.error || "Could not load image for crop");
+  }
+  const blob = await res.blob();
+  return URL.createObjectURL(blob);
 }
 
 async function getCroppedBlob(imageSrc: string, crop: Area, fileName: string): Promise<File> {
@@ -312,20 +329,43 @@ export default function ImageUploader({ initialUrls, onChange }: ImageUploaderPr
     onChange(newUrls);
   };
 
-  const adjustExisting = (index: number) => {
+  const adjustExisting = async (index: number) => {
     const url = previews[index];
     if (!url) return;
+
+    setError("");
     setCrop({ x: 0, y: 0 });
     setZoom(1);
     setCroppedAreaPixels(null);
     setLivePreviewUrl(null);
     setPendingQueue([]);
-    setCropSession({
-      src: url,
-      fileName: `product-image-${index + 1}.jpg`,
-      replaceIndex: index,
-      revokeOnClose: false,
-    });
+
+    // New uploads already use blob URLs. Existing Cloudinary URLs must be
+    // proxied first, otherwise crop preview / canvas export fails on CORS.
+    if (url.startsWith("blob:") || url.startsWith("data:")) {
+      setCropSession({
+        src: url,
+        fileName: `product-image-${index + 1}.jpg`,
+        replaceIndex: index,
+        revokeOnClose: false,
+      });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const src = await remoteUrlToBlobSrc(url);
+      setCropSession({
+        src,
+        fileName: `product-image-${index + 1}.jpg`,
+        replaceIndex: index,
+        revokeOnClose: true,
+      });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not open image for crop");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
