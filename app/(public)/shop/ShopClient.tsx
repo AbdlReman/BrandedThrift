@@ -27,7 +27,7 @@ const labelClass = "mb-1.5 block text-[10px] font-bold uppercase tracking-[0.14e
 const dropdownButtonClass =
   "flex w-full items-center justify-between gap-2 border bg-white px-3.5 py-2.5 text-left text-sm font-medium text-black outline-none transition-colors hover:border-neutral-500";
 const mobileToolbarBtnClass =
-  "inline-flex h-9 w-auto max-w-full items-center justify-between gap-2 border border-neutral-300 bg-white px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-black outline-none transition-colors";
+  "inline-flex h-9 min-w-[6.75rem] w-auto max-w-full items-center justify-between gap-2.5 border border-neutral-300 bg-white px-4 text-[11px] font-bold uppercase tracking-[0.08em] text-black outline-none transition-colors";
 
 function categoriesOf(product: IProduct): string[] {
   if (Array.isArray(product.categories) && product.categories.length > 0) {
