@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type TouchEvent } from "react";
 import { toast } from "sonner";
@@ -76,10 +75,6 @@ function addToCart(
 function setCartToSingleItem(item: CartItem) {
   localStorage.setItem("cart_items", JSON.stringify([item]));
   window.dispatchEvent(new Event("cart_updated"));
-}
-
-function isCloudinary(url: string) {
-  return url.startsWith("https://res.cloudinary.com/");
 }
 
 export default function ProductDetailClient({
@@ -364,12 +359,15 @@ export default function ProductDetailClient({
                     aria-label={`View image ${idx + 1}`}
                     aria-current={active ? "true" : undefined}
                   >
-                    {isCloudinary(image) ? (
-                      <Image src={image} alt="" fill className="object-cover object-bottom" sizes="80px" />
-                    ) : (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover object-bottom" />
-                    )}
+                    {/* Same plain <img> as the main gallery — Next/Image optimizer was breaking Cloudinary thumbs. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={image}
+                      alt=""
+                      className="absolute inset-0 h-full w-full object-cover object-bottom"
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </button>
                 );
               })}
